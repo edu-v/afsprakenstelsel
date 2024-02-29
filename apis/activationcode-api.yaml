@@ -1,0 +1,398 @@
+openapi: 3.0.0
+info:
+  title: ActivationCode API
+  version: '0.1.0'
+  description: |-
+    The ActivationCode API is implemented by the reference components `Bestelomgeving leermiddelen`, `Aanspraakmanager`, and `Licentieregistratie`.
+    
+    The `Bestelomgeving leermiddelen` and `Aanspraakmanager` are able to request or revoke an activation code from the `Licentieregistratie`.
+    
+    Requests are send and received via asynchronous transactions. Therefore the `Licentieregistratie` need to implement endpoints te receive requests. Moreover the `Bestelomgeving leermiddelen` and `Aanspraakmanager` need to implement confirmation endpoints to receive confirmations from the `Licentieregistratie` that requests have been processed.
+  contact:
+    name: Edu-V
+    url: www.edu-v.org/afsprakenstelsel
+    email: info@edu-v.org
+components:
+  schemas:
+  
+    schemaVersion:
+      type: string
+      description: 'Schema version of this event/object using semantic versioning 2.0.0'
+      default: 0.1.0
+    
+    ActivationCodeRequest:
+      title: ActivationCodeRequest
+      type: object
+      x-tags:
+        - ActivationCode
+      description: |
+        Request send by the `Bestelomgeving leermiddelen` or `Aanspraakmanager` to the `Licentieregistratie` to request a specified quantity of activation codes for a single Product. These activation codes can be sold by the `Bestelomgeving leermiddelen` and can be used to specify schoolstudent, schoolemployee or Personal Entitlements.
+      properties:
+        requestReferenceId:
+          type: string
+          description: |
+            Unique requestReferenceId for this request. This referenceId is used by the Event Mediator of the `Bestelomgeving leermiddelen` or `Aanspraakmanager` to match the ActivationCodeConfirmation conformation message(s) send by the `Licentieregistratie`.
+            If a party receives another request with the same requestReferenceId value, the receiving party should not process the request again. It should send the confirmation again.
+        schemaVersion:
+          $ref: '#/components/schemas/schemaVersion'
+        productId:
+          type: string
+          description: 'The Product for which a `Bestelomgeving leermiddelen` or `Aanspraakmanager` requests (an) activation code(s). The productId can be retrieved from the Catalogue API from the supplier of the learning material.'
+        quantity:
+          type: integer
+          example: 1
+          description: 'Total requested activation codes for the Product.'
+        contractId:
+          type: string
+          description: 'An optional unique identifier for a contract between the two suppliers where this requests belongs to.'
+      required:
+        - requestReferenceId
+        - schemaVersion
+        - productId
+        - quantity
+    
+    ActivationCodeConfirmation:
+      title: ActivationCodeConfirmation
+      type: object
+      x-tags:
+        - ActivationCode
+      description: |
+        The confirmation that is send back by the `Licentieregistratie` as an asynchronous reply to the request of the `Bestelomgeving leermiddelen` or `Aanspraakmanager`.
+        The `Licentieregistratie` includes in the confirmation message the requested activation codes. In case the `Licentieregistratie` cannot generate these codes a functional status code and message is replied. 
+        Confirmations are only handled once. If a confirmation with the similar requestReferenceId is received the processing is only done the first time. The confirmation may be send multiple times, but always with the same responseReferenceId. In this way the `Bestelomgeving leermiddelen` or `Aanspraakmanager` can validate that the confirmation is processed only once.
+        
+        Functional status codes and messages are described in the Documentation.
+      properties:
+        requestReferenceId:
+          type: string
+          description: 'The requestReferenceId that was send by the `Bestelomgeving leermiddelen` or `Aanspraakmanager` as part of the ActivationCodeRequest event'
+        responseReferenceId:
+          type: string
+          description: 'A reference to this confirmation message send by the `Licentieregistratie`.'
+        schemaVersion:
+          $ref: '#/components/schemas/schemaVersion'
+        productId:
+          type: string
+          description: 'The productId which was part of the ActivationCodeRequest Event send by the `Bestelomgeving leermiddelen` or `Aanspraakmanager`. The activation codes give Students or Employees the possibility to activate this Product.'
+        activationCodes:
+          type: array
+          description: |
+            List of activation codes which can be used to activate the Product.
+          items:
+            type: string
+            description: 'Activation code which can be used to activate the Product'
+        processedTimestamp:
+          type: string
+          format: date-time
+          description: | 
+            The moment that the activation codes were generated by the `Licentieregistratie` and the request was processed. As Events and confirmation messages are send asynchronous, this is not the moment the confirmation message was send by the `Licentieregistratie` to the `Bestelomgeving leermiddelen` or `Aanspraakmanager`.
+            
+            Format: Conform openapi in ZULU time as specified in RFC 3339, section 5.6
+          example: "2017-07-21T17:32:28Z"
+        success:
+          type: boolean
+          description: |
+            Boolean indicating the ActivationCodeRequest event was processed successfully.
+            When the `Licentieregistratie` disagrees with the request a false will be returned, along with a status code and a status message.
+        status:
+          type: integer
+          description: 'See functional status codes within the Documentation.'
+        statusMessage:
+          type: string
+          description: 'See functional status messages within the Documentation.'
+      required:
+        - requestReferenceId
+        - responseReferenceId
+        - schemaVersion
+        - productId
+        - processedTimestamp
+        - success
+        - status
+    
+    ActivationCodeRevokeRequest:
+      title: ActivationCodeRevokeRequest
+      type: object
+      x-tags:
+        - ActivationCode
+      description: |
+        Request send by the `Bestelomgeving leermiddelen` or the `Aanspraakmanager` to the `Licentieregistratie` with a request to revoke an activation code. After the revoke, the activation code cannot be used to activate a Product.
+      properties:
+        requestReferenceId:
+          type: string
+          description: |
+            Unique requestReferenceId for this request. This referenceId is used by the Event Mediator of the `Bestelomgeving leermiddelen` or `Aanspraakmanager` to match the ActivationCodeRevokeConfirmation conformation message(s) send by the `Licentieregistratie`.
+            If a party receives another request with the same requestReferenceId value, the receiving party should not process the request again. It should send the confirmation again.
+        schemaVersion:
+          $ref: '#/components/schemas/schemaVersion'
+        activationCode:
+          type: string
+          description: 'Activation code which should be revoked by the `Licentieregistratie`.'
+        responseReferenceId:
+          type: string
+          description: "Optional reference to the responseReferenceID of the confirmation message in which the `Licentieregistratie` send the activation code to the `Bestelomgeving leermiddelen` or `Aanspraakmanager`."
+      required:
+        - requestReferenceId
+        - schemaVersion
+        - activationCode
+    
+    ActivationCodeRevokeConfirmation:
+      title: ActivationCodeRevokeConfirmation
+      type: object
+      x-tags:
+        - ActivationCode
+      description: |
+        The confirmation that is send back by the `Licentieregistratie` as an asynchronous reply to the request of the `Bestelomgeving leermiddelen` or `Aanspraakmanager`.
+        The `Licentieregistratie` will send a confirmation message back to the `Bestelomgeving leermiddelen` or `Aanspraakmanager` including a success parameter indicating if the revoke has ben processed successfully. In case the revoke was not processed, the `Licentieregistratie` replies with a functional status code and message. 
+        Confirmations are only handled once. If a confirmation with the similar requestReferenceId is received the processing is only done the first time. The confirmation may be send multiple times, but always with the same responseReferenceId. In this way the `Bestelomgeving leermiddelen` or `Aanspraakmanager` can validate that the response is processed only once.
+        
+        Functional status codes and messages are described in the Documentation.
+      properties:
+        requestReferenceId:
+          type: string
+          description: 'The requestReferenceId that was send by the `Bestelomgeving leermiddelen` or `Aanspraakmanager` as part of the ActivationCodeRequest event'
+        responseReferenceId:
+          type: string
+          description: 'A reference to this confirmation message send by the `Licentieregistratie` to the `Bestelomgeving leermiddelen` or `Aanspraakmanager`.'
+        schemaVersion:
+          $ref: '#/components/schemas/schemaVersion'
+        activationCode:
+          type: string
+          description: 'The activation code which was part of the ActivationCodeRevokeRequest Event send by the `Bestelomgeving leermiddelen` or `Aanspraakmanager`.'
+        processedTimestamp:
+          type: string
+          format: date-time
+          description: | 
+            The moment that the activation codes were revoked by the `Licentieregistratie` and the request was processed. As Events and confirmation messages are send asynchronous, this is not the moment the confirmation message was send by the `Licentieregistratie` to the `Bestelomgeving leermiddelen` or `Aanspraakmanager`.
+            
+            Format: Conform openapi in ZULU time as specified in RFC 3339, section 5.6
+          example: "2017-07-21T17:32:28Z"
+        success:
+          type: boolean
+          description: |
+            Boolean indicating the ActivationCodeRevokeRequest event was processed successfully.
+            When the `Licentieregistratie` disagrees with the request a false will be returned, along with a status code and a status message.
+        status:
+          type: integer
+          description: 'See functional status codes within the Documentation.'
+        statusMessage:
+          type: string
+          description: 'See functional status messages within the Documentation.'
+      required:
+        - requestReferenceId
+        - responseReferenceId
+        - schemaVersion
+        - activationCode
+        - processedTimestamp
+        - success
+        - status
+    
+    StatusResponse:
+      title: StatusResponse
+      type: object
+      description: 'Functional status code and status message.'
+      properties:
+        status:
+          type: integer
+          description: 'See functional status codes within the Documentation.'
+        statusMessage:
+          type: string
+          description: 'See functional status messages within the Documentation.'
+      required:
+        - status
+    
+  securitySchemes:
+    OAuth2:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.example.com/oauth2/token
+          refreshUrl: https://api.example.com/oauth2/token
+          scopes:
+            activationcode: 'scope needed to send and receive ActivationCode Events and Confirmation messages.'
+      description: ''
+
+paths:
+  
+  /activationcodes:
+    put:
+      summary: Accept activation code request
+      operationId: accept-activation-code-request
+      tags:
+        - Licentieregistratie
+      x-tags:
+        - ActivationCode
+      description: |-
+        As a `Bestelomgeving leermiddelen` or `Aanspraakmanager` request an activation code from the `Licentieregistratie`.
+        
+        The `Licentieregistratie` is the provider of this endpoint.
+        The `Bestelomgeving leermiddelen` and `Aanspraakmanager` should give a 405 HTTP status as result when called.
+      responses:
+        '202':
+          description: Accepted
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        '405':
+          description: Method Not Allowed - Licentiregistratie is provider of this endpoint
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ActivationCodeRequest'
+      security:
+        - OAuth2:
+            - activationcode
+  
+  /activationcodes/revoke:
+    put:
+      summary: Accept activation code revoke request
+      operationId: accept-activation-code-revoke-request
+      tags:
+        - Licentieregistratie
+      x-tags:
+        - ActivationCode
+      description: |-
+        As a `Bestelomgeving leermiddelen` or `Aanspraakmanager` request the `Licentieregistratie` to revoke an activation code.
+        
+        The `Licentieregistratie` is the provider of this endpoint.
+        The `Bestelomgeving leermiddelen` and `Aanspraakmanager` should give a 405 HTTP status as result when called.
+      responses:
+        '202':
+          description: Accepted
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        '405':
+          description: Method Not Allowed - Licentieregistratie is provider of this endpoint
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ActivationCodeRevokeRequest'
+      security:
+        - OAuth2:
+            - activationcode
+  
+  /activationcodes/confirmations:
+    put:
+      summary: Confirm activation code request
+      operationId: confirm-activation-code-request
+      tags:
+        - Bestelomgeving leermiddelen
+        - Aanspraakmanager
+      x-tags:
+        - ActivationCode
+      description: |-
+        As a `Licentieregistratie` confirm the activation code request to the `Bestelomgeving leermiddelen` or `Aanspraakmanager`.
+        
+        The `Bestelomgeving leermiddelen` or `Aanspraakmanager` is the provider of this endpoint. 
+        The `Licentieregistratie` should give a 405 HTTP status as result when called.
+      responses:
+        '202':
+          description: Accepted
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        '405':
+          description: Method Not Allowed - Bestelomgeving leermiddelen or Aanspraakmanager are providers of this endpoint
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ActivationCodeConfirmation'
+      security:
+        - OAuth2:
+            - activationcode
+    
+  /activationcodes/revoke/confirmations:
+    put:
+      summary: Confirm activation code revoke request
+      operationId: confirm-activation-code-revoke-request
+      tags:
+        - Bestelomgeving leermiddelen
+        - Aanspraakmanager
+      x-tags:
+        - ActivationCode
+      description: |-
+        As a `Licentieregistratie` confirm the activation code revoke request to the `Bestelomgeving leermiddelen` or `Aanspraakmanager`.
+        
+        The `Bestelomgeving leermiddelen` or `Aanspraakmanager` is the provider of this endpoint. 
+        The `Licentieregistratie` should give a 405 HTTP status as result when called.
+      responses:
+        '202':
+          description: Accepted
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        '405':
+          description: Method Not Allowed - Bestelomgeving leermiddelen or Aanspraakmanager are providers of this endpoint
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ActivationCodeRevokeConfirmation'
+      security:
+        - OAuth2:
+            - activationcode
+x-tags:
+  - name: ActivationCode

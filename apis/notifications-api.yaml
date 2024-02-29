@@ -1,0 +1,414 @@
+openapi: 3.0.0
+info:
+  version: 0.0.2
+  title: Notifications API
+  
+  description: |-
+    The Notifications API is implemented by a source of data `Bron` to allow consumers `Afnemers` to receive notifications about new/modified/deleted data objects from the SIS API.
+    
+  contact:
+    name: Edu-V
+    url: www.edu-v.org/afsprakenstelsel
+    email: info@edu-v.org
+
+components:
+  schemas:
+    
+    schemaVersion:
+      type: string
+      description: 'Schema version of this object using semantic versioning 2.0.0'
+      default: 0.0.2
+    
+    Notification:
+      type: object
+      x-tags:
+        - Notification
+      description: |-
+        A notification that something of interest has happened within a service. A subscriber receives notifications within an authorized scope and for certain data objects in the context of a school (using consent). This enables parties to communicate with each other in a loosely coupled way. The event mediator has no direct connection to any of the subscribing systems.
+        
+        Notifications are sent after a data object is created, modified or deleted. The notification contains the id to this data object and an url to retrieve the latest state of the object. The data object is not send as part of the notification itself.
+        
+        All Notifications have a unique `id`. Moreover, the notification also includes an `objectId`, the identifier of the object they carry. This can be used to make sure notifications are processed in order for that object. The `created` time of the notification is the time the action that triggered the notification happened. It is not the time the notification was sent or processed.
+        Deleting an object is supported by sending a notification with the field `isDeleteNotification` flagged as true. This indicates that this is the last notification you will get about this object.
+      title: Notification
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: d290f1ee-6c54-4b01-90e6-d701748f0851
+          description: 'Unique identifier for this Notification.'
+        schemaVersion:
+          $ref: '#/components/schemas/schemaVersion'
+        objectType:
+          type: string
+          description: 'The type of object that has changed.'
+          enum:
+            - Student
+            - StudentDelivery
+            - Employee
+            - Class
+            - Group
+            - SchoolSubject
+            - SchoolPeriod
+            - Product
+            - Course
+        objectId:
+          type: string
+          description: 'Unique identifier of the object sent within this notification.'
+        userIdType:
+          type: string
+          description: 'In case the object is a Student or Employee, this field should be filled with the used userId format in the objectId.'
+          enum:
+            - ECKiD
+            - nlPersonProfileId
+            - nlPersonRealId
+            - Las-key
+            - BasispoortId
+            - Medewerkernummer
+        schoolPeriod:
+          type: string
+          description: 'In case the object is from the SIS API, this field should be filled with the name of the school period for which the data object changed. For example a student could follow a new subject next school year.'
+        schoolId:
+          type: string
+          description: 'In case the object is from the SIS API, this field should be filled with the schoolId of the School for which an entity changed. In primary education the BasispoortId is used. In secondary and vocational education the digiDeliveryId is used. The digiDeliveryId is case sensitive.'
+        edu_org_id:
+          type: string
+          description: 'The school needs to approve the exchange of sis data via a consent. The `edu_org_id` parameter is mandatory for these reference components to request entitlement information from the provider. This allows the provider to check if the requesting client has an active data exchange (consent) for the specified edu_org_id.'
+        created:
+          type: string
+          format: date-time
+          description: | 
+            The moment that the action happened which triggered this notification. As Notifications are sent asynchronous, this is not the moment the Notification was sent.
+            Format: openapi in ZULU time as specified in RFC 3339, section 5.6
+        url:
+          type: string
+          format: url
+          description: "The callback url to retrieve the modified object."
+        isDeleteNotification:
+          type: boolean
+          description: 'Indication that this is the last notification you will ever see, as the object is deleted.'
+      required:
+        - id
+        - schemaVersion
+        - objectType
+        - objectId
+        - created
+    
+    NotificationResponse:
+      type: object
+      x-tags:
+        - Notification
+      description: 'The response for a single Notification given by the Consumer that received the Notification.'
+      properties:
+        id:
+          type: string
+          description: 'The identifier of the Notification where this response refers to.'
+        status:
+          type: integer
+          description: 'See functional status codes within the Documentation.'
+        statusMessage:
+          type: string
+          description: 'See functional status messages within the Documentation.'
+      required:
+        - id
+        - status
+    
+    StatusResponse:
+      title: StatusResponse
+      type: object
+      description: 'Functional status code and status message.'
+      properties:
+        status:
+          type: integer
+          description: 'See functional status codes within the Documentation.'
+        statusMessage:
+          type: string
+          description: 'See functional status messages within the Documentation.'
+      required:
+        - status
+    
+  securitySchemes:
+    OAuth2:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.example.com/oauth2/token
+          refreshUrl: https://api.example.com/oauth2/token
+          scopes:
+            catalogue: 'scope that allows Consumers to receive Products from the Catalogue API.'
+            course: 'scope that allows Consumers to receive Courses from the Course API.'
+            school: 'a scope that allows a Consumers to receive basic school information: periods and subjects from the SIS API.'
+            student-employee-group: 'a scope that allows Consumers to receive student, teacher and group data from the SIS API.'
+            student-delivery: 'a scope that that allows a `Leermiddelenshop` to receive student delivery information including addresses from the SIS API.'
+
+paths:
+  
+  /subscribe/{api}:
+    parameters:
+      - schema:
+          type: string
+          enum:
+            - 'catalogue-api'
+            - 'sis-api'
+            - 'course-api'
+        name: api
+        in: path
+        required: true
+        description: 'API to which the Consumer wants to subscribe.'
+    post:
+      summary: 'Subscribe to notifications for new/modified/deleted data objects from an API'
+      operationId: subscribe
+      x-tags:
+        - Notification
+      tags:
+        - Producer
+      description: 'Subscribe to notifications from a specified API. The Producer registers the Consumer as one of the subscribers to changes in the requested API. This includes all data objects for all edu_org_ids for which the Consumer has an active consent with the Producer.'
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+      security:
+        - OAuth2:
+            - catalogue
+            - course
+            - student-employee-group
+            - student-delivery
+            - school
+  
+  
+  /notification:
+    parameters:
+      - schema:
+          type: string
+        name: edu_org_id
+        in: query
+        required: false
+        description: "The school needs to approve the exchange of sis data via a consent. The `edu_org_id` parameter is mandatory for these reference components to request entitlement information from the provider. This allows the provider to check if the requesting client has an active data exchange (consent) for the specified edu_org_id."
+    post:
+      summary: Receive one notification
+      operationId: post-notification
+      x-tags:
+        - Notification
+      tags:
+        - Consumer
+      description: |
+        Endpoint to receive a single Notification as a Consumer from different Producers. For example a party with the reference component `Gebruiksomgeving digitaal leermateriaal` can receive notifications from all parties offering `Administratiesysteem onderwijsdeelnemer` reference components.
+      requestBody:
+        description: |
+          The request body contains a single Notification.
+          
+          Notifications are processed asynchronous. In the request body a status code and message is included as a confirmation if the notifications are received in a correct format. All notifications are confirmed with a status ok (0), excluding notifications that have an invalid format or notifications that were sent in an invalid security scope or consent. See Documentation for functional status codes and messages.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Notification'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotificationResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotificationResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotificationResponse'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotificationResponse'
+      security:
+        - OAuth2:
+            - catalogue
+            - course
+            - student-employee-group
+            - student-delivery
+            - school
+  
+  /notifications:
+    parameters:
+      - schema:
+          type: string
+        name: edu_org_id
+        in: query
+        required: false
+        description: "The school needs to approve the exchange of sis data via a consent. The `edu_org_id` parameter is mandatory for these reference components to request entitlement information from the provider. This allows the provider to check if the requesting client has an active data exchange (consent) for the specified edu_org_id."
+    post:
+      summary: Receive notifications
+      operationId: post-notifications
+      x-tags:
+        - Notifications
+      tags:
+        - Consumer
+      description: |
+        Endpoint to receive notifications as a Consumer from different Producers. For example a party with the reference component `Gebruiksomgeving digitaal leermateriaal` can receive notifications from all parties offering `Administratiesysteem onderwijsdeelnemer` reference components.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/Notification'
+        description: |-
+          The request body contains a list of Notifications, sorted oldest notifications first. For Notifications that require Consent to be sent and received between parties, Notifications can only be grouped in the same request if they are from the same school.
+          
+          Notifications are processed asynchronous. In the request body a status code and message is included as a confirmation if the notifications are received in a correct format. All notifications are confirmed with a status ok (0), excluding notifications that have an invalid format or notifications that were sent in an invalid security scope or consent. See Documentation for functional status codes and messages.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/NotificationResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/NotificationResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/NotificationResponse'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/NotificationResponse'
+      
+      
+      security:
+        - OAuth2:
+            - catalogue
+            - course
+            - student-employee-group
+            - student-delivery
+            - school
+            
+    get:
+      summary: Get notifications after created datetime
+      operationId: get-notifications-after-created
+      x-tags:
+        - Notification
+      tags:
+        - Producer
+      description: |
+        Allows a subscriber to retrieve a list of past notifications. The provider will not keep the notifications indefinite. This API is available to a party that had downtime and needs to catch up on processing or receiving notifications. The intended retention is a few days to support catching up.
+      parameters:
+        - schema:
+            type: string
+          in: query
+          name: createdAfter
+          description: 'Timestamp to filter on notifications created after a certain moment. Format: openapi in ZULU time as specified in RFC 3339, section 5.6'
+        - schema:
+            type: string
+            enum:
+            - Student
+            - StudentDelivery
+            - Employee
+            - Class
+            - Group
+            - SchoolSubject
+            - SchoolPeriod
+            - Product
+            example: Student
+          in: query
+          name: objectType
+          description: 'Filter by a specific type of object.'
+        - schema:
+            type: integer
+          in: query
+          name: start
+          description: 'Start point for pagination of results, defaults to 0'
+          examples:
+            default:
+              value: 0
+              summary: 'The start point for pagination'
+        - schema:
+            type: integer
+            maximum: 100
+          in: query
+          name: limit
+          description: 'Limit of number of results returned by page, defaults to 20 with max 100.'
+          examples:
+            default:
+              value: 20
+              summary: 'The default value if none is provided'
+            max:
+              value: 100
+              summary: 'The largest recommended page size'
+        - schema:
+            type: string
+          name: schemaVersion
+          in: query
+          required: false
+          description: 'Optional parameter to request a Notification in a specific schema version. If none supplied, the server will choose its default schema version. This schemaVersion refers to the version of the Notification format.'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Notification'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+      security:
+        - OAuth2:
+            - catalogue
+            - course
+            - student-employee-group
+            - student-delivery
+            - school
+  
+x-tags:
+  - name: Notification

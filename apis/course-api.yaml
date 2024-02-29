@@ -1,0 +1,827 @@
+openapi: 3.0.0
+info:
+  title: Course API
+  version: '0.0.1'
+  description: |
+    This API enables an `Onderwijsleeromgeving` to get more information about the Learning Materials. In the Course API a supplier of learning materials can specify the structure of these Learning Materials in Courses, Blocks, and with Assignable Units. The Course API consists of metadata about the learning materials, and does not contain the content of the Learning materials itself. The Course API is based on [xAPI cmi5](https://github.com/AICC/CMI-5_Spec_Current/blob/quartz/v1/CourseStructure.xsd). In the Catalogue API a reference is made to Learning materials in the Course API. This allows a `Onderwijsleeromgeving` to present detailed learning material information to Students or Teachers that are entitled (or licensed) to activate and use a Product.
+    
+    The Course API is also used within the Progress API te report learning progress on specific parts of a Course. The most detailed level being an Assignable Unit which defines a single piece of content within a Course.
+    
+    More information is available in the Documentation.
+    
+  contact:
+    name: Edu-V
+    url: www.edu-v.org/afsprakenstelsel
+    email: info@edu-v.org
+
+components:
+  schemas:
+    
+    schemaVersion:
+      type: string
+      description: 'Schema version of this event/object using semantic versioning 2.0.0'
+      default: 0.1.0
+    
+    Course:
+      title: Course
+      type: object
+      x-tags:
+        - Course
+      description: |
+        The Course Object includes basic information about the Course. This basic info can be presented by a `Onderwijsleeromgeving` in a Portal to Students and/or Teachers. 
+      properties:
+        courseId:
+          type: string
+          description: 'Unique identifier for this Course. This identifier equals the identifier of the corresponding CourseStructure.'
+          xml:
+            attribute: true
+        schemaVersion:
+          $ref: '#/components/schemas/schemaVersion'
+        tile:
+          type: string
+          description: 'Title of the Course, to be presented in the `Onderwijsleeromgeving`.'
+        description:
+          type: string
+          description: 'Short description of the Course, to be presented in the `Onderwijsleeromgeving`.'
+        lastPublishedVersion:
+          type: string
+          description: 'Last published version of this course. Version number is defined by the supplier. After every modification the version number levels up.'
+        levelSubjects:
+          type: array
+          description: 'The Subjects and Levels where this course applies to.'
+          items:
+            $ref: '#/components/schemas/LevelSubjects'
+      required:
+        - courseId
+        - schemaVersion
+        - tile
+        - lastPublishedVersion
+    
+    LevelSubjects:
+      title: LevelSubjects
+      type: object
+      x-tags:
+        - Course
+      description: |
+        The combination of levels and subject that indicates where this Course is targeted at.
+        
+        It is possible to include more than one level in the array levels. For example for 'onderbouw' of 'brugklas havo/vwo'.
+      properties:
+        levels:
+          type: array
+          description: 'List of official levels this study and subject combination. could be multiple in case of schoollevel "Brugklas", "onderbouw", etc'
+          items:
+            type: object
+            description: 'List of official levels this study and subject combination. could be multiple in case of schoollevel "Brugklas", "onderbouw", etc'
+            properties:
+              level:
+                type: string
+                description: |-
+                  Official Level. 
+                  Allowed values are: VO-PRO, VO-VMBO-BB, VO-VMBO-KB, VO-VMBO-GL, VO-VMBO-TL, VO-HAVO, VO-VWO 
+                  As specified here: https://lod.onderwijsregistratie.nl/api/catalogus/v1/klasse?subject=http://lod.onderwijsregistratie.nl/cat/cdm/def/NiveauVO-v03.2'
+                enum:
+                  - BO
+                  - SO
+                  - SBO
+                  - VO-PRO
+                  - VO-VMBO-BB
+                  - VO-VMBO-KB
+                  - VO-VMBO-GL
+                  - VO-VMBO-TL
+                  - VO-HAVO
+                  - VO-VWO
+                  - VSO
+                  - MBO-Niveau-1
+                  - MBO-Niveau-2
+                  - MBO-Niveau-3
+                  - MBO-Niveau-4
+              levelYear:
+                type: integer
+                description: 'Learning year (e.g. 1)'
+            required:
+              - level
+              - levelYear
+        subjectCode:
+          type: string
+          description: 'Government standard subject code. Source: Ministerie van OCW, like https://zoek.officielebekendmakingen.nl/stcrt-2019-35044'
+    
+    CMI5.CourseStructure:
+      title: CMI5.CourseStructure
+      type: object
+      x-tags:
+        - CourseStructure
+      description: |-
+        Course definition in CMI5 format. 
+        (see https://github.com/AICC/CMI-5_Spec_Current/blob/quartz/v1/CourseStructure.xsd)
+        The cmi5 course structure definition is extended with http://www.sanoma.com/cmi5/ExtendedCourseStructureExtension.xsd fields. They are added in this spec with an xml namespace 'ecs'.
+
+
+        If the API the xml version is defined. This cannot be fully defined in openAPI/JSON, but this is a close mapping for reference.
+        Technical: In the xml the aus and blocks collections are not explicit available and are there implicit
+        example:
+        <courseStructure>
+          <course...>
+          </course>
+          <au>
+              details
+          </au>
+          <block>
+              details
+          </block>
+          <block>
+              details
+          </block>
+        <courseStructure>
+        
+      x-examples:
+        example-1:
+          course:
+            title:
+              - lang: string
+                langstring: string
+            description:
+              - lang: string
+                langstring: string
+            image: string
+            publicationdate: string
+            publisher: string
+            streamcode: string
+            version: string
+            streams:
+              - id: string
+                description: string
+          objectives: string
+          aus:
+            - id: string
+              activityType: string
+              moveOn: string
+              launchMethod: string
+              title:
+                - lang: string
+                  langstring: string
+              objectives:
+                - null
+              url: string
+              launchParameters: string
+              image: string
+              streamref: string
+          blocks:
+            - id: string
+              title:
+                - lang: string
+                  langstring: string
+              description:
+                - lang: string
+                  langstring: string
+              blocks:
+                - {}
+              aus:
+                - id: string
+                  activityType: string
+                  moveOn: string
+                  launchMethod: string
+                  title:
+                    - lang: string
+                      langstring: string
+                  objectives:
+                    - null
+                  url: string
+                  launchParameters: string
+                  image: string
+                  streamref: string
+              image: string
+              studyloadindicator: 0
+      properties:
+        course:
+          $ref: '#/components/schemas/CMI5.Course'
+        objectives:
+          type: array
+          description: 'All (learning) objectives from this Course are defined at the highest level in this array. Within Assignable Units a reference can be made to the identifiers of these objectives.'
+          items:
+            $ref: '#/components/schemas/CMI5.Objective'
+        aus:
+          type: array
+          description: 'If the course has no structure in Blocks then this list contains all the assignable units from the Course.'
+          items:
+            $ref: '#/components/schemas/CMI5.AU'
+        blocks:
+          type: array
+          description: 'A Course consists of Blocks with underlying Blocks and/or Assignable Units. E.g. Blocks can be used to define chapters and paragraphs.'
+          items:
+            $ref: '#/components/schemas/CMI5.Block'
+      required:
+        - course
+    
+    CMI5.Course:
+      title: CMI5.Course
+      type: object
+      x-tags:
+        - CourseStructure
+      description: |-
+        Course definition as based on cmi5 course definition: 
+        (see https://github.com/AICC/CMI-5_Spec_Current/blob/quartz/v1/CourseStructure.xsd)
+        The cmi5 course structure definition is extended with http://www.sanoma.com/cmi5/ExtendedCourseStructureExtension.xsd fields. They are added in this spec with an xml namespace 'ecs'
+      
+      x-examples:
+        example-1:
+          id: 39c50b7f-c0f6-499b-bd90-e673eace2be4
+          title:
+            - lang: nl-NL
+              langstring: Stepping Stones - 4 vwo K2 (5e Ed.)
+          description:
+            - lang: nl-NL
+              langstring: A very nice course called Stepping Stones 5th edition for vwo 4
+          image: 'https://sem.noordhoff.nl/content/stepping-365839.png'
+          publicationdate: 2020-02-04
+          publisher: Noordhoff BV
+          streamcode: string
+          version: 04-02-2020
+          streams:
+            - id: string
+              description: string
+      properties:
+        id:
+          type: string
+          xml:
+            attribute: true
+          description: the unique identifier of this version of the course
+        title:
+          $ref: '#/components/schemas/CMI5.TextType'
+        description:
+          $ref: '#/components/schemas/CMI5.TextType'
+        image:
+          type: string
+          xml:
+            prefix: ecs
+            namespace: 'http://www.sanoma.com/cmi5/ExtendedCourseStructureExtension.xsd'
+          description: 'Additional field: URI to the image to represent this course'
+        publicationdate:
+          type: string
+          xml:
+            prefix: ecs
+            namespace: 'http://www.sanoma.com/cmi5/ExtendedCourseStructureExtension.xsd'
+          description: 'Additional field: Date of the publication of this version of the course. Format: YYYY-MM-DD (according to RFC3339).'
+        publisher:
+          type: string
+          xml:
+            prefix: ecs
+            namespace: 'http://www.sanoma.com/cmi5/ExtendedCourseStructureExtension.xsd'
+          description: 'Additional field: name of the publisher of this course'
+        streamcode:
+          type: string
+          xml:
+            prefix: ecs
+            namespace: 'http://www.sanoma.com/cmi5/ExtendedCourseStructureExtension.xsd'
+          description: 'Additional: the course identifier (like steppingstone-5e-4vwo)'
+        version:
+          type: string
+          xml:
+            prefix: ecs
+            namespace: 'http://www.sanoma.com/cmi5/ExtendedCourseStructureExtension.xsd'
+          description: 'Additional field to specify a version of this course (like #1, #2 or a date 2022-03-14)'
+        streams:
+          type: array
+          xml:
+            prefix: ecs
+            namespace: 'http://www.sanoma.com/cmi5/ExtendedCourseStructureExtension.xsd'
+          minItems: 0
+          description: |-
+            Additional: 
+            A list of used streams in this course. A stream is an extra metadata field for the au's to indicate optional material, core material or other types of material ('verdieping', etc.). It helps teachers to specify individual courses for each student
+          items:
+            $ref: '#/components/schemas/CMI5.Stream'
+      required:
+        - id
+        - title
+        - description
+    
+    CMI5.Objective:
+      title: CMI5.Objective
+      type: object
+      x-tags:
+        - CourseStructure
+      description: 'A learning objective.'
+      properties:
+        id:
+          type: string
+          description: 'Unique identifier to this objective. This identifier can be used within Assignable Units to refer to this objective.'
+        title:
+          type: string
+          description: 'Title of the objective.'
+        description:
+          type: string
+          description: 'Short description explaining the objective.'
+      required:
+        - id
+    
+    CMI5.Block:
+      title: CMI5.Block
+      type: object
+      x-tags:
+        - CourseStructure
+      description: |
+        A block describes a chapter or paragraph of a course. It describes title, additional description, links to objectives and the assignable learning units (au) that are part of this chapter or paragraph.
+        The structure is recursive, so each block can contain other blocks. In practice the number of levels in secondary education will be 2: chapters, followed by paragraphs, containing au's.
+
+        the description field can be used to specify more information on the chapter or paragraph, for example filling it with learning goals so the teacher and student can see the bigger picture.
+
+        there are 3 additional, optional fields: 
+        * instructions : additional instructions for the student, if any
+        * study load indicator: an integer that gives a relative study load, with this you can specify that this block is expected to take a factor 2 or 3 more time to complete. this is a great help for planning. It is relative, not an absolute time in hours or days
+        * image: an uri to an image that represents this chapter.   
+      
+      x-examples:
+        example-1:
+          id: 'es:7DD56457-A9F5-44AD-9AA7-E791DE57C454'
+          title:
+            - lang: nl-NL
+              langstring: England
+          description:
+            - lang: nl-NL
+              langstring: '-'
+          blocks:
+            - id: 'es:AB8EB0CB-CF3D-4961-9E6C-BF6271CE7A3F'
+              title:
+                - lang: nl-NL
+                  langstring: Listening
+              description:
+                - lang: nl-NL
+                  langstring: 1. Je kunt de Engelse persoonlijke voornaamwoorden gebruiken. 2. Je kunt de Engelse bezittelijke voornaamwoorden gebruiken. 3. Je kent de betekenis van Engelse woorden rondom het thema 'School'. 4. Je kunt Engelse woorden rondom het thema 'School' gebruiken.
+              aus:
+                - id: 'es:EA9A53C6-44DD-46CE-A223-79FA33DD8282'
+                  activityType: Theorie
+                  launchMethod: AnyWindow
+                  moveOn: CompletedOrPassed
+                  title:
+                    - lang: Lesstof
+                      langstring: Lesstof
+                  description:
+                    - lang: nl-NL
+                      langstring: ...
+                  url: 'https://allright.secure.malmberg.nl/deeplink/paragraph-component/es:EA9A53C6-44DD-46CE-A223-79FA33DD8282'
+                  image: 'https://media.malmberg.nl/component/EA9A53C6-44DD-46CE-A223-79FA33DD8282.png'
+                  streamref: core
+              instructions:
+                - lang: nl-NL
+                  langstring: Lees de volgende paragraaf zorgvuldig door
+              studyloadindicator: 3
+          instructions:
+            - lang: nl-NL
+              langstring: In deze paragraaf leer je weer heel veel
+          image: 'https://media.malmberg.nl/images/Listening.png'
+          studyloadindicator: 1
+      properties:
+        id:
+          type: string
+          xml:
+            attribute: true
+        title:
+          $ref: '#/components/schemas/CMI5.TextType'
+        description:
+          $ref: '#/components/schemas/CMI5.TextType'
+        blocks:
+          type: array
+          description: 'A Block can contain Blocks and/or Assignable Units. The supplier is flexible to structure its content: e.g. A Chapter Block containing multiple Paragraph Blocks.'
+          items:
+            $ref: '#/components/schemas/CMI5.Block'
+        aus:
+          type: array
+          description: 'A Block can contain Blocks and/or Assignable Units. The supplier is flexible to structure its content: e.g. Assignments and Content assignable units in a Paragraph block.'
+          items:
+            $ref: '#/components/schemas/CMI5.AU'
+        instructions:
+          $ref: '#/components/schemas/CMI5.TextType'
+        image:
+          type: string
+          xml:
+            prefix: ecs
+            namespace: 'http://www.sanoma.com/cmi5/ExtendedCourseStructureExtension.xsd'
+        studyloadindicator:
+          type: integer
+          xml:
+            prefix: ecs
+            namespace: 'http://www.sanoma.com/cmi5/ExtendedCourseStructureExtension.xsd'
+      required:
+        - id
+        - title
+        - description
+    
+    CMI5.AU:
+      title: CMI5.AU
+      type: object
+      x-tags:
+        - CourseStructure
+      description: |-
+        An assignable unit describes the smallest unit that is exchanged in the cmi5 format. Most of the time this is an instruction, a link to some content or exercise in the `Gebruiksomgeving digitaal leermateriaal` or `Digitaal toetssysteem` of the supplier.
+
+        The CMI5/xAPi definition contains some meta data, an url (deep link) to start the activity and some information how to use the url.
+        Important fields:
+
+        ### activity type
+        this describes how to represent or interpret the activity. In the standard this is a free field, with lots of examples how to use it.
+        initially used values:
+         * Oefening
+         * Naslagwerk
+         * Arrangement
+         * Assignment
+         * Test
+         * Instructie
+         * Theorie
+
+        ### moveon
+        This field is exchanged and mandatory but not used unless the full flow with progress is also implemented.
+        Default value: _CompletedOrPassed_
+
+        ### launchmethod
+        The launchmethod describes how the content should be presented. The exact support for using launch parameters etc is not yet defined in the specification, so currently this field is ignored.
+        Default value: _AnyWindow_
+
+        ### launchParameters
+        Optional information how to launch the url. The exact support for using launch parameters etc is not yet defined in the specification, so currently this field is ignored.
+        Default value:empty or not present
+
+        ## Additional fields
+        there are 3 additional, optional fields: 
+
+        * image: an uri to an image that represents this unit of learning.  
+      
+      x-examples:
+        example-1:
+          id: e19ffbe3-2411-4d1f-8aa6-14fc43c2142a
+          activityType: ARRANGEMENT
+          moveOn: CompletedOrPassed
+          launchMethod: AnyWindow
+          title:
+            - lang: nl-NL
+              langstring: Test Yourself
+          objectives: []
+          url: 'https://toegang.noordhoff.nl/8717927999997?deepLinkId=e19ffbe3-2411-4d1f-8aa6-14fc43c2142a'
+          launchParameters: ''
+          image: ''
+          streamref: core
+      properties:
+        id:
+          type: string
+          xml:
+            attribute: true
+        activityType:
+          type: string
+          xml:
+            attribute: true
+        launchMethod:
+          type: string
+          xml:
+            attribute: true
+        moveOn:
+          type: string
+          xml:
+            attribute: true
+        title:
+          $ref: '#/components/schemas/CMI5.TextType'
+        description:
+          $ref: '#/components/schemas/CMI5.TextType'
+        objectives:
+          type: array
+          items:
+            type: string
+            description: 'reference to an identifier of an objective as specified in the CourseStructure object.'
+        url:
+          type: string
+          description: 'The url (Deeplink) to the learning material in the Assignable Unit. See Documentation for further restrictions on formats of Deeplinks.'
+        launchParameters:
+          type: string
+        image:
+          type: string
+          xml:
+            prefix: ecs
+            namespace: 'http://www.sanoma.com/cmi5/ExtendedCourseStructureExtension.xsd'
+        streamref:
+          type: string
+          xml:
+            prefix: ecs
+            namespace: 'http://www.sanoma.com/cmi5/ExtendedCourseStructureExtension.xsd'
+          description: 'Additional field to point to a stream in the course object to indicate that this AU is for example core material or optional material, of for a higher level.'
+      required:
+        - id
+        - activityType
+        - launchMethod
+        - moveOn
+        - title
+        - url
+    
+    CMI5.Stream:
+      title: CMI5.Stream
+      type: object
+      x-tags:
+        - CourseStructure
+      description: 'A Stream gives a supplier the option to define the type of Assignable unit. This can be for example be core or additional material.'
+      properties:
+        id:
+          type: string
+          description: 'The id to be referenced in an Assignable Unit.'
+          xml:
+            attribute: true
+            prefix: ecs
+            namespace: 'http://www.sanoma.com/cmi5/ExtendedCourseStructureExtension.xsd'
+        description:
+          type: string
+          description: "Short description of the Stream."
+          xml:
+            prefix: ecs
+            namespace: 'http://www.sanoma.com/cmi5/ExtendedCourseStructureExtension.xsd'
+    
+    CMI5.TextType:
+      title: CMI5.TextType
+      type: array
+      x-tags:
+        - CourseStructure
+      description: |-
+        This is a representation of a translatable string. Effectively an Array of strings with an attribute which language the string is in.
+        NOTE : In xml this should be represented as < langstring lang="nl-NL">Hallo< /langstring>, but that is not possible in the current openAPI3 spec (see https://github.com/OAI/OpenAPI-Specification/issues/630)
+      items:
+        type: object
+        properties:
+          lang:
+            type: string
+            xml:
+              attribute: true
+          langstring:
+            type: string
+      xml:
+        wrapped: true
+      x-examples:
+        example-1:
+          - lang: string
+            langstring: string
+    
+    StatusResponse:
+      title: StatusResponse
+      type: object
+      description: 'Functional status code and status message.'
+      properties:
+        status:
+          type: integer
+          description: 'See functional status codes within the Documentation.'
+        statusMessage:
+          type: string
+          description: 'See functional status messages within the Documentation.'
+      required:
+        - status
+
+  securitySchemes:
+    OAuth2:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.example.com/oauth2/token
+          refreshUrl: https://api.example.com/oauth2/token
+          scopes:
+            course: ''
+paths:
+  
+  /courses:
+    parameters:
+      - schema:
+          type: integer
+        name: start
+        in: query
+        description: 'Start point for pagination of results, defaults to 0,'
+        examples:
+          default:
+            value: 0
+            summary: The start point for pagination
+      - schema:
+          type: integer
+          maximum: 100
+        in: query
+        name: limit
+        description: 'Limit of number of results returned by page, defaults to 20 with max 100.'
+        examples:
+          default:
+            value: 20
+            summary: The default value if none is provided
+          max:
+            value: 100
+            summary: The largest recommended page size
+      - schema:
+          type: string
+        name: schemaVersion
+        in: query
+        required: false
+        description: 'Optional parameter to request a response in a specific schema version. If none supplied, the server will choose its default schema version.'
+    get:
+      summary: Get All Courses
+      operationId: get-all-courses
+      x-tags:
+        - Course
+      tags:
+        - Leermaterialencatalogus
+      description: Get all courses
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Course'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+      security:
+        - OAuth2:
+            - course
+
+  /courses/{id}:
+    parameters:
+      - schema:
+          type: string
+        name: id
+        in: path
+        required: true
+      - schema:
+          type: string
+        name: schemaVersion
+        in: query
+        required: false
+        description: 'Optional parameter to request a response in a specific schema version. If none supplied, the server will choose its default schema version. See the Events API for a call to get the default schema version.'
+    get:
+      summary: Get Course by ID
+      x-tags:
+        - Course
+      tags:
+        - Leermaterialencatalogus
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Course'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+      operationId: get-course
+      description: |
+        Usually the Course is found via the catalog, each product has a list of Courses that is available for a student/teacher when that product is bought. This call is used to get more information about these Courses. Moreover the call can also be used to see if there are any new versions of this Course published. The response is a Course object with basic information about the Course.
+      security:
+        - OAuth2:
+            - course
+  
+  /courses/{id}/cmi5e:
+    parameters:
+      - schema:
+          type: string
+        name: id
+        in: path
+        required: true
+      - schema:
+          type: string
+        name: schemaVersion
+        in: query
+        required: false
+        description: 'Optional parameter to request a response in a specific schema version. If none supplied, the server will choose its default schema version. See the Events API for a call to get the default schema version.'
+    get:
+      summary: Get CourseStructure by ID in CMI5e Format
+      x-tags:
+        - CourseStructure
+      tags:
+        - Leermaterialencatalogus
+      responses:
+        '200':
+          description: OK
+          content:
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/CMI5.CourseStructure'
+              examples:
+                example-1:
+                  value:
+                    course:
+                      title:
+                        - lang: string
+                          langstring: string
+                      description:
+                        - lang: string
+                          langstring: string
+                      image: string
+                      publicationdate: string
+                      publisher: string
+                      streamcode: string
+                      version: string
+                      streams:
+                        - id: string
+                          description: string
+                    objectives:
+                      - id: string
+                        title: string
+                        description: string
+                    aus:
+                      - id: string
+                        activityType: string
+                        moveOn: string
+                        launchMethod: string
+                        title:
+                          - lang: string
+                            langstring: string
+                        objectives:
+                          - string
+                        url: string
+                        launchParameters: string
+                        image: string
+                        streamref: string
+                    blocks:
+                      - id: string
+                        title:
+                          - lang: string
+                            langstring: string
+                        description:
+                          - lang: string
+                            langstring: string
+                        blocks:
+                          - {}
+                        aus:
+                          - id: string
+                            activityType: string
+                            moveOn: string
+                            launchMethod: string
+                            title:
+                              - lang: string
+                                langstring: string
+                            objectives:
+                              - string
+                            url: string
+                            launchParameters: string
+                            image: string
+                            streamref: string
+                        instructions:
+                          - lang: string
+                            langstring: string
+                        image: string
+                        studyloadindicator: 0
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+      operationId: get-coursestructure-by-id
+      security:
+        - OAuth2:
+            - course
+      description: |
+        The CourseStructure contains information about the course, including which chapters, paragraphs and assignable units are available, including deeplinks to the publishers playing environment so the student start that unit.
+        
+        The format of the response is based on the international [xAPI CMI5 CourseDefinition standard](https://github.com/AICC/CMI-5_Spec_Current/blob/quartz/v1/CourseStructure.xsd) and the [Sanoma extension](http://www.sanoma.com/cmi5/ExtendedCourseStructureExtension.xsd). This format is XML based. The response is a full CMI5 Extended Course XML (CMI5e).
+
+        If we decide to make a JSON version then this definition would do fine, as it contains the same fields/information. This cannot be fully defined in openAPI/JSON in the same format as the xml version, but this is a close mapping for reference. See remarks at the CMI5.CourseStructure schema.
+
+        The CMI5 standard also provides a protocol to launch assignable units in a browser and get progress on these assignable units. This is not part of the specification. The format is used to exchange meta information, not to enforce runtime. For the moment it is expected that the url's in the content work without a need to setup sessions etc. Each publisher is responsible for creating url's in such a way that single sign-on is enforced. See Documentation for guidelines for formatting of deeplinks.
+
+x-tags:
+  - name: Course
+  - name: CourseStructure

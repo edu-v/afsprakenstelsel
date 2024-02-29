@@ -1,0 +1,199 @@
+openapi: 3.0.0
+info:
+  title: Progress API
+  version: '0.0.1'
+  description: |-
+    This API defines progress about specific learning materials (assignable Units) in the course to report to the `Leermiddelendashboard`. Main goal is to inform teachers on progress (which activities are completed) and possible indication that the activity was completed, but needs attention of the teacher. 
+
+    Progress is reported on Learning materials on the level of Assignable Units within a Course in the Course API. 
+    Progress is reported when an activity is started or completed, not while the activity is in progress. If the activity is adaptive and will take more time for one student due to adaptive levels, that is not reported.
+
+    Activities have a life cycle of not-started, started, completed. The not started is the default and will not be reported, unless (for some reason) the status goes back to not-started. The abandoned state is to indicate that the activity was started, but will never be completed (optional).
+
+    The API does not force the supplier of the learning material to use a standard for the indication about the quality of the progress. It is optional to indicate a signal and/or pleaseFollowUp to the `Leermiddelendashboard`. This provides the supplier a way to tell the Teacher via the `Leermiddelendashboard` that the progress was not standard and the Teacher is advised to have a look at the more detailed dashboard (with a direct url) within the `Gebruiksomgeving digitaal leermateriaal`. A supplier can provide any scale (1-10, average, good, bad) by adding this as text. The `Leermiddelendashboard` should not try to combine these indications for a complete chapter or paragraph.
+    
+  contact:
+    name: Edu-V
+    url: www.edu-v.org/afsprakenstelsel
+    email: info@edu-v.org
+components:
+  schemas:
+    
+    schemaVersion:
+      type: string
+      description: 'Schema version of this event/object using semantic versioning 2.0.0'
+      default: 0.1.0
+    
+    SimpleProgress:
+      title: SimpleProgress
+      type: object
+      x-tags:
+        - Progress
+      x-examples:
+        example-1:
+          id: '123-bigstring-or-guid-does-not-matter-but-unique-for-this-progress-statement'
+          schemaVersion: 0
+          eckId: 'eck1'
+          assignableUnitId: '1234566'
+          courseId: 'english-22-high'
+          status: 'completed'
+          timestamp: '2017-07-21T17:32:28Z'
+          additionalInfo: ':)'
+          detailsUrl: 'https://course.publisher.com/analysis/1234566/eck1'
+          pleaseFollowUp: False
+      description: 'The SimpleProgress Event that is send by the `Gebruiksomgeving digitaal leermateriaal` to the `Leermiddelendashboard` to report progress on an Assignable Unit in a Course by a specific Student.'
+      properties:
+        id:
+          type: string
+          description: Unique id
+        schemaVersion:
+          $ref: '#/components/schemas/schemaVersion'
+        eckId:
+          type: string
+          description: |-
+            The ECK-ID of the Student for which the progress is reported.
+            (either eckId or userId is required)
+        userId:
+          type: array
+          description: |
+            The User ID(s) of the Student for which the progress is reported.
+            (either eckId, userId is required)
+          items:
+            type: object
+            properties:
+              userId:
+                type: string
+              userIdType:
+                type: string
+                enum:
+                  - nlPersonProfileId
+                  - nlPersonRealId
+                  - Las-key
+                  - Leerlingnummer
+            required:
+              - userId
+              - userIdType
+        assignableUnitId:
+          type: string
+          description: 'Assignable Unit for which progress is reported. This is strongly linked to an identifier of an Assignable Unit in the CourseStructure object in the Course API.'
+        courseId:
+          type: string
+          description: 'Optional identifier of the CourseStructure where the Assignable Unit belongs to.'
+        status:
+          type: string
+          description: 'New status of the activity of the Student regarding the Learning Material.'
+          enum:
+            - not-started
+            - started
+            - completed
+            - abandoned
+        timestamp:
+          type: string
+          format: date-time
+          description: |
+            Timestamp of the activity that lead to the Event.
+            Format: Conform openapi in ZULU time zoals gespecificeerd in RFC 3339, section 5.6
+        additionalInfo:
+          type: string
+          description: |-
+            Additional signal to show to teachers about this progress. This could be a signal that all is fine, or that the activity was finished, but not successful or with so much effort that the teacher is advised that to look at the LA systems dashboards. 
+            field is free format, bust should be very short. eg "good","average", single digit, smileys, "!" (also see detailsUrl)
+          maxLength: 15
+          example: ':)'
+        detailsUrl:
+          type: string
+          description: 'Deeplink to the page of the LA where a teacher can get details on this progress event.'
+        pleaseFollowup:
+          type: boolean
+          default: False
+          description: |-
+            Boolean to indicate that the additional info and detailsUrl are provided as an invite to have a closer look at this progress.
+            This can be used by the `Leermiddelendashboard` to show a list of signals that the teacher should followup
+      required:
+        - id
+        - schemaVersion
+        - assignableUnitId
+        - courseId
+        - status
+        - timestamp
+    
+    StatusResponse:
+        title: StatusResponse
+        type: object
+        description: 'Functional status code and status message.'
+        properties:
+          status:
+            type: integer
+            description: 'See functional status codes within the Documentation.'
+          statusMessage:
+            type: string
+            description: 'See functional status messages within the Documentation.'
+        required:
+          - status
+  
+  securitySchemes:
+    OAuth2:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.example.com/oauth2/token
+          refreshUrl: https://api.example.com/oauth2/token
+          scopes:
+            la.progress: scope to send progress messages to a `Leermiddelendashboard`
+
+paths: 
+  /progess/{id}:
+    put:
+      operationId: putSimpleProgress
+      summary: The REST create request message for the putProgessId() API call.
+      tags: 
+        - Leermiddelendashboard
+      description: |
+        To create a new SimpleProgress object or change an exisiting SimpleProgress object.
+      security:
+        - OAuth2:
+            - progress
+      parameters: 
+        - name: id
+          in: path
+          description: |
+              The unique identifier for the Progess object.
+          required: true
+          schema: 
+            type: string
+          style: simple
+      requestBody:
+        description: |
+          The progress data that is to be stored.
+        content: 
+          application/json: 
+            schema: 
+              $ref: "#/components/schemas/SimpleProgress"
+        required: true
+      responses: 
+        "202" : 
+          description: |
+            The object has been successfully stored in the progress administration.
+        "400" : 
+          description: |
+            This is the error response for HTTP status code 400.
+          content: 
+            application/json: 
+              schema: 
+                $ref: "#/components/schemas/StatusResponse"
+        "401" : 
+          description: |
+            This is the error response for HTTP status code 401.
+          content: 
+            application/json: 
+              schema: 
+                $ref: "#/components/schemas/StatusResponse"
+        "403" : 
+          description: |
+            This is the error response for HTTP status code 403.
+          content: 
+            application/json: 
+              schema: 
+                $ref: "#/components/schemas/StatusResponse"
+x-tags:
+  - name: Progress

@@ -1,0 +1,279 @@
+openapi: 3.0.0
+info:
+  title: DPA (Data Processing Agreement) API
+  version: 0.0.1
+  
+  description: |-
+    The DPA API is implemented by the reference component `Verwerkersregister` to allow parties to validate if a suppliers has a Data Processing Agreement with a certain school board for a specified ecosystem (Ketensamenwerking) and data services (Gegevensdiesnsten).
+    
+  contact:
+    name: Edu-V
+    url: www.edu-v.org/afsprakenstelsel
+    email: info@edu-v.org
+  
+paths:
+  
+  /agreements/self:
+    get:
+      summary: GET Agreement Supplier itself has with School Board
+      description: |-
+         Use this API endpoint to request information about the registration of a data processing agreement the supplier itself has with a school board.
+         
+         When the requester is not allowed to request this information for this school board then you will get a 403.
+         When the requester is allowed to request this information then the agreement data is returned (200).
+      tags:
+        - Verwerkersregister
+      parameters:
+        - name: supplierOin
+          in: query
+          allowEmptyValue: false
+          required: true
+          description: OIN of the system supplier
+          schema:
+            type: string
+            pattern: (\d|\D){20}
+        - name: boardId
+          in: query
+          allowEmptyValue: false
+          required: true
+          description: ID of the school board (Onderwijsbestuursnummer)
+          schema:
+            type: string
+        - name: ecosystem
+          in: query
+          allowEmptyValue: false
+          required: true
+          description: The name of the Ecosystem to which the Data Processing Agreement must apply to.
+          schema:
+            type: string
+            enum:
+              - Edu-V
+        - name: data_services
+          in: query
+          required: false
+          description: The names of the Data services to which the Data Processing Agreement must apply to.
+          schema:
+            type: array
+            items:
+              type: string
+              enum:
+                - Onderwijsadministratie
+                - Aanspraken en leermiddelactivatie
+                - Leermiddelactivatie en leermiddelgebruik
+                - Licenties
+                - Leermateriaalgebruik
+                - Leerresultaten
+      responses:
+        '200':
+          description: OK.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Agreement'
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+          description: Bad Request
+        '403':
+          description: You are not allowed to view any agreement for the requested school board based on a data processing agreement
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+      security:
+        - OAuth2:
+            - dpa
+            
+  /agreements:
+    get:
+      summary: GET AgreementVerification for School Board and Supplier
+      description: |-
+         Use this API endpoint to find out if a school board has a data processing agreement with another supplier.
+         
+         When the requester is not allowed to request this information for this school board then you will get a 403.
+         When the requester is allowed to request this information then the agreement verification data is returned (200).
+      tags:
+        - Verwerkersregister
+      parameters:
+        - name: supplierOin
+          in: query
+          allowEmptyValue: false
+          required: true
+          description: OIN of the system supplier
+          schema:
+            type: string
+            pattern: (\d|\D){20}
+        - name: boardId
+          in: query
+          allowEmptyValue: false
+          required: true
+          description: ID of the school board (Onderwijsbestuursnummer)
+          schema:
+            type: string
+        - name: ecosystem
+          in: query
+          allowEmptyValue: false
+          required: true
+          description: The name of the Ecosystem to which the Data Processing Agreement must apply to.
+          schema:
+            type: string
+            enum:
+              - Edu-V
+        - name: data_services
+          in: query
+          required: false
+          description: The names of the Data services to which the Data Processing Agreement must apply to.
+          schema:
+            type: array
+            items:
+              type: string
+              enum:
+                - Onderwijsadministratie
+                - Aanspraken en leermiddelactivatie
+                - Leermiddelactivatie en leermiddelgebruik
+                - Licenties
+                - Leermateriaalgebruik
+                - Leerresultaten
+      responses:
+        '200':
+          description: OK.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AgreementVerification'
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+          description: Bad Request
+        '403':
+          description: You are not allowed to view any agreement for the requested school board based on a data processing agreement
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+      security:
+        - OAuth2:
+            - dpa
+        
+components:
+  schemas:
+    schemaVersion:
+      type: string
+      description: 'Schema version of this object using semantic versioning 2.0.0'
+      default: 0.0.1
+    
+    Agreement:
+      type: object
+      required:
+        - agreementId
+        - schemaVersion
+        - supplierOin
+        - boardId
+        - valid
+      properties:
+        agreementId:
+          type: string
+        schemaVersion:
+          $ref: '#/components/schemas/schemaVersion'
+        supplierOin:
+          type: string
+        boardId:
+          type: string
+        ecosystem:
+          type: string
+          default: Edu-V
+        dataServices:
+          type: array
+          items:
+            type: string
+            enum:
+              - Onderwijsadministratie
+              - Aanspraken en leermiddelactivatie
+              - Leermiddelactivatie en leermiddelgebruik
+              - Licenties
+              - Leermateriaalgebruik
+              - Leerresultaten
+        valid:
+          type: boolean
+          example: true
+        startDate:
+          example: '2023-07-12'
+          type: string
+          description: 'Start date of the agreement. Format: YYYY-MM-DD (according to RFC3339).'
+        endDate:
+          example: '2024-07-12'
+          type: string
+          description: 'End date of the agreement. Format: YYYY-MM-DD (according to RFC3339).'
+      
+    AgreementVerification:
+      type: object
+      required:
+        - supplierOin
+        - boardId
+        - schemaVersion
+        - ecosystem
+        - valid
+      properties:
+        supplierOin:
+          type: string
+        boardId:
+          type: string
+        schemaVersion:
+          $ref: '#/components/schemas/schemaVersion'
+        ecosystem:
+          type: string
+          default: Edu-V
+        dataServices:
+          type: array
+          items:
+            type: string
+            enum:
+              - Onderwijsadministratie
+              - Aanspraken en leermiddelactivatie
+              - Leermiddelactivatie en leermiddelgebruik
+              - Licenties
+              - Leermateriaalgebruik
+              - Leerresultaten
+        valid:
+          type: boolean
+          example: true
+    
+    StatusResponse:
+      title: StatusResponse
+      type: object
+      description: 'Functional status code and status message.'
+      properties:
+        status:
+          type: integer
+          description: 'See functional status codes within the Documentation.'
+        statusMessage:
+          type: string
+          description: 'See functional status messages within the Documentation.'
+      required:
+        - status
+  
+  securitySchemes:
+    OAuth2:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.example.com/oauth2/token
+          refreshUrl: https://api.example.com/oauth2/token
+          scopes:
+            dpa: 'scope that allows parties to request information from the DPA api.'

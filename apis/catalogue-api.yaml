@@ -1,0 +1,469 @@
+openapi: 3.0.0
+info:
+  title: Catalogue API
+  version: '0.0.2'
+  description: |-
+    The Catalogue API is implemented by the supplier of learning materials.
+    
+    The Catalogue API is the source of Product information and provides GET endpoints to receive the latest state.
+    
+    In a future version the Notifications API can be used to notify Consumers of the Catalogue API whenever a Product changes (new, update or delete).
+  contact:
+    name: Edu-V
+    url: www.edu-v.org/afsprakenstelsel
+    email: info@edu-v.org
+components:
+  schemas:
+  
+    schemaVersion:
+      type: string
+      description: 'Schema version of this event/object using semantic versioning 2.0.0'
+      default: 0.0.2
+    
+    Product:
+      title: Product
+      type: object
+      x-tags:
+        - Product
+      description: A product that is available for sale or selection within a marketplace.  This entity captures the basic commercial information needed for selection and sale.
+      properties:
+        productId:
+          type: string
+          description: |-
+            The unique identifier for this product. For all products that are forSale an EAN or ISBN number is provided. For all other Products a uuid is generated
+        schemaVersion:
+          $ref: '#/components/schemas/schemaVersion'
+        type:
+          type: string
+          description: |
+            Type of product. In case the product consists of both physical and digital products, the value combi is chosen.
+          enum:
+            - 'physical'
+            - 'digital'
+            - 'combi'
+        status:
+          type: string
+          description: |
+            Status of product
+          enum:
+            - 'not-yet-available'
+            - 'limited-available'
+            - 'available'
+            - 'temporary-not-available'
+            - 'no-longer-available'
+            - 'will-never-be-available'
+            - 'not-available-or-usable'
+        forSale:
+          type: boolean
+          description: |
+            True if the product is forSale, False if the product is not for sale (e.g. for Demo products)
+        name:
+          type: string
+          description: Name of the Product
+        productDescriptionIds:
+          type: array
+          description: 'Reference to this products content/course detailed description (similar to productDescriptionIds in https://www.edustandaard.nl/app/uploads/2021/09/ECK-Distributie-en-Toegang-2.5-Servicebeschrijvingen.pdf)'
+          items:
+            $ref: '#/components/schemas/CourseReference'
+        levelSubjects:
+          type: array
+          description: The set of levels and subjects that this product is targeted at.
+          items:
+            $ref: '#/components/schemas/LevelSubjects'
+        price:
+          type: array
+          description: |
+            Public List price of the Product. It is possible to include historic and future prices for a product (e.g. for Indexation).
+            
+            When applicable, include the historic price (t-1), the current price (t) and the future price (t+1).
+          items:
+            type: object
+            properties:
+              priceExcl:
+                type: number
+                description: 'Price excluding VAT and rounded to 2 decimals'
+              priceIncl:
+                type: number
+                description: 'Price including VAT and rounded to 2 decimals'
+              priceCurrency:
+                type: string
+                description: 'The applicable currency according to ISO4217 currency codes, see: https://en.wikipedia.org/wiki/ISO_4217.'
+                default: "EUR"
+              validFrom:
+                type: string
+                format: date
+                description: 'The date (incl.) from which this price is valid, format: YYYY-MM-DD (according to RFC3339)'
+            required:
+              - priceExcl
+              - priceIncl
+              - priceCurrency
+              - validFrom
+        paymentModels:
+          type: array
+          description: 'The payment models applicable to this Product.'
+          items:
+            type: string
+            enum:
+              - 'pre-paid'
+              - 'post-paid'
+              - 'periodically-paid'
+        licensePeriod:
+          type: string
+          description: 'Duration of the license period. Mandatory field for digital products'
+          enum:
+            - 'month'
+            - 'quarter'
+            - 'year'
+            - 'schoolyear'
+        activationPeriod:
+          type: object
+          description: 'Prescribes the way the activationUntilDate can be calculated.'
+          properties:
+            activationVariant:
+              type: string
+              description: |
+                The variant that should be applied to calculate the ActivationUntilDate.
+                
+                - days: number of days after the startDate of the activation period. Value activationDays is a mandatory field.
+                - date: fixed activationDate for every entitlement. Value activationUntilDate is a mandatory field.
+                - schoolyear: the activationUntilDate is set at 31st of July of the current schoolyear.
+              enum:
+                - 'days'
+                - 'date'
+                - 'schoolyear'
+            activationDays:
+              type: integer
+            activationUntilDate:
+              type: string
+              format: date
+              description: 'A fixed activationUntilDate for all entitlements, format: YYYY-MM-DD (according to RFC3339)'
+          required:
+            - activationVariant
+        trialAccessUrl:
+          type: string
+          description: 'Optional trial / preview URL.'
+        defaultAccessUrl:
+          type: string
+          description: |
+            The default Access Url used to access the product after selection or purchase.
+            
+            Mandatory field for combi and digital products.
+            
+            For sets of digital products and combi products a single Access URl is listed from which all underlying digital products can be activated.
+        shortDescription:
+          type: string
+          description: 'Short description for display on search pages or other marketing blocks.'
+        longDescription:
+          type: string
+          description: 'Long description for display on a product page.'
+        media:
+          type: object
+          description: 'A collection of media for use in the marketplace.'
+          properties:
+            mainThumbnailUrl:
+              description: 'The main media item to show in a thumbnail.'
+              $ref: '#/components/schemas/Media'
+            productImageUrls:
+              type: array
+              description: 'A collection of image urls for a product.'
+              items:
+                $ref: '#/components/schemas/Media'
+            productVideoUrls:
+              type: array
+              description: 'A collection of video urls for a product.'
+              items:
+                $ref: '#/components/schemas/Media'
+            productPdfUrls:
+              type: array
+              description: 'A collection of PDF urls for a product.'
+              items:
+                $ref: '#/components/schemas/Media'
+        relatedProducts:
+          type: array
+          description: |
+            An array of related product ID's (for display alongside a product in a marketplace).
+          items:
+            type: string
+            description: 'productIds of the related products.'
+        bundledProducts:
+          type: array
+          description: |
+            A link to any other products that are included in this one if it is a set or combi product.
+            
+            This field is mandatory for sets of digital products.
+            This field is optional (but recommended) for combi products and sets of physical products.
+          items:
+            type: string
+            description: 'productIds of the products in the set or in the combi product.'
+        firstPublishedDate:
+          type: string
+          format: date
+          description: |
+            Date the product will be or is published on the market, format: YYYY-MM-DD (according to RFC3339)
+        deprecationDate:
+          type: string
+          description: |
+            Date when a follow-up product is available on the market, format: YYYY-MM-DD (according to RFC3339).
+            Advise is to use the follow-up product.
+          format: date
+        supportedUntilDate:
+          type: string
+          description: |
+            Date after which the product can no longer be ordered or sold, format: YYYY-MM-DD (according to RFC3339).
+            Mandatory field for the status: no-longer-available and not-available-or-usable, 
+          format: date
+        endOfLifeDate:
+          type: string
+          description: |
+            Date after which the product is no longer available, format: YYYY-MM-DD (according to RFC3339).
+            Mandatory field for the status: no-longer-available and not-available-or-usable, 
+          format: date
+      required:
+        - productId
+        - schemaVersion
+        - type
+        - status
+        - forSale
+        - name
+        - shortDescription
+        - firstPublishedDate
+    
+    CourseReference:
+      title: CourseReference
+      type: object
+      x-tags:
+        - Product
+      properties:
+        courseId:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+      description: |-
+        A reference to the content of the products methods/streams/courses.
+        The details of the content can be retrieved via the Course API.
+        A product license gives access to one or more methods/streams/courses. A methods/streams/courses can be referenced by one or more Products
+        See productDescriptionIds in https://www.edustandaard.nl/app/uploads/2021/09/ECK-Distributie-en-Toegang-2.5-Servicebeschrijvingen.pdf
+    
+    LevelSubjects:
+      title: LevelSubjects
+      type: object
+      x-tags:
+        - Product
+      description: |
+        The combination of levels and subject that indicates what a product is targeted at.
+        
+        It is possible to include more than one level in the array levels. For example for 'onderbouw' of 'brugklas havo/vwo'.
+      properties:
+        levels:
+          type: array
+          description: 'List of official levels this study and subject combination. could be multiple in case of schoollevel "Brugklas", "onderbouw", etc'
+          items:
+            type: object
+            description: 'List of official levels this study and subject combination. could be multiple in case of schoollevel "Brugklas", "onderbouw", etc'
+            properties:
+              level:
+                type: string
+                description: |-
+                  Official Level. 
+                  Allowed values are: VO-PRO, VO-VMBO-BB, VO-VMBO-KB, VO-VMBO-GL, VO-VMBO-TL, VO-HAVO, VO-VWO 
+                  As specified here: https://lod.onderwijsregistratie.nl/api/catalogus/v1/klasse?subject=http://lod.onderwijsregistratie.nl/cat/cdm/def/NiveauVO-v03.2'
+                enum:
+                  - BO
+                  - SO
+                  - SBO
+                  - VO-PRO
+                  - VO-VMBO-BB
+                  - VO-VMBO-KB
+                  - VO-VMBO-GL
+                  - VO-VMBO-TL
+                  - VO-HAVO
+                  - VO-VWO
+                  - VSO
+                  - MBO-Niveau-1
+                  - MBO-Niveau-2
+                  - MBO-Niveau-3
+                  - MBO-Niveau-4
+              levelYear:
+                type: integer
+                description: 'Learning year (e.g. 1)'
+            required:
+              - level
+              - levelYear
+        subjectCode:
+          type: string
+          description: 'Government standard subject code. Source: Ministerie van OCW, like https://zoek.officielebekendmakingen.nl/stcrt-2019-35044'
+  
+    Media:
+      title: Media
+      type: object
+      x-tags:
+        - Product
+      properties:
+        url:
+          type: string
+          description: 'url to the media object.'
+        type:
+          type: string
+          description: 'type of media object, being an image, video or pdf.'
+        description:
+          type: string
+          description: 'short description of the media object, which can be displayed as hover info.'
+        width:
+          type: integer
+          description: 'width in pixels' 
+        height:
+          type: integer
+          description: 'height in pixels'
+      description: 'A reference to a media object.'
+      required:
+        - url
+        - width
+        - height
+  
+    StatusResponse:
+      title: StatusResponse
+      type: object
+      description: 'Functional status code and status message.'
+      properties:
+        status:
+          type: integer
+          description: 'See functional status codes within the Documentation.'
+        statusMessage:
+          type: string
+          description: 'See functional status messages within the Documentation.'
+      required:
+        - status
+  
+  securitySchemes:
+    OAuth2:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.example.com/oauth2/token
+          refreshUrl: https://api.example.com/oauth2/token
+          scopes:
+            catalogue: scope that allows a party to retrieve products from the catalogue
+paths:
+  
+  /products:
+    parameters:
+      - schema:
+          type: integer
+        name: start
+        in: query
+        description: 'Start point for pagination of results, defaults to 0,'
+        examples:
+          default:
+            value: 0
+            summary: The start point for pagination
+      - schema:
+          type: integer
+          maximum: 100
+        in: query
+        name: limit
+        description: 'Limit of number of results returned by page, defaults to 20 with max 100.'
+        examples:
+          default:
+            value: 20
+            summary: The default value if none is provided
+          max:
+            value: 100
+            summary: The largest recommended page size
+      - schema:
+          type: string
+        name: schemaVersion
+        in: query
+        required: false
+        description: 'Optional parameter to request a response in a specific schema version. If none supplied, the server will choose its default schema version.'
+    get:
+      summary: Get All Products
+      operationId: get-all-products
+      x-tags:
+        - Product
+      tags:
+        - Leveranciersspecifieke leermiddelencatalogus
+      description: Get all products
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Product'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+      security:
+        - OAuth2:
+            - catalogue
+  
+  /products/{id}:
+    parameters:
+      - schema:
+          type: string
+        name: id
+        in: path
+        required: true
+      - schema:
+          type: string
+        name: schemaVersion
+        in: query
+        required: false
+        description: 'Optional parameter to request a response in a specific schema version. If none supplied, the server will choose its default schema version.'
+    get:
+      summary: Get Product by ID
+      operationId: get-product-by-id
+      x-tags:
+        - Product
+      tags:
+        - Leveranciersspecifieke leermiddelencatalogus
+      description: Get a specific product by id
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+      security:
+        - OAuth2:
+            - catalogue
+x-tags:
+  - name: Product

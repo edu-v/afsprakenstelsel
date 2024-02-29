@@ -1,0 +1,474 @@
+openapi: 3.0.0
+info:
+  title: Order API
+  version: '0.0.1'
+  description: |-
+    The Order API is implemented by the reference components `Bestelomgeving leermiddelen` and `Ordersysteem leermiddelen`.
+
+    The `Bestelomgeving leermiddelen` is able to send a OrderRequest or CreditOrderRequest to the `Ordersysteem leermiddelen`.
+
+    Requests are send and received via asynchronous transactions. Therefore the `Ordersysteem leermiddelen` need to implement endpoints te receive requests. Moreover the `Bestelomgeving leermiddelen` needs to implement confirmation endpoints to receive confirmations from the `Ordersysteem leermiddelen` that requests have been processed.
+  contact:
+    name: Edu-V
+    url: www.edu-v.org/afsprakenstelsel
+    email: info@edu-v.org
+components:
+  schemas:
+  
+    schemaVersion:
+      type: string
+      description: 'Schema version of this event/object using semantic versioning 2.0.0'
+      default: 0.1.0
+    
+    OrderRequest:
+      title: OrderRequest
+      type: object
+      x-tags:
+        - Order
+      description: |
+        Request send by the `Bestelomgeving leermiddelen` to the `Ordersysteem leermiddelen` to place an order with a quantity for a single Product.
+      properties:
+        requestReferenceId:
+          type: string
+          description: |
+            Unique requestReferenceId for this request. This referenceId is used by the Event Mediator of the `Bestelomgeving leermiddelen` to match the OrderConfirmation conformation message(s) send by the `Ordersysteem leermiddelen`.
+            If a party receives another request with the same requestReferenceId value, the receiving party should not process the request again. It should send the confirmation again.
+        schemaVersion:
+          $ref: '#/components/schemas/schemaVersion'
+        purchaseOrderId:
+          type: string
+          description: 'Purchase order number as defined by the `Bestelomgeving leermiddelen`. This number is linked to the financial system of the `Bestelomgeving leermiddelen`.'
+        purchaseOrderLineId:
+          type: string
+          description: 'Optional line number in case of an order with more than one product.'
+        productId:
+          type: string
+          description: 'The Product the `Bestelomgeving leermiddelen` orders. The productId can be retrieved from the Catalogue API from the `Ordersysteem leermiddelen`.'
+        quantity:
+          type: integer
+          example: 1
+          description: 'The quantity of the Product the `Bestelomgeving leermiddelen` orders.'
+        contractId:
+          type: string
+          description: 'An optional unique identifier for a contract between `Ordersysteem leermiddelen` and `Bestelomgeving leermiddelen` where this request belongs to.'
+        address:
+          type: object
+          description: 'An optional address where the product should be delivered. This field can be used for the delivery of physical products.'
+          properties:
+            street:
+              type: string
+            houseNumber:
+              type: string
+              description: 'includes additions (e.g. 55-A)'
+            zipCode:
+              type: string
+            city:
+              type: string
+            countryCode:
+              type: string
+              description: 'According to Alpha-2 code from ISO 3166, e.g. NL'
+            country:
+              type: string
+          required:
+            - street
+            - houseNumber
+            - zipCode
+            - city
+            - country
+      required:
+        - requestReferenceId
+        - schemaVersion
+        - purchaseOrderId
+        - productId
+        - quantity
+    
+    OrderConfirmation:
+      title: OrderConfirmation
+      type: object
+      x-tags:
+        - Order
+      description: |
+        The confirmation that is send back by the `Ordersysteem leermiddelen` as an asynchronous reply to the request of the `Bestelomgeving leermiddelen`.
+
+        The `Ordersysteem leermiddelen` will send a confirmation message back to the `Bestelomgeving leermiddelen` approving or declining the order request. In case the `Ordersysteem leermiddelen` declines, a functional status code and message is replied. 
+
+        Confirmations are only handled ones. If a confirmation with the similar requestReferenceId is received the processing is only done the first time. The confirmation may be send multiple times, but always with the same responseReferenceId. In this way the `Bestelomgeving leermiddelen` can validate that the response is processed only once.
+        
+        Functional status codes and messages are described in the Documentation.
+      properties:
+        requestReferenceId:
+          type: string
+          description: 'The requestReferenceId that was send by the `Bestelomgeving leermiddelen` as part of the OrderRequest request'
+        responseReferenceId:
+          type: string
+          description: 'A reference to this confirmation message send by the `Ordersysteem leermiddelen` to the `Bestelomgeving leermiddelen`.'
+        schemaVersion:
+          $ref: '#/components/schemas/schemaVersion'
+        productId:
+          type: string
+          description: 'The productId which was part of the OrderRequest send by the `Bestelomgeving leermiddelen`.'
+        quantity:
+          type: integer
+          example: 1
+          description: 'The quantity of the Product the `Bestelomgeving leermiddelen` has ordered.'
+        purchaseOrderId:
+          type: string
+          description: 'Purchase order number as defined by the `Bestelomgeving leermiddelen`. This number is linked to the financial system of the `Bestelomgeving leermiddelen`.'
+        purchaseOrderLineId:
+          type: string
+          description: 'Optional line number in case of an order with more than one product.'
+        salesOrderId:
+          type: string
+          description: 'Sales order number as defined by the `Ordersysteem leermiddelen`. This number is linked to the financial system of the `Ordersysteem leermiddelen`.'
+        salesOrderLineId:
+          type: string
+          description: 'Optional line number in case of an order with more than one product.'
+        processedTimestamp:
+          type: string
+          format: date-time
+          description: |
+            The moment that the order was processed by the `Ordersysteem leermiddelen`. As requests and confirmation messages are send asynchronous, this is not the moment the confirmation message was send by the `Ordersysteem leermiddelen` to the `Bestelomgeving leermiddelen`.
+
+            Format: openapi in ZULU time as specified in RFC 3339, section 5.6
+          example: "2017-07-21T17:32:28Z"
+        orderStatus:
+          type: string
+          description: 'The status of pending allows the `Ordersysteem leermiddelen` to communicate to the `Bestelomgeving leermiddelen` that the approval process has started, but has not yet been completed.'
+          enum:
+            - pending
+            - approved
+            - declined
+        success:
+          type: boolean
+          description: |
+            Boolean indicating the OrderRequest was processed successfully.
+            When the `Ordersysteem leermiddelen` declines the request a false will be returned, along with a status code and a status message.
+        status:
+          type: integer
+          description: 'See functional status codes within the Documentation.'
+        statusMessage:
+          type: string
+          description: 'See functional status messages within the Documentation.'
+      required:
+        - requestReferenceId
+        - responseReferenceId
+        - schemaVersion
+        - processedTimestamp
+        - orderStatus
+        - success
+        - status
+    
+    CreditOrderRequest:
+      title: CreditOrderRequest
+      type: object
+      x-tags:
+        - Order
+      description: |
+        Request send by the `Bestelomgeving leermiddelen` to the `Ordersysteem leermiddelen` with a request to credit an order. The request has the flexibility to include references known within systems of the `Ordersysteem leermiddelen`.
+      properties:
+        requestReferenceId:
+          type: string
+          description: |
+            Unique requestReferenceId for this request. This referenceId is used by the Event Mediator of the `Bestelomgeving leermiddelen` to match the CreditOrderConfirmation conformation message(s) send by the `Ordersysteem leermiddelen`.
+            If a party receives another request with the same requestReferenceId value, the receiving party should not process the request again. It should send the confirmation again.
+        schemaVersion:
+          $ref: '#/components/schemas/schemaVersion'
+        purchaseOrderId:
+          type: string
+          description: 'Purchase order number of the order to be credited as defined by the `Bestelomgeving leermiddelen`. This number is linked to the financial system of the `Bestelomgeving leermiddelen`.'
+        purchaseOrderLineId:
+          type: string
+          description: 'Optional line number in case of an order with more than one product.'
+        salesOrderId:
+          type: string
+          description: 'Sales order number of the order to be credited as defined by the `Ordersysteem leermiddelen`. This number is linked to the financial system of the `Ordersysteem leermiddelen`.'
+        salesOrderLineId:
+          type: string
+          description: 'Optional line number in case of an order with more than one product.'
+        responseReferenceId:
+          type: string
+          description: "Optional reference to the responseReferenceID of the confirmation message in which the `Ordersysteem leermiddelen` approved the order to the `Bestelomgeving leermiddelen`."
+      required:
+        - requestReferenceId
+        - schemaVersion
+        - purchaseOrderId
+    
+    CreditOrderConfirmation:
+      title: CreditOrderConfirmation
+      type: object
+      x-tags:
+        - Order
+      description: |
+        The confirmation that is send back by the `Ordersysteem leermiddelen` as an asynchronous reply to the request of the `Bestelomgeving leermiddelen`.
+
+        The `Ordersysteem leermiddelen` will send a confirmation message back to the `Bestelomgeving leermiddelen` including a success parameter indicating if the `Ordersysteem leermiddelen` approves or declines the credit request. In case of a decline, the `Ordersysteem leermiddelen` replies with a functional status code and message. 
+
+        Confirmations are only handled ones. If a confirmation with the similar requestReferenceId is received the processing is only done the first time. The confirmation may be send multiple times, but always with the same responseReferenceId. In this way the `Bestelomgeving leermiddelen` can validate that the response is processed only once.
+        
+        Functional status codes and messages are described in the Documentation.
+      properties:
+        requestReferenceId:
+          type: string
+          description: 'The requestReferenceId that was send by the `Bestelomgeving leermiddelen` as part of the CreditOrderRequest request'
+        responseReferenceId:
+          type: string
+          description: 'A reference to this confirmation message send by the `Ordersysteem leermiddelen` to the `Bestelomgeving leermiddelen`.'
+        schemaVersion:
+          $ref: '#/components/schemas/schemaVersion'
+        purchaseOrderId:
+          type: string
+          description: 'Purchase order number of the order to be credited as defined by the `Bestelomgeving leermiddelen`. This number is linked to the financial system of the `Bestelomgeving leermiddelen`.'
+        purchaseOrderLineId:
+          type: string
+          description: 'Optional line number in case of an order with more than one product.'
+        salesOrderId:
+          type: string
+          description: 'Sales order number of the order to be credited as defined by the `Ordersysteem leermiddelen`. This number is linked to the financial system of the `Ordersysteem leermiddelen`.'
+        salesOrderLineId:
+          type: string
+          description: 'Optional line number in case of an order with more than one product.'
+        processedTimestamp:
+          type: string
+          format: date-time
+          description: |
+            The moment that the credit order was processed by the `Ordersysteem leermiddelen`. As requests and confirmation messages are send asynchronous, this is not the moment the confirmation message was send by the `Ordersysteem leermiddelen` to the `Bestelomgeving leermiddelen`.
+            
+            Format: openapi in ZULU time as specified in RFC 3339, section 5.6
+          example: "2017-07-21T17:32:28Z"
+        creditOrderStatus:
+          type: string
+          description: 'The status of pending allows the `Ordersysteem leermiddelen` to communicate to the `Bestelomgeving leermiddelen` that the approval process has started, but has not yet been completed.'
+          enum:
+            - pending
+            - approved
+            - declined
+        success:
+          type: boolean
+          description: |
+            Boolean indicating the CreditOrderRequest was processed successfully.
+            When the `Ordersysteem leermiddelen` declines the request a false will be returned, along with a status code and a status message.
+        status:
+          type: integer
+          description: 'See functional status codes within the Documentation.'
+        statusMessage:
+          type: string
+          description: 'See functional status messages within the Documentation.'
+      required:
+        - requestReferenceId
+        - responseReferenceId
+        - schemaVersion
+        - purchaseOrderId
+        - processedTimestamp
+        - creditOrderStatus
+        - success
+        - status
+    
+    StatusResponse:
+        title: StatusResponse
+        type: object
+        description: 'Functional status code and status message.'
+        properties:
+          status:
+            type: integer
+            description: 'See functional status codes within the Documentation.'
+          statusMessage:
+            type: string
+            description: 'See functional status messages within the Documentation.'
+        required:
+          - status
+  
+  securitySchemes:
+    OAuth2:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.example.com/oauth2/token
+          refreshUrl: https://api.example.com/oauth2/token
+          scopes:
+            order: 'scope needed to send and receive Order and CreditOrder requests and confirmations'
+      description: ''
+
+paths:
+  
+  /orders:
+    put:
+      summary: Accept order request
+      operationId: accept-order-request
+      tags:
+        - Ordersysteem leermiddelen
+      x-tags:
+        - Order
+      description: |-
+        As a `Bestelomgeving leermiddelen` place an OrderRequest at the `Ordersysteem leermiddelen` to purchase learning materials.
+        
+        The `Ordersysteem leermiddelen` is the provider of this endpoint.
+        The `Bestelomgeving leermiddelen` should give a 405 HTTP status as result when called.
+      responses:
+        '202':
+          description: Accepted
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        '405':
+          description: Method Not Allowed - Ordersysteem leermiddelen is provider of this endpoint
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrderRequest'
+      security:
+        - OAuth2:
+            - order
+  
+  /creditorders/:
+    put:
+      summary: Accept credit order request
+      operationId: accept-credit-order-request
+      tags:
+        - Ordersysteem leermiddelen
+      x-tags:
+        - Order
+      description: |-
+        As a `Bestelomgeving leermiddelen` place a CreditOrderRequest at the `Ordersysteem leermiddelen` to cancel an earlier OrderRequest to purchase learning materials.
+        
+        The `Ordersysteem leermiddelen` is the provider of this endpoint.
+        The `Bestelomgeving leermiddelen` should give a 405 HTTP status as result when called.
+      responses:
+        '202':
+          description: Accepted
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        '405':
+          description: Method Not Allowed - Ordersysteem leermiddelen is provider of this endpoint
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreditOrderRequest'
+      security:
+        - OAuth2:
+            - order
+  
+  /orders/confirmations:
+    put:
+      summary: Confirm order request
+      operationId: confirm-order-request
+      tags:
+        - Bestelomgeving leermiddelen
+      x-tags:
+        - Order
+      description: |-
+        As a `Ordersysteem leermiddelen` confirm the OrderRequest to the `Bestelomgeving leermiddelen`.
+        
+        The `Bestelomgeving leermiddelen` is the provider of this endpoint. 
+        The `Ordersysteem leermiddelen` should give a 405 HTTP status as result when called.
+      responses:
+        '202':
+          description: Accepted
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        '405':
+          description: Method Not Allowed - Bestelomgeving leermiddelen is provider of this endpoint
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreditOrderConfirmation'
+      security:
+        - OAuth2:
+            - order
+    
+  /creditorders/confirmations:
+    put:
+      summary: Confirm credit order request
+      operationId: confirm-credit-order-request
+      tags:
+        - Bestelomgeving leermiddelen
+      x-tags:
+        - Order
+      description: |-
+        As a `Ordersysteem leermiddelen` confirm the CreditOrderRequest to the `Bestelomgeving leermiddelen`.
+        
+        The `Bestelomgeving leermiddelen` is the provider of this endpoint. 
+        The `Ordersysteem leermiddelen` should give a 405 HTTP status as result when called.
+      responses:
+        '202':
+          description: Accepted
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        '405':
+          description: Method Not Allowed - Bestelomgeving leermiddelen is provider of this endpoint
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreditOrderConfirmation'
+      security:
+        - OAuth2:
+            - order
+
+x-tags:
+  - name: Order

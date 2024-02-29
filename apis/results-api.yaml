@@ -1,0 +1,254 @@
+openapi: 3.0.0
+info:
+  title: Results API
+  version: '0.0.1'
+  
+tags: 
+    - name: Cijferadministratie
+
+paths: 
+  /results/{id}:
+    put:
+      operationId: putResult
+      summary: The REST create request message for the putResultsId() API call.
+      tags: 
+        - Cijferadministratie
+      description: |
+        To create a new Result object or change an exisiting Result object.
+      security:
+        - OAuth2:
+            - la.result
+      parameters: 
+        - name: id
+          in: path
+          description: |
+              The unique identifier for the Result object.
+          required: true
+          schema: 
+            type: string
+          style: simple
+      requestBody:
+        description: |
+          The result data that is to be stored.
+        content: 
+          application/json: 
+            schema: 
+              $ref: "#/components/schemas/Result"
+            examples:
+                  Voorbeeld (volledig):
+                    value:
+                      id: result123abc
+                      schemaVersion: 1.3.0
+                      additionalInfo: 'Betrapt op spieken'
+                      assessmentDateTime: '2023-06-24T14:15:22Z'
+                      assessmentId: toets-34-123-666-222-33333
+                      assessmentName: ProefExamen Nederlands
+                      eckId: eck-S123abc
+                      employees:
+                        - eckId: eck-M123abc
+                      missing: false
+                      resultValue: '7.6'
+                      resultType: 0.0-10.0
+                      reviewUrl: "https://assessmentsystem.nl/student123598025729729/result4"
+                      status: final
+                  Voorbeeld (minimaal):
+                    value:
+                      id: result123abc
+                      schemaVersion: 1.3.0
+                      assessmentId: toets-34-123-666-222-33333
+                      eckId: eck-S123abc
+                      employees:
+                        - eckId: eck-M123abc
+                      resultValue: '7.6'
+                      resultType: 0.0-10.0
+                      status: final
+                  Voorbeeld (verwijdering):
+                    value:
+                      id: result123abc
+                      schemaVersion: 1.3.0
+                      assessmentId: toets-34-123-666-222-33333
+                      eckId: eck-S123abc
+                      employees:
+                        - eckId: eck-M123abc
+                      resultValue: '7.6'
+                      resultType: 0.0-10.0
+                      status: canceled
+
+        required: true
+      responses: 
+        "200" : 
+          description: |
+            The object has been successfully stored in the score/result administration.
+        "400" : 
+          description: |
+            This is the error response for HTTP status code 400.
+          content: 
+            application/json: 
+              schema: 
+                $ref: "#/components/schemas/StatusResponse"
+        "401" : 
+          description: |
+            This is the error response for HTTP status code 401.
+          content: 
+            application/json: 
+              schema: 
+                $ref: "#/components/schemas/StatusResponse"
+        "403" : 
+          description: |
+            This is the error response for HTTP status code 403.
+          content: 
+            application/json: 
+              schema: 
+                $ref: "#/components/schemas/StatusResponse"
+
+components:
+  schemas:
+    
+    SchemaVersion:
+      type: string
+      description: 'Schema version of this event/object using semantic versioning 2.0.0'
+      default: 1.3.0
+      
+    Result:
+      title: Result
+      type: object
+      x-tags:
+        - Result
+      description: 'A description of a result statement'
+      properties:
+        id:
+          type: string
+          description: 'Unique id of this result'
+        schemaVersion:
+          $ref: '#/components/schemas/SchemaVersion'
+        eckId:
+          type: string
+          description: |-
+            The ECK-iD of the assessment participant (student or pupil) for which the Result is reported. This eckId is required when available.
+        userIds:
+          type: array
+          description: |
+            The list of user identifiers of the assessment participant (student or pupil) for which the Result is reported. This attribute userIds is required when the eckId is not available.
+          items:
+            type: object
+            properties:
+              userId:
+                type: string
+              userIdType:
+                type: string
+                enum:
+                  - nlPersonProfileId
+                  - nlPersonRealId
+                  - Las-key
+                  - Leerlingnummer
+            required:
+              - userId
+              - userIdType
+
+        additionalInfo:
+          type: string
+          description: 'Optional additional information about this result. E.g. for indicating which judgement level has been applied or the reason for absence of the result.'
+        assessmentDateTime:
+          type: string
+          format: date-time
+          description: 'Date and time of the assessment execution. Format: Conform openapi in ZULU time as specified in RFC 3339, section 5.6'
+        assessmentId:
+          type: string
+          description: 'Assessment reference for which result is reported.'
+        assessmentName:
+          type: string
+          description: 'Name of the Assessment to be displayed to employees that register result in the gradebook.'
+        missing:
+          type: boolean
+          description: 'The indication whether the result is missing or not.'
+        resultValue:
+          type: string
+          description: 'Value of the achieved assessment result (see resultType for interpretation).'
+        resultType:
+          type: string
+          enum:
+            - '0.0-10.0'
+            - 'OVG'
+            - 'RnTR'
+            - 'RnERK'
+          description: |-
+            Enum that defines allowed values for result 
+            - "00-10.0": number, with 1 decimal :[0.0-10.0] 
+            - OVG: 1 letter ([G], [V] or [O]) for Goed, Voldoende or Onvoldoende (dutch specific)
+            - RnTR: code for the achieved reference level in Referentieniveau Taal en Rekenen, e.g. 1F or 2S
+            - RnERK: code for the achieved reference level in Europees Referentiekader voor talen, e.g. A1 or C2
+        reviewUrl:
+          type: string
+          description: 'Optional link into the assesment system (deeplink) to the details of this result.'
+        status:
+          type: string
+          description: 'The status of the Result.'
+          enum:
+            - in progress
+            - final
+            - canceled
+        employees:
+          type: array
+          description: 'List of employee that is allowed to register the Result in the gradebook.'
+          items:
+            type: object
+            description: 'Identifier of the Employee that is allowed to register the Result in the gradebook.'
+            properties:
+              eckId:
+                type: string
+                description: |-
+                  The ECK-ID of the Employee who is allowed to administer the Result.
+                  (either eckId or userIds is required)
+              userIds:
+                type: array
+                description: |
+                  The User ID(s) of the Employee who is allowed to administer the Result.
+                  (either eckId, userIds is required)
+                items:
+                  type: object
+                  properties:
+                    userId:
+                      type: string
+                    userIdType:
+                      type: string
+                      enum:
+                        - nlPersonProfileId
+                        - nlPersonRealId
+                        - Las-key
+                        - Medewerkernummer
+                  required:
+                    - userId
+                    - userIdType
+      required:
+        - id
+        - schemaVersion
+        - assessmentId
+        - resultType
+        - employees
+
+    StatusResponse:
+      title: StatusResponse
+      type: object
+      description: 'Functional status code and status message.'
+      properties:
+        status:
+          type: integer
+          description: 'See functional status codes within the Documentation.'
+        statusMessage:
+          type: string
+          description: 'See functional status messages within the Documentation.'
+      required:
+        - status
+  
+  securitySchemes:
+    OAuth2:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.example.com/oauth2/token
+          refreshUrl: https://api.example.com/oauth2/token
+          scopes:
+            la.result: scope to send and receive result object
+
+x-tags:
+  - name: Result
