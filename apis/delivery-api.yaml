@@ -1,13 +1,20 @@
 openapi: 3.0.0
 info:
   title: Delivery API
-  version: '0.1.0'
-  description: |-
-    The Delivery API is implemented by the `Bestelomgeving leermiddelen` and the `Aanspraakmanager`. The Delivery API is used to share all the information required for the digital delivery of digital learning materials. The `Aanspraakmanager` is responsible for this delivery process. The `Bestelomgeving leermiddelen` gives a DeliveryOrder to the `Aanspraakmanager`.
+  version: '0.9.1'
+  description: |
+    The Delivery API is implemented by the `Bestelomgeving leermiddelen` and the `Aanspraakmanager`.
+    The Delivery API is used to share all the information required for the digital delivery of digital learning materials.
+    The `Aanspraakmanager` is responsible for this delivery process. The `Bestelomgeving leermiddelen` gives a DeliveryOrder to the `Aanspraakmanager`.
     
-    The `Bestelomegeving leermiddelen` is the source of DeliveryOrder information and provides GET endpoints to receive the latest state.
-    
-    DeliveryOrders are send and received via several asynchronous transactions. Therefore the consuming reference component `Aanspraakmanager` needs to implement endpoints te receive data. Moreover the `Bestelomgeving leermiddelen` needs to implement confirmation endpoints to receive confirmations from the `Aanspraakmanager` that DeliveryOrders have been processed.
+    DeliveryOrders are send and received via several asynchronous transactions.
+    Therefore the `Aanspraakmanager` needs to implement endpoints te receive data.
+    Moreover the `Bestelomgeving leermiddelen` needs to implement confirmation endpoints to receive confirmations from the `Aanspraakmanager` that DeliveryOrders have been processed.
+
+    The `Bestelomgeving leermiddelen` is the source of DeliveryOrder information and provides GET endpoints to receive the latest state.
+    These GET endpoitns are available to the `Aanspraakmanager` and the `Licentieregistratie` involved in the delivery process.
+    Moreover a school can provide information to a `Leermiddelendashboard` or a `Leermiddelenportaal`. A school should give consent for the exchange of information to these two reference components.
+
   contact:
     name: Edu-V
     url: www.edu-v.org/afsprakenstelsel
@@ -17,16 +24,21 @@ components:
   
     schemaVersion:
       type: string
-      description: 'Schema version of this event/object using semantic versioning 2.0.0'
-      default: 0.1.0
+      description: |
+        Schema version of this API using semantic versioning 2.0.0.
+        The API version number is communicated in the header.
+        The major version is communicated in the URI.
+        For more information see the [Edu-V versioning guidelines](https://edu-v.atlassian.net/wiki/spaces/AFSPRAKENS/pages/9437200/Versiebeheer).
+      default: 0.9.1
     
     DeliveryOrderRequest:
       title: DeliveryOrderRequest
       type: object
       x-tags:
         - DeliveryOrder
-      description: |-
-        A new or updated DeliveryOrder is send from the `Bestelomgeving leermiddelen` to the `Aanspraakmanager`. The `Aanspraakmanager` replies with a DeliveryOrderConfirmation to confirm this message.
+      description: |
+        A new or updated DeliveryOrder is send from the `Bestelomgeving leermiddelen` to the `Aanspraakmanager`.
+        The `Aanspraakmanager` replies with a DeliveryOrderConfirmation to confirm this message.
         The DeliveryOrder is always send with its latest status. Many fields cannot be changed after initial "ordered" status. just the state can change or quantity be lowered.
         The request should always be processed once, the deliveryOrderReferenceId is unique.
       properties:
@@ -47,11 +59,14 @@ components:
       type: object
       x-tags:
         - DeliveryOrder
-      description: |-
+      description: |
         The confirmation that is send back when the `Bestelomgeving leermiddelen` sends a DeliveryOrderRequest message to the `Aanspraakmanager`.
 
         The deliveryOrderReferenceId, deliveryOrderId are echoed back to the `Bestelomgeving leermiddelen`, with a new deliveryOrderReceiveId.
-        Requests are only handled once. If a request with a similar deliveryOrderReferenceId is received, the processing is only done the first time. The confirmation may be send multiple times, but always with the same deliveryOrderReceiveId. In this way the `Bestelomgeving leermmiddelen` can validate that the response is processed only once.
+        
+        Requests are only handled once. If a request with a similar deliveryOrderReferenceId is received, the processing is only done the first time.
+        The confirmation may be send multiple times, but always with the same deliveryOrderReceiveId. In this way the `Bestelomgeving leermmiddelen` can validate that the response is processed only once.
+        
         Functional status codes and messages are described in the Documentation.
       properties:
         deliveryOrderReferenceId:
@@ -60,45 +75,35 @@ components:
         deliveryOrderReceiveId:
           type: string
           description: 'A reference to this confirmation message send by the `Aanspraakmanager` to the `Bestelomgeving leermiddelen`.'
-        schemaVersion:
-          $ref: '#/components/schemas/schemaVersion'
         deliveryOrderId:
           type: string
           format: uuid
           description: 'The deliveryOrderId which was part of the DeliveryOrder request send by the `Bestelomgeving leermiddelen`.'
-        deliveryOrderLineId:
-          type: string
-          format: uuid
-          description: 'The deliveryOrderLineId which was part of the DeliveryOrder request send by the `Bestelomgeving leermiddelen`.'
         productId:
           type: string
           description: 'The productId which was part of the DeliveryOrder request send by the `Bestelomgeving leermiddelen`'
         processedTimestamp:
           type: string
           format: date-time
-          description: | 
-            The moment that the DeliveryOrder request was processed by the `Aanspraakmanager` and the change became effective. As requests and confirmation messages are send asynchronous, this is not the moment the confirmation message was send by the `Aanspraakmanager` to the `Bestelomgeving leermiddelen`.
+          description: |
+            The moment that the DeliveryOrder request was processed by the `Aanspraakmanager` and the change became effective.
+            As requests and confirmation messages are send asynchronous, this is not the moment the confirmation message was send by the `Aanspraakmanager` to the `Bestelomgeving leermiddelen`.
             
             Format: Conform openapi in ZULU time as specified in RFC 3339, section 5.6
           example: "2017-07-21T17:32:28Z"
-        newDeliveryOrderStatus:
+        newStatus:
           type: string
           enum:
             - ordered
-            - entitled
-            - provisioned
-            - link-ready
+            - processed
+            - licensed
             - cancelled
-            - blocked
-          description: |-
+          description: |
             Confirmation of the next proposed status. 
-            Example: as a reply to a ordered status in a DeliveryOrder Event, the `Aanspraakmanager` can reply with a entitled status to the `Bestelomgeving leermiddelen`.
-        newDeliveryOrderQuantity:
+            Example: as a reply to a ordered status in a DeliveryOrder Event, the `Aanspraakmanager` can reply with a processed status to the `Bestelomgeving leermiddelen`.
+        newTotalQuantity:
           type: integer
-          description: '`Aanspraakmanager` can confirm the new quantity, as provided in the DeliveryOrder request by the `Bestelomgeving leermiddelen` to the `Aanspraakmanager`.'
-        isLicensed:
-          type: boolean
-          description: 'True if the Aanspraakmanager received an InitialActivation message from the `Licentieregistratie` on one of the entitlements related to the DeliveryOrder.'
+          description: '`Aanspraakmanager` can confirm the new total quantity, as provided in the DeliveryOrder request by the `Bestelomgeving leermiddelen` to the `Aanspraakmanager`.'
         success:
           type: boolean
           description: |
@@ -113,7 +118,6 @@ components:
       required:
         - deliveryOrderReferenceId
         - deliveryOrderReceiveId
-        - schemaVersion
         - deliveryOrderId
         - productId
         - processedTimestamp
@@ -127,37 +131,62 @@ components:
       x-tags:
         - DeliveryOrder
       description: |
-        The core object that expresses information about a product that a school or individual has ordered at the `Bestelomgeving leermiddelen`. The DeliveryOrder can include different entitlement variants, implying different authorization rules for Students or Employees to activate and use the Product. These include:
+        The core object that expresses information about a product that a Buyer (School or Customer) has ordered at the `Bestelomgeving leermiddelen`.
+        The DeliveryOrder can include different delivery variants, implying different authorization rules for Students or Employees to activate and license the Product. These include:
         
-        | Entitlement Type | Authorization rule | `Entitlee` | Mandatory `Entitlee` fields |
+        | DeliveryType | Buyer | Authorization rule | Authorization variant |
         |---|---|---|---|
-        | personal | A single specified person (Student or Employee) | Individual | `eckId`, `userId` or `activationCode` |
-        | school | All Students from the School | School | `schoolId` and `quantity` |
-        | schoolsubject | All Students following the specified SchoolSubject(s) | School | `schoolId`, `quantity` and `schoolSubjects` |
-        | schoolgroup | All Students that belong to a specified Group | School | `schoolId`, `quantity` and `groups` |
-        | schoolstudent | All specified Students | School | `schoolId` and `entitlees` or `activationCodes` |
-        | schoolemployee | All specified Employees | School | `schoolId` and `entitlees` or `activationCodes` |
-        
+        | school-all | School | All students from the School | Open |
+        | school-studies | School | All students enrolled in the specified studies | Open |
+        | school-subjects | School | All students enrolled in the specified subjects | Open |
+        | school-groups | School | All students rostered in the specfied groups | Open |
+        | school-students | School | All specified students | Individual |
+        | school-employees | School | All specified employees Individual |
+        | school-activationcodes | School | All specified activaton codes | Individual |
+        | customer-student | Customer | The specified student | Individual |
+        | customer-activationcode | Customer | The specified activation code | Individual |
+
       properties:
         deliveryOrderId:
           type: string
           format: uuid
           description: 'The deliveryOrderId for the DeliveryOrder.'
-          example: 24e39454-5360-4ba4-819f-03e59b8dd679
-        deliveryOrderLineId:
-          type: string
-          format: uuid
-          description: 'The deliveryOrderIdLine for the DeliveryOrder. A deliveryOrder can include more deliveryOrderLines.'
-        schemaVersion:
-          $ref: '#/components/schemas/schemaVersion'
+          example: '24e39454-5360-4ba4-819f-03e59b8dd679'
         contractId:
           type: string
           description: 'An optional unique identifier for a contract between the supplier that is responsible for the `Bestelomgeving leermiddelen` and the supplier of the learning materials. The DeliveryOrder should be handled according to the business rules of the contract.'
+        buyer:
+          $ref: '#/components/schemas/Buyer'
+        productId:
+          type: string
+          description: 'Unique identifier of a Product. The productId can be retrieved from the Catalogue API of supplier of the learning materials.'
+        deliveryType:
+          type: string
+          description: |
+            The delivery type specifies the variant of the authorization rule an `Aanspraakmanager` should apply to manage activation and licensing of the Product.
+          enum:
+            - school-all
+            - school-studies
+            - school-subjects
+            - school-groups
+            - school-students
+            - school-employees
+            - school-activationcodes
+            - customer-user
+            - customer-activatoncode
+        deliverySpecification:
+          $ref: '#/components/schemas/DeliverySpecification'
+        portals:
+          type: array
+          description: '`Leermiddelenportaal` applications where the accessUrl needs to be processed.'
+          items:
+            type: string
+            description: 'Identifier of the `Leermiddelenportaal` application.'
         startDate:
           type: string
           format: date
           description: |
-            Date from which the product can be activated by the Entitlee(s). The startDate marks the start of the activation period.
+            Date from which the product can be activated by the Users. The startDate marks the start of the activation period.
             
             Format: YYYY-MM-DD (according to RFC3339).
           example: '2021-08-22'
@@ -165,271 +194,386 @@ components:
           type: string
           format: date
           description: |
-            Date on which the product can no longer be activated by the Entitlee(s). The activationUntilDate marks the end of the activation period. This does not imply the product can not be used by Licensees who have activated the product during the activation period.
+            Date on which the product can no longer be activated by the Users. The activationUntilDate marks the end of the activation period. This does not imply the product can not be used by Licensees who have activated the product during the activation period.
             
             Format: YYYY-MM-DD (according to RFC3339).
           example: '2022-07-31'
-        ## The minExpirationDate is not included in the DeliveryOrder. This value is calculated by the Aanspraakmanager.
-        # minExpirationDate:
-        #   type: string
-        #   format: date
-        #   description: |
-        #     Optional default expirationDate a `Leermiddelenportaal` can use to maintain access links to the Product in the Learning Material Lists of Students or Employees. The minExpirationDate is calculated by the `Aanspraakmanager` based on info from the Product retrieved from the Catalogue API.
-            
-        #     If the `Leermiddelenportaal` receives an InitialActivation message regarding this Entitlement from the `Licentieregistratie` via the Usage API. This InitialActivation message could include an updated expirationDate. In that case this new expirationDate overwrites the minExpirationDate.
-            
-        #     Format: YYYY-MM-DD (according to RFC3339).
-        #   example: '2022-07-31'
         endDate:
           type: string
           format: date
           description: |
-            Date this DeliveryOrder was blocked or cancelled. Mandatory field when the status changes to Cancelled or Blocked.
+            Date this DeliveryOrder was cancelled. Mandatory field when the status changes to `cancelled`.
             
             Format: YYYY-MM-DD (according to RFC3339).
-        entitlementType:
-          type: string
-          description: |
-            The entitlement type specifies the variant of the authorization rule an `Aanspraakmanager`, `Licentieregistratie` and `Leermiddelenportaal` should apply to determine the Entitlees that have the right to activate and use the Product.
-          enum:
-            - school
-            - schoolsubject
-            - schoolgroup
-            - schoolstudent
-            - schoolemployee
-            - personal
-        productId:
-          type: string
-          description: 'Unique identifier of a Product. The productId can be retrieved from the Catalogue API of supplier of the learning materials.'
-        entitlee:
-          $ref: '#/components/schemas/Entitlee'
         status:
           type: string
-          description: 'The status of the deliveryOrder '
+          description: |
+            The status of the deliveryOrder.
+            - Ordered: the delivery order is send to the `Aanspraakmanager`
+            - Processed: the delivery order is processed by the `Aanspraakmanager`
+            - Licensed: the product has been activated by at least one user.
+            - Cancelled: the delivery order is cancelled by the `Bestelomgeving leermiddelen`
           enum:
+            - created
             - ordered
-            - entitled
-            - provisioned
-            - link-ready
+            - processed
+            - licensed
             - cancelled
-            - blocked
-          default: entitled
-          example: entitled
-        isLicensed:
-          type: boolean
-          default: false
-          description: 'True if the Aanspraakmanager received an InitialActivation message from the `Licentieregistratie` on one of the entitlements related to the DeliveryOrder.'
+          default: created
+        dateCreated:
+          type: string
+          description: 'Indicates the date and time the object was first created. Format: Conform openapi in ZULU time zoals gespecificeerd in RFC 3339, section 5.6.'
+          format: date-time
+          example: "2017-07-21T17:32:28Z"
+        dateLastModified:
+          type: string
+          description: 'Indicates the date and time the object was last modified. Format: Conform openapi in ZULU time zoals gespecificeerd in RFC 3339, section 5.6.'
+          format: date-time
+          example: "2022-08-11T15:31:12Z"
       required:
         - deliveryOrderId
-        - schemaVersion
+        - buyer
+        - productId
+        - deliveryType
+        - deliverySpecification
         - startDate
         - activationUntilDate
-        - entitlementType
-        - productId
-        - entitlee
         - status
+        - dateCreated
+        - dateLastModified
     
-    Entitlee:
-      title: Entitlee
-      x-tags:
-        - DeliveryOrder
+    Buyer:
+      title: Buyer
+      description: 'A school organisation or a B2C customer that acquired the product.'
       oneOf:
-        - $ref: '#/components/schemas/School'
-        - $ref: '#/components/schemas/Individual'
-    
-    School:
-      title: School
+        - $ref: '#/components/schemas/SchoolReference'
+        - $ref: '#/components/schemas/CustomerReference'
+
+    SchoolReference:
       type: object
-      x-tags:
-        - DeliveryOrder
-      description: |
-        The school as Entitlee.
-        This can be in 5 variants (see examples): 
-        - the school will use the product for the quantity specified. 
-        - when schoolSubjects is filled: each Student who follows one of the schoolSubjects is entitled to the Product. The `Aanspraakmanager` and/or the `Licentieregistratie` can make this match based on data retrieved from the SIS API.
-        - when groups is filled: each Student who is part of one of the groups is entitled to the Product. The `Aanspraakmanager` and/or the `Licentieregistratie` can make this match based on data retrieved from the SIS API.
-        - when entitlees is filled: the entitlees list specifies which Students or Employees in the school are entitled.
-        - when activationCodes is filled: all individuals who enter one of the specified activationCodes are entitled to the Product. This only applies once per activationCode.
-      x-examples:
-        example-1:
-          schoolId: '22461075-07BB-4A17-AB18-71B8455AA7A3'
-          quantity: 100
-        example-2:
-          schoolId: '22461075-07BB-4A17-AB18-71B8455AA7A3'
-          schoolSubjects:
-            - schoolSubjectId: "e82d9695-5556-427b-9654-8452a4b85f36"
-              quantity: 20
-            - schoolSubjectId: "0b64f2e7-bb20-4fd4-a6ff-6cfc24bf195f"
-              quantity: 80
-          quantity: 100
-        example-3:
-          schoolId: '22461075-07BB-4A17-AB18-71B8455AA7A3'
-          groups:
-            - groupId: "e82d9695-5556-427b-9654-8452a4b85f36"
-              quantity: 30
-            - groupId: "0b64f2e7-bb20-4fd4-a6ff-6cfc24bf195f"
-              quantity: 70
-          quantity: 100
-        example-4:
-          schoolId: '22461075-07BB-4A17-AB18-71B8455AA7A3'
-          entitlees:
-            - eckId: 'https://ketenid.nl/201703/1a5c9c7203901866532c2d72ce056e1d29cacc70836fe2bc3a517f3f9a53eed3d77ef370ad6dcf80b3f34ced1c547c7d2e679e8e47002355f938213b3656b206'
-        example-5:
-          schoolId: '22461075-07BB-4A17-AB18-71B8455AA7A3'
-          activationCodes:
-            - 'XXXXX-XXXXX-XXXXX-XXXXX-XXXXX'
-            - 'XXXXX-XXXXX-XXXXX-XXXXX-XXXXY'
+      title: SchoolReference
+      description: 'A reference to a School organisation.'
       properties:
-        schoolId:
+        organisationMasterIdentifier:
           type: string
-          description: 'Unique identifier of the school. In primary education the BasispoortId is used. In secondary and vocational education the digiDeliveryId is used. The digiDeliveryId is case sensitive.'
-        schoolSubjects:
+          description: |
+            The primary identifier for a School. For Schools the `OnderwijsaanbiederId` is used.
+            (either organisationMasterIdentifier or organisationIds is required)
+          example: '104A158' # De Mariënborn
+        organisationIds:
           type: array
-          description: | 
-            List of schoolSubjects. Each Student who follows one of the schoolSubjects is entitled to the Product. The `Aanspraakmanager` and/or the `Licentieregistratie` can make this match based on data retrieved from the SIS API.
-            
-            Mandatory field for entitlementType schoolSubject.
+          description: |
+            A secondary identifier for the School. This value is used whenever the primary identifier is not available.
+            (either organisationMasterIdentifier or organisationIds is required)
           items:
             type: object
             properties:
-              schoolSubjectId:
+              organisationId:
                 type: string
-                description: 'Unique identifier for a schoolSubject. Value can be retrieved from the SIS API.'
+              organisationIdType:
+                type: string
+                enum:
+                  - OIE_CODE # Onderwijsinstellingserkenningcode e.g. 09QQ (Marienbornschool)
+                  - BP_ID # Basispoort gegenereerde identifier voor de school.
+                  - DD_ID # Door de Centrale Registratie van Edu-iX gegenereerde DigiDeliveryId van de school.
+                  - AS_ID # Door het Leerlingadministratiesysteem gegenereerde identifier van de school.
+            required:
+              - organisationId
+              - organisationIdType
+    
+    CustomerReference:
+      title: CustomerReference
+      type: object
+      x-tags:
+        - DeliveryOrder
+      description: 'Information about a B2C Customer who acquired the product.'
+      properties:
+        displayName:
+          type: string
+          description: 'The name of the Customer.'
+        email:
+          type: string
+          description: 'The email address of the Customer.'
+
+    DeliverySpecification:
+      title: DeliverySpecification
+      description: 'The specification an `Aanspraakmanager` can use to create entitlements. The specification applies to the the deliveryType.'
+      x-tags:
+        - DeliveryOrder
+      oneOf:
+        - $ref: '#/components/schemas/SchoolAllSpecification'
+        - $ref: '#/components/schemas/SchoolStudiesSpecification'
+        - $ref: '#/components/schemas/SchoolSubjectsSpecification'
+        - $ref: '#/components/schemas/SchoolGroupsSpecification'
+        - $ref: '#/components/schemas/SchoolStudentsSpecification'
+        - $ref: '#/components/schemas/SchoolEmployeesSpecification'
+        - $ref: '#/components/schemas/SchoolActivationCodesSpecification'
+        - $ref: '#/components/schemas/CustomerStudentSpecification'
+        - $ref: '#/components/schemas/CustomerActivationCodeSpecification'
+    
+    SchoolAllSpecification:
+      title: SchoolAllSpecification
+      type: object
+      description: 'The product is bought by a school organisation and all students from the school are allowed to activate and license the product.'
+      x-examples:
+        example-1:
+          school: {
+            organisationMasterIdentifier: '104A158'
+          }
+          totalQuantity: 100
+      properties:
+        school:
+          $ref: '#/components/schemas/SchoolReference'
+        totalQuantity:
+          type: integer
+          example: 100
+          description: 'Total quantity for this DeliveryOrder.'
+      required:
+        - school
+
+    SchoolStudiesSpecification:
+      title: SchoolStudiesSpecification
+      type: object
+      description: 'The product is bought by a school organisation and all students enrolled in the specified studies are allowed to activate and license the product.'
+      x-examples:
+        example-1:
+          school: {
+            organisationMasterIdentifier: '104A158'
+          }
+          studyYears:
+            - studyYearId: 'e82d9695-5556-427b-9654-8452a4b85f36'
+              quantity: 60
+            - studyYearId: '0b64f2e7-bb20-4fd4-a6ff-6cfc24bf195f'
+              quantity: 140
+          totalQuantity: 200
+      properties:
+        school:
+          $ref: '#/components/schemas/SchoolReference'
+        studyYears:
+          type: array
+          description: 'The identifiers of the StudyYear objects which are provisioned by the SIS API.'
+          items:
+            type: object
+            properties:
+              studyYearId:
+                type: string
+                description: 'Unique identifier for a StudyYear offered by the School. Value can be retrieved from the SIS API.'
               quantity:
                 type: integer
-                description: 'Optional quantity selected or purchased for this schoolSubject. The sum of all specified quantities for schoolSubject equals the total quantity for this DeliveryOrder.'
-            required:
-              - schoolSubjectId
+                description: 'Optional quantity selected or purchased for this study. The sum of all specified quantities equals the total quantity for this DeliveryOrder.'
+        totalQuantity:
+          type: integer
+          example: 100
+          description: 'Total quantity for this DeliveryOrder.'
+      required:
+        - school
+        - studyYears
+
+    SchoolSubjectsSpecification:
+      title: SchoolSubjectsSpecification
+      type: object
+      description: 'The product is bought by a school organisation and all students enrolled in the specified subjects are allowed to activate and license the product.'
+      x-examples:
+        example-1:
+          school: {
+            organisationMasterIdentifier: '104A158'
+          }
+          subjects:
+            - subjectId: 'e82d9695-5556-427b-9654-8452a4b85f36'
+              quantity: 60
+            - subjectId: '0b64f2e7-bb20-4fd4-a6ff-6cfc24bf195f'
+              quantity: 140
+          totalQuantity: 200
+      properties:
+        school:
+          $ref: '#/components/schemas/SchoolReference'
+        subjects:
+          type: array
+          description: 'The identifiers of the Subject objects which are provisioned by the SIS API.'
+          items:
+            type: object
+            properties:
+              subjectId:
+                type: string
+                description: 'Unique identifier for a Subject offered by the School. Value can be retrieved from the SIS API.'
+              quantity:
+                type: integer
+                description: 'Optional quantity selected or purchased for this subject. The sum of all specified quantities equals the total quantity for this DeliveryOrder.'
+        totalQuantity:
+          type: integer
+          example: 100
+          description: 'Total quantity for this DeliveryOrder.'
+      required:
+        - school
+        - subjects
+
+    SchoolGroupsSpecification:
+      title: SchoolGroupsSpecification
+      type: object
+      description: 'The product is bought by a school organisation and all students rostered in the specified groups are allowed to activate and license the product.'
+      x-examples:
+        example-1:
+          school: {
+            organisationMasterIdentifier: '104A158'
+          }
+          groups:
+            - groupId: 'e82d9695-5556-427b-9654-8452a4b85f36'
+              quantity: 60
+            - groupId: '0b64f2e7-bb20-4fd4-a6ff-6cfc24bf195f'
+              quantity: 140
+          totalQuantity: 200
+      properties:
+        school:
+          $ref: '#/components/schemas/SchoolReference'
         groups:
           type: array
-          description: | 
-            List of groups. Each Student who is part of one of the groups is entitled to the Product. The `Aanspraakmanager and/or the `Licentieregistratie` can make this match based on data retrieved from the SIS API.
-            
-            Mandatory field for entitlementType schoolGroup.
+          description: 'The identifiers of the Group objects which are provisioned by the SIS API.'
           items:
             type: object
             properties:
               groupId:
                 type: string
-                description: 'Unique identifier for a group. Value can be retrieved from the SIS API.'
+                description: 'Unique identifier for a Group offered by the School. Value can be retrieved from the SIS API.'
               quantity:
                 type: integer
-                description: 'Optional quantity selected or purchased for this group. The sum of all specified quantities for schoolSubject equals the total quantity for this DeliveryOrder.'
-            required:
-              - groupId
-        entitlees:
-          type: array
-          description: |
-            List of Students or Employees who are entitled to the Product.
-            
-            Either entitlees or activationCodes is mandatory for entitlementTypes Schoolstudent and schoolemployee.
-          items:
-            type: object
-            description: |
-              Student or Employee who is entitled to activate and use the Product.
-            properties:
-              eckId:
-                type: string
-                description: |-
-                  The ECK-ID of the Student or Employee who is entitled to activate and use the Product.
-                  (either eckId or userId is required)
-              userId:
-                type: array
-                description: |
-                  The User ID(s) of the Student or Employee who is entitled to activate and use the Product.
-                  (either eckId, userId is required)
-                items:
-                  type: object
-                  properties:
-                    userId:
-                      type: string
-                    userIdType:
-                      type: string
-                      enum:
-                        - nlPersonProfileId
-                        - nlPersonRealId
-                        - Las-key
-                        - BasispoortId
-                        - Medewerkernummer
-                  required:
-                    - userId
-                    - userIdType
-        activationCodes:
-          type: array
-          description: |
-            List of activation codes which can be used to activate the Product. The activaion codes are received from the `Licentieregistratie`.
-            
-            Either entitlees or activationCodes is mandatory for entitlementTypes Schoolstudent and schoolemployee.
-          items:
-            type: string
-            description: 'Activation code as received from the LA.'
-        quantity:
+                description: 'Optional quantity selected or purchased for this group. The sum of all specified quantities equals the total quantity for this DeliveryOrder.'
+        totalQuantity:
           type: integer
           example: 100
           description: 'Total quantity for this DeliveryOrder.'
       required:
-        - schoolId
-    
-    Individual:
-      title: Individual
+        - school
+        - groups
+
+    SchoolStudentsSpecification:
+      title: SchoolStudentsSpecification
       type: object
-      x-tags:
-        - DeliveryOrder
-      description: 'Information about an individual who has a deliveryOrder to use a specific product that they have purchased or selected.'
+      description: 'The product is bought by a school organisation and all specified students are allowed to activate and license the product.'
+      x-examples:
+        example-1:
+          school: {
+            organisationMasterIdentifier: '104A158'
+          }
+          students:
+            - {userMasterIdentifier: 'https://ketenid.nl/201703/1a5c9c7203901866532c2d72ce056e1d29cacc70836fe2bc3a517f3f9a53eed3d77ef370ad6dcf80b3f34ced1c547c7d2e679e8e47002355f938213b3656b206'}
+            - {userMasterIdentifier: 'https://ketenid.nl/201703/1a5c9c7203901866532c2d72ce056e1d29cacc70836fe2bc3a517f3f9a53eed3d77ef370ad6dcf80b3f34ced1c547c7d2e679e8e47002355f938213b3656b207'}
       properties:
-        displayName:
-          type: string
-          description: 'The name of the Buyer.'
-        email:
-          type: string
-          description: 'The email address of the Buyer.'
-        eckId:
-          type: string
-          description: |
-            The ECK iD of the Student who is entitled to activate and use the Product.
-            (either eckId, userId or activatonCode is required)
-        userId:
+        school:
+          $ref: '#/components/schemas/SchoolReference'
+        students:
           type: array
-          description: |
-            The User ID(s) of the Student who is entitled to activate and use the Product.
-            (either eckId, userId or activatonCode is required)
+          description: 'The identifiers of the Students which are provisioned by the SIS API.'
           items:
-            type: object
-            properties:
-              userId:
-                type: string
-              userIdType:
-                type: string
-                enum:
-                  - nlPersonProfileId
-                  - nlPersonRealId
-                  - Las-key
-                  - BasispoortId
-            required:
-              - userId
-              - userIdType
+            $ref: '#/components/schemas/UserReference'
+      required:
+        - school
+        - students
+
+    SchoolEmployeesSpecification:
+      title: SchoolEmployeesSpecification
+      type: object
+      description: 'The product is bought by a school organisation and all specified employees are allowed to activate and license the product.'
+      x-examples:
+        example-1:
+          school: {
+            organisationMasterIdentifier: '104A158'
+          }
+          employees:
+            - {
+                userIds: {
+                  userId: 'pietjepukkelen@petteflatcollege',
+                  userIdType: 'nlEduPersonRealId'
+                }
+              }
+            - {
+                userIds: {
+                  userId: 'jantjepukkelen@petteflatcollege',
+                  userIdType: 'nlEduPersonRealId'
+                }
+              }
+      properties:
+        school:
+          $ref: '#/components/schemas/SchoolReference'
+        employees:
+          type: array
+          description: 'The identifiers of the Employees which are provisioned by the SIS API.'
+          items:
+            $ref: '#/components/schemas/UserReference'
+      required:
+        - school
+        - employees
+
+    SchoolActivationCodesSpecification:
+      title: SchoolActivationCodesSpecification
+      type: object
+      description: 'The product is bought by a school organisation and all specified activation codes can be used to activate and license the product.'
+      x-examples:
+        example-1:
+          school: {
+            organisationMasterIdentifier: '104A158'
+          }
+          activationCodes:
+            - 'XXXXX-XXXXX-XXXXX-XXXXX-XXXXX'
+            - 'XXXXX-XXXXX-XXXXX-XXXXX-XXXXY'
+      properties:
+        school:
+          $ref: '#/components/schemas/SchoolReference'
+        activationCodes:
+          type: array
+          description: 'The activation codes, the school can use to activate and license the product. Activation codes can be requested from the `Licentieregistratie`'
+          items:
+            type: string
+            description: 'Activation code.'
+            example: 'XXXXX-XXXXX-XXXXX-XXXXX-XXXXY'
+      required:
+        - school
+        - activationCodes
+
+    CustomerStudentSpecification:
+      title: CustomerStudentSpecification
+      type: object
+      description: 'The product is bought by a customer and the specified student is allowed to activate and license the product.'
+      x-examples:
+        example-1:
+          student: {userMasterIdentifier: 'https://ketenid.nl/201703/1a5c9c7203901866532c2d72ce056e1d29cacc70836fe2bc3a517f3f9a53eed3d77ef370ad6dcf80b3f34ced1c547c7d2e679e8e47002355f938213b3656b206'}
+      properties:
+        student:
+            $ref: '#/components/schemas/UserReference'
+      required:
+        - student
+
+    CustomerActivationCodeSpecification:
+      title: CustomerActivationCodeSpecification
+      type: object
+      description: 'The product is bought by a customer and a user is allowed to activate and license the product using the ActivationCode.'
+      x-examples:
+        example-1:
+          activationCode: 'XXXXX-XXXXX-XXXXX-XXXXX-XXXXX'
+      properties:
         activationCode:
           type: string
-          description: |
-            Activation code whicht can be used to activate the product. The activaion code is received from the `Licentieregistratie`.
-            (either eckId, userId or activatonCode is required)
-    
+          description: 'The activation codes, the school can use to activate and license the product. Activation codes can be requested from the `Licentieregistratie`'
+          example: 'XXXXX-XXXXX-XXXXX-XXXXX-XXXXY'
+      required:
+        - activationCode
+
     UserReference:
       type: object
-      title: User reference
-      x-tags:
-        - Usage
+      title: UserReference
       properties:
-        eckId:
+        userMasterIdentifier:
           type: string
-          description: |-
-            The ECK iD of the Student or Employee.
-            (either eckId or userId is required)
-        userId:
+          description: |
+            The primary identifier for a User.
+            For Students the ECK iD is used.
+            For Employees this value is empty. There is no primary identifier for Employees.
+            (either userMasterIdentifier or userIds is required)
+        userIds:
           type: array
-          description: |-
-            The User ID(s) of the Student or Employee.
-            (either eckId or userId is required)
+          description: |
+            A secondary identifier for a User. This value is used whenever the primary identifier is not available.
+            For Employees this value is mandatory.
+            (either userMasterIdentifier or userIds is required)
           items:
             type: object
             properties:
@@ -438,11 +582,12 @@ components:
               userIdType:
                 type: string
                 enum:
-                  - nlPersonProfileId
-                  - nlPersonRealId
-                  - Las-key
-                  - BasispoortId
-                  - Medewerkernummer
+                  - NEPPI # nlPersonProfileId – value can be used for students and employees
+                  - BPI # Basispoort ID – value can be used for students and employees
+                  - eduID # eduID identifier – value can be used for students and employees
+                  - NEPRI # nlPersonRealId – value can be used for students only
+                  - ASI # Las-key – value can be used for students only
+                  - eckId # ECK iD – value can be used for employees only, eckId is userIdType for userMasterIdentifier for students
             required:
               - userId
               - userIdType
@@ -469,11 +614,16 @@ components:
           tokenUrl: https://api.example.com/oauth2/token
           refreshUrl: https://api.example.com/oauth2/token
           scopes:
-            delivery: 'scope needed to send and receive DeliveryOrder requests and Confirmation messages'
+            eduv.delivery.entitlor: 'scope needed to send and receive DeliveryOrder requests and Confirmation messages as `Aanspraakmanager` and to request deliveryOrder information as an `Aanspraakmanager..'
+            eduv.delivery.licensor: 'scope needed to request DeliveryOrder information as a `Licentieregistratie`.'
+            eduv.delivery.portal: 'scope needed to request DeliveryOrder information as a `Leermiddelenportaal`.'
+            eduv.delivery.dashboard: 'scope needed to request DeliveryOrder information as a `Leermiddelendashboard`.'
       description: ''
 
 paths:
   
+  # GET endpoint for support processes of all parties involved, therefore applicable to all reference components.
+
   /deliveryorders/{id}:
     parameters:
       - schema:
@@ -482,24 +632,26 @@ paths:
         in: path
         required: true
         description: 'Specific deliveryOrderId of a DeliveryOrder.'
-      - schema:
-          type: string
-        name: schemaVersion
-        in: query
-        required: false
-        description: 'Optional parameter to request a response in a specific schema version. If none supplied, the server will choose its default schema version.'
     get:
-      summary: Get DeliveryOrder by ID
-      operationId: get-delivery-order-by-id
+      summary: Get DeliveryOrder
+      operationId: get-delivery-order
       tags:
         - Bestelomgeving leermiddelen
       x-tags:
         - DeliveryOrder
-      description: |-
-        Retrieve a DeliveryOrder by ID from a `Bestelomgeving leermiddelen`
+      description: |
+        Retrieve a DeliveryOrder by ID from a `Bestelomgeving leermiddelen`.
+        Consent is required for a `Leermiddelendashboard` to request this information.
         
         The `Bestelomgeving leermiddelen` is the provider of this endpoint.
-        The `Aanspraakmanager` should give a 405 HTTP status as result when called
+        The `Aanspraakmanager` should give a 405 HTTP status as result when called.
+
+        This endpoint can be used by the `Licentieregistratie` to request detailed information about a DeliveryOrder, including:
+        - DeliveryType: especially useful in the case of an open deliveryType.
+        - TotalQuantity: the total quantity at the time of the purchase by the Buyer. This value can also be used within the usage reporting in the Usage API.
+        - Buyer: what school or individual bought the product.
+
+        This endpoint can be used by the `Aanspraakmanager` and `Licentieregistratie` for support processes.
       responses:
         '200':
           description: OK
@@ -531,72 +683,83 @@ paths:
           description: Method not allowed - Bestelomgeving leermiddelen is provider of this endpoint
       security:
         - OAuth2:
-            - delivery
+            - eduv.delivery.entitlor
+            - eduv.delivery.licensor
+            - eduv.delivery.dashboard
+            - eduv.delivery.portal
   
-  /deliveryorders/school/{id}:
+  # GET endpoints for `Leermiddelendashboard` and `Leermiddelenportaal`
+
+  /deliveryorders/school:
     parameters:
       - schema:
           type: string
-        name: id
-        in: path
-        required: true
-        description: 'Unique identifier of the school.'
+        name: orgMasterId
+        in: query
+        required: false
+        description: |
+          The organisationMasterIdentifier of the school.
+          This parameter is used when the primary identifier for a school (being the `OnderwijsaanbiederId`) is available.
+      - schema:
+          type: string
+        name: orgId
+        in: query
+        required: false
+        description: |
+          The organisationIdentifier (secondary identifier) of the school.
+          This parameter is used in combination with the orgIdType when the organisationMasterIdentifier is not available.
+      - schema:
+          type: string
+          example: DD_ID
+          enum:
+            - OIE_CODE
+            - BP_ID
+            - DD_ID
+            - AS_ID
+        name: orgIdType
+        in: query
+        required: false
+        description: |
+          The type of the organisationIdentifier.
+          This parameter is used in combination with the orgId when the organisationMasterIdentifier is not available.
       - schema:
             type: string
-            example: provisioned
+            example: processed
             enum:
               - ordered
-              - entitled
-              - provisioned
-              - link-ready
+              - processed
               - licensed
               - cancelled
-              - blocked
         name: status
         in: query
         description: 'Filter by status'
       - schema:
-          type: integer
-        name: start
+            type: string
+            example: school-all
+            enum:
+              - school-all
+              - school-studies
+              - school-subjects
+              - school-groups
+              - school-students
+              - school-employees
+              - school-activationcodes
+        name: deliveryType
         in: query
-        description: 'Start point for pagination of results, defaults to 0,'
-        examples:
-          default:
-            value: 0
-            summary: The start point for pagination
-      - schema:
-          type: integer
-          maximum: 100
-        in: query
-        name: limit
-        description: 'Limit of number of results returned by page, defaults to 20 with max 100.'
-        examples:
-          default:
-            value: 20
-            summary: The default value if none is provided
-          max:
-            value: 100
-            summary: The largest recommended page size
-      - schema:
-          type: string
-        name: schemaVersion
-        in: query
-        required: false
-        description: 'Optional parameter to request a response in a specific schema version. If none supplied, the server will choose its default schema version.'
+        description: 'Filter by deliveryType'
     get:
-      summary: Get All DeliveryOrders by School ID
-      operationId: get-all-delivery-orders-by-school-id
+      summary: Get DeliveryOrders for School
+      operationId: get-delivery-orders-for-school
       tags:
         - Bestelomgeving leermiddelen
       x-tags:
         - DeliveryOrder
-      description: |-
+      description: |
         Retrieve all DeliveryOrders for a specific school from a `Bestelomgeving leermiddelen`.
+        Consent is required for a `Leermiddelendashboard` or `Leermiddelenportaal` to request this information.
         
         The `Bestelomgeving leermiddelen` is the provider of this endpoint.
         The `Aanspraakmanager` should give a 405 HTTP status as result when called.
-        
-        This path has pagination, using `start` and `limit`, with an optional `status` filter.
       responses:
         '200':
           description: OK
@@ -630,65 +793,35 @@ paths:
           description: Method not allowed - Bestelomgeving leermiddelen is provider of this endpoint
       security:
         - OAuth2:
-            - delivery
+            - eduv.delivery.dashboard
+            - eduv.delivery.portal
   
-  /deliveryorders/user/:
+  /deliveryorders/school/user:
     parameters:
       - schema:
             type: string
-            example: provisioned
+            example: processed
             enum:
               - ordered
-              - entitled
-              - provisioned
-              - link-ready
+              - processed
               - licensed
               - cancelled
-              - blocked
         name: status
         in: query
         description: 'Filter by status'
-      - schema:
-          type: integer
-        name: start
-        in: query
-        description: 'Start point for pagination of results, defaults to 0,'
-        examples:
-          default:
-            value: 0
-            summary: The start point for pagination
-      - schema:
-          type: integer
-          maximum: 100
-        in: query
-        name: limit
-        description: 'Limit of number of results returned by page, defaults to 20 with max 100.'
-        examples:
-          default:
-            value: 20
-            summary: The default value if none is provided
-          max:
-            value: 100
-            summary: The largest recommended page size
-      - schema:
-          type: string
-        name: schemaVersion
-        in: query
-        required: false
-        description: 'Optional parameter to request a response in a specific schema version. If none supplied, the server will choose its default schema version.'
     post:
-      summary: Get All DeliveryOrders by User ID
-      operationId: get-all-delivery-orders-by-user-id
+      summary: Get DeliveryOrders for User at School
+      operationId: get-delivery-orders-for-user-at-school
       tags:
         - Bestelomgeving leermiddelen
       x-tags:
         - DeliveryOrder
-      description: |-
-        Retrieve all DeliveryOrders for a specific user from a `Bestelomgeving leermiddelen`
+      description: |
+        Retrieve all DeliveryOrders for a specific user at a school from a `Bestelomgeving leermiddelen`.
+        Consent is required for a `Leermiddelendashboard` and `Leermiddelenportaal` to request this information.
+
         The `Bestelomgeving leermiddelen` is the provider of this endpoint. 
         The `Aanspraakmanager` should give a 405 HTTP status as result when called.
-        
-        This path has pagination, using `start` and `limit`, with an optional `status` filter.
         
         Due to the confidentiality of the eckId and userIds this endpoint has been implemented as a POST endpoint where the confidential information is securely send within the request body.
       requestBody:
@@ -697,10 +830,13 @@ paths:
             schema:
               type: object
               properties:
-                userReference:
+                school:
+                  $ref: '#/components/schemas/SchoolReference'
+                user:
                   $ref: '#/components/schemas/UserReference'
               required:
-                - userReference
+                - school
+                - user
       responses:
         '200':
           description: OK
@@ -738,21 +874,87 @@ paths:
           description: Method not allowed - Bestelomgeving leermiddelen is provider of this endpoint
       security:
         - OAuth2:
-            - delivery
+            - eduv.delivery.dashboard
+            - eduv.delivery.portal
   
+  # GET endpoints for `Aanspraakmanager` en `Licentieregistratie`
+  
+  /deliveryorders/contracts/{id}:
+    parameters:
+      - schema:
+          type: string
+        name: id
+        in: path
+        required: true
+        description: 'The contractId for which deliveryOrder information is requested.'
+    get:
+      summary: Get DeliveryOrders by Contract
+      operationId: get-delivery-orders-by-contract
+      tags:
+        - Bestelomgeving leermiddelen
+      x-tags:
+        - DeliveryOrder
+      description: |
+        Retrieve all DeliveryOrders for a specific contract from a `Bestelomgeving leermiddelen`.
+        
+        The `Bestelomgeving leermiddelen` is the provider of this endpoint.
+        The `Aanspraakmanager` should give a 405 HTTP status as result when called.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DeliveryOrder'
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        '405':
+          description: Method not allowed - Bestelomgeving leermiddelen is provider of this endpoint
+      security:
+        - OAuth2:
+            - eduv.delivery.entitlor
+            - eduv.delivery.licensor
+
+  # PUT endpoints for asynchronous processing of deliveryOrders by `Aanspraakmanager`
+
   /deliveryorders:
     put:
-      summary: Accept DeliveryOrder request from Bestelomgeving leermiddelen
-      operationId: accept-delivery-order-request
+      summary: Accept DeliveryOrder from Bestelomgeving leermiddelen
+      operationId: accept-delivery-order
       tags:
         - Aanspraakmanager
       x-tags:
         - DeliveryOrder
-      description: |-
+      description: |
         As a `Bestelomgeving leermiddelen`, send a new DeliveryOrder request to the `Aanspraakmanager`.
         
         The `Aanspraakmanager' is the provider of this endpoint.
         The `Bestelomgeving leermiddelen` should give a 405 HTTP status as result when called.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeliveryOrderRequest'
       responses:
         '202':
           description: Accepted
@@ -776,14 +978,9 @@ paths:
                 $ref: '#/components/schemas/StatusResponse'
         '405':
           description: Method Not Allowed - Aanspraakmanager is providers of this endpoint
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/DeliveryOrderRequest'
       security:
         - OAuth2:
-            - delivery
+            - eduv.delivery.entitlor
   
   /deliveryorders/confirmations:
     put:
@@ -793,11 +990,16 @@ paths:
         - Bestelomgeving leermiddelen
       x-tags:
         - DeliveryOrder
-      description: |-
+      description: |
         As a `Aanspraakmanager` confirm a DeliveryOrder to the `Bestelomgeving leermiddelen`.
         
         The `Bestelomgeving leermiddelen` is the provider of this endpoint. 
         The `Aanspraakmanager` should give a 405 HTTP status as result when called.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeliveryOrderConfirmation'
       responses:
         '202':
           description: Accepted
@@ -821,14 +1023,9 @@ paths:
                 $ref: '#/components/schemas/StatusResponse'
         '405':
           description: Method Not Allowed - Bestelomgeving leermiddelen is provider of this endpoint
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/DeliveryOrderConfirmation'
       security:
         - OAuth2:
-            - delivery
+            - eduv.delivery.entitlor
   
 x-tags:
   - name: DeliveryOrder

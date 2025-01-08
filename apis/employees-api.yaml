@@ -1,0 +1,506 @@
+openapi: 3.0.0
+info:
+  title: Employees API
+  version: '0.9.1'
+  description: |-
+    The Employees API is implemented by the `Administratiesysteem onderwijsmedewerker`.
+    
+    Employee data is split into the following objects with corresponding attributes:
+    - Basic data: identifiers and name
+    - Communication: email, phone, and mobile
+    - Roles: organisation roles of the employee within the school
+    
+    Not all Employee attributes are available to all consuming reference components.
+    All objects have a different security scope which allows the `Administratiesysteem onderwijsmedewerker` to share the attributes only with the reference components that are allowed to receive the attributes.
+    
+    All consunming reference components require consent to request data from the Employees API.
+    The Notifications API can be used by consuming reference components to receive notifications about new, modified, or deleted entitities within the Employees API.
+
+    The Employees API has a scope of primary and secondary education. Vocational education is out of scope. For Vocational Education we advice to use the [Open Education API (OOAPI)](https://openonderwijsapi.nl/).
+  contact:
+    name: Edu-V
+    url: www.edu-v.org/afsprakenstelsel
+    email: info@edu-v.org
+components:
+  schemas:
+  
+    schemaVersion:
+      type: string
+      description: |
+        Schema version of this API using semantic versioning 2.0.0.
+        The API version number is communicated in the header.
+        The major version is communicated in the URI.
+        For more information see the [Edu-V versioning guidelines](https://edu-v.atlassian.net/wiki/spaces/AFSPRAKENS/pages/9437200/Versiebeheer).
+      default: 0.9.1
+          
+    Employee:
+      title: Employee
+      description: |
+        The Employee object with its identifiers and name information.
+
+        Based on the scopes additional attributes can be included in this object.
+
+        ### employee.communication
+        Communication data of the Employee. For Employees this is the `e-mail` address, `phone` number or `mobile` phone number as provided by the School.
+
+        ### employee.roles
+        `organisationRoles` of the Employee within the school.
+      type: object
+      x-tags:
+        - Employee
+      properties:
+        userMasterIdentifier:
+          type: string
+          description: |
+            The primary identifier for the Employee.
+            For Employees this value is empty. There is no primary identifier for Employees.
+        userIds:
+          type: array
+          description: |
+            A secondary identifier for a User. This value is used whenever the primary identifier is not available.
+            For Employees this value is mandatory.
+            (either userMasterIdentifier or userIds is required)
+          items:
+            type: object
+            properties:
+              userId:
+                type: string
+              userIdType:
+                type: string
+                enum:
+                  - NEPPI # nlPersonProfileId – value can be used for students and employees
+                  - BPI # Basispoort ID – value can be used for students and employees
+                  - eduID # eduID identifier – value can be used for students and employees
+                  - eckId # ECK iD – value can be used for employees only, eckId is userIdType for userMasterIdentifier for students
+            required:
+              - userId
+              - userIdType
+        givenName:
+          type: string
+        preferredFirstName:
+          type: string
+        familyName:
+          type: string
+        familyNamePrefix:
+          type: string
+        email:
+          type: string
+          description: 'E-mail address hosted by school (e.g. L123456@school.nl).'
+        phone:
+          type: string
+          description: 'Phone number as provided by the school.'
+        mobile:
+          type: string
+          description: 'Mobile phone number as provided by the school.'
+        organisationRoles:
+          type: array
+          description: 'The organisation roles the Employee has within the organisation.'
+          items:
+            type: object
+            properties:
+              organisation:
+                $ref: '#/components/schemas/SchoolReference'
+              organisationRole:
+                type: string
+                description: 'The organisation role the Employee has within the organisation.'
+                enum:
+                  - administratief-medewerker
+                  - applicatiebeheerder
+                  - begeleider
+                  - invalkracht
+                  - ibp-er
+                  - leermiddelencoordinator
+                  - leraar
+                  - mentor
+                  - onderwijsbestuurder
+                  - onderwijsdirecteur
+                  - stagiair
+              beginDate:
+                type: string
+                description: 'The start date on which the role becomes active (inclusive). Format: YYYY-MM-DD (according to RFC3339).'
+                format: date
+                example: '2022-07-31'
+              endDate:
+                type: string
+                description: 'The end date on which the role becomes inactive (exclusive). Format: YYYY-MM-DD (according to RFC3339).'
+                format: date
+                example: '2024-08-31'
+            required:
+              - organisation
+              - organisationRoles
+              - beginDate
+        sourceId:
+          type: string
+          format: uuid
+          description: |
+            The Source Identifier of the object. This is a GUID System ID for an object.
+            This is the GUID that Consumers will refer to when making API calls, or when needing to identify an object.
+            It is RECOMMENDED that systems are able to map whichever local ids (e.g. database key fields), userMasterIdentifier or userIds they use to SourceId.
+            The sourcedId of an object is considered an addressable property of an entity and as such will not be treated as Personally Identifiable Information (PII).
+            
+            The sourceId attribute is based on the [Base Class from OneRoster](https://www.imsglobal.org/sites/default/files/spec/oneroster/v1p2/rostering-informationmodel/OneRosterv1p2RosteringService_InfoModelv1p0.html#Data_Base).
+        status:
+          description: |
+            The status field gives an indication to Consumers about the status of an object.
+            Consumers can delete objects that are flagged `tobedeleted`  as such if they wish.
+
+            The status attribute is based on the [Base Class from OneRoster](https://www.imsglobal.org/sites/default/files/spec/oneroster/v1p2/rostering-informationmodel/OneRosterv1p2RosteringService_InfoModelv1p0.html#Data_Base).
+          type: string
+          enum:
+            - active
+            - tobedeleted
+        dateCreated:
+          type: string
+          description: 'Indicates the date and time the object was first created. Format: Conform openapi in ZULU time zoals gespecificeerd in RFC 3339, section 5.6.'
+          format: date-time
+          example: "2017-07-21T17:32:28Z"
+        dateLastModified:
+          type: string
+          description: 'Indicates the date and time the object was last modified. Format: Conform openapi in ZULU time zoals gespecificeerd in RFC 3339, section 5.6.'
+          format: date-time
+          example: "2022-08-11T15:31:12Z"
+      required:
+        - userIds
+        - givenName
+        - familyName
+        - status
+        - sourceId
+        - dateCreated
+        - dateLastModified
+
+    # This UserReference might not be necessary for the Employees API. References are made based on the sourceId of the Employee object.
+    UserReference:
+      type: object
+      title: UserReference
+      properties:
+        userMasterIdentifier:
+          type: string
+          description: |
+            The primary identifier for a User.
+            For Students the ECK iD is used.
+            For Employees this value is empty. There is no primary identifier for Employees.
+            (either userMasterIdentifier or userIds is required)
+        userIds:
+          type: array
+          description: |
+            A secondary identifier for a User. This value is used whenever the primary identifier is not available.
+            For Employees this value is mandatory.
+            (either userMasterIdentifier or userIds is required)
+          items:
+            type: object
+            properties:
+              userId:
+                type: string
+              userIdType:
+                type: string
+                enum:
+                  - NEPPI # nlPersonProfileId – value can be used for students and employees
+                  - BPI # Basispoort ID – value can be used for students and employees
+                  - eduID # eduID identifier – value can be used for students and employees
+                  - NEPRI # nlPersonRealId – value can be used for students only
+                  - ASI # Las-key – value can be used for students only
+                  - eckId # ECK iD – value can be used for employees only, eckId is userIdType for userMasterIdentifier for students
+            required:
+              - userId
+              - userIdType
+      required:
+        - userIds
+    
+    SchoolReference:
+      type: object
+      title: SchoolReference
+      description: 'A reference to a School organisation.'
+      properties:
+        organisationMasterIdentifier:
+          type: string
+          description: |
+            The primary identifier for a School. For Schools the `OnderwijsaanbiederId` is used.
+            (either organisationMasterIdentifier or organisationIds is required)
+          example: '104A158' # De Mariënborn
+        organisationIds:
+          type: array
+          description: |
+            A secondary identifier for the School. This value is used whenever the primary identifier is not available.
+            (either organisationMasterIdentifier or organisationIds is required)
+          items:
+            type: object
+            properties:
+              organisationId:
+                type: string
+              organisationIdType:
+                type: string
+                enum:
+                  - OIE_CODE # Onderwijsinstellingserkenningcode e.g. 09QQ (Marienbornschool)
+                  - BP_ID # Basispoort gegenereerde identifier voor de school.
+                  - DD_ID # Door de Centrale Registratie van Edu-iX gegenereerde DigiDeliveryId van de school.
+                  - AS_ID # Door het Leerlingadministratiesysteem gegenereerde identifier van de school.
+            required:
+              - organisationId
+              - organisationIdType
+
+    StatusResponse:
+      title: StatusResponse
+      type: object
+      description: 'Functional status code and status message.'
+      properties:
+        status:
+          type: integer
+          description: 'See functional status codes within the Documentation.'
+        statusMessage:
+          type: string
+          description: 'See functional status messages within the Documentation.'
+      required:
+        - status
+  
+  securitySchemes:
+    OAuth2:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.example.com/oauth2/token
+          refreshUrl: https://api.example.com/oauth2/token
+          scopes:
+            eduv.employee.basic: 'a scope that gives access to employee identifiers and name.'
+            eduv.employee.communication: 'a scope that gives access to employee communication attributes.'
+            eduv.employee.roles: 'a scope that gives access to employee organisation roles attributes.'
+            
+paths:
+  
+  /employees:
+    post:
+      summary: Search Employee
+      x-tags:
+        - Employee
+      tags:
+        - Administratiesysteem onderwijsmedewerker
+      operationId: search-employee
+      description: 'Request an Employee object for a specified Employee at a School.'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                school:
+                  $ref: '#/components/schemas/SchoolReference'
+                employee:
+                  $ref: '#/components/schemas/UserReference'
+              required:
+                - school
+                - employee
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Employee'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+      security:
+        - OAuth2:
+            - eduv.employee.basic
+            - eduv.employee.communication
+            - eduv.employee.roles
+
+  /employees/{sourceId}:
+    parameters:
+      - schema:
+          type: string
+        name: sourceId
+        in: path
+        required: true
+        description: 'Reference to the sourceId of the Employee object.'
+      - schema:
+          type: string
+        name: orgMasterId
+        in: query
+        required: false
+        description: |
+          The organisationMasterIdentifier of the school.
+          This parameter is used when the primary identifier for a school (being the `OnderwijsaanbiederId`) is available.
+      - schema:
+          type: string
+        name: orgId
+        in: query
+        required: false
+        description: |
+          The organisationIdentifier (secondary identifier) of the school.
+          This parameter is used in combination with the orgIdType when the organisationMasterIdentifier is not available.
+      - schema:
+          type: string
+          example: DD_ID
+          enum:
+            - OIE_CODE
+            - BP_ID
+            - DD_ID
+            - AS_ID
+        name: orgIdType
+        in: query
+        required: false
+        description: |
+          The type of the organisationIdentifier.
+          This parameter is used in combination with the orgId when the organisationMasterIdentifier is not available.
+    get:
+      summary: 'Get Employee'
+      x-tags:
+        - Employee
+      tags:
+        - Administratiesysteem onderwijsmedewerker
+      operationId: get-employee
+      description: |
+        Request an Employee object based on its sourceId.
+        The Source Identifier is the GUID System ID for an object. This is the GUID that Consumers will refer to when making API calls.
+        The sourcedId of an object is considered an addressable property of an entity and as such will not be treated as Personally Identifiable Information (PII).
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Employee'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+      security:
+        - OAuth2:
+            - eduv.employee.basic
+            - eduv.employee.communication
+            - eduv.employee.roles
+  
+  /employees/school:
+    parameters:
+      - schema:
+          type: string
+        name: orgMasterId
+        in: query
+        required: false
+        description: |
+          The organisationMasterIdentifier of the school.
+          This parameter is used when the primary identifier for a school (being the `OnderwijsaanbiederId`) is available.
+      - schema:
+          type: string
+        name: orgId
+        in: query
+        required: false
+        description: |
+          The organisationIdentifier (secondary identifier) of the school.
+          This parameter is used in combination with the orgIdType when the organisationMasterIdentifier is not available.
+      - schema:
+          type: string
+          example: DD_ID
+          enum:
+            - OIE_CODE
+            - BP_ID
+            - DD_ID
+            - AS_ID
+        name: orgIdType
+        in: query
+        required: false
+        description: |
+          The type of the organisationIdentifier.
+          This parameter is used in combination with the orgId when the organisationMasterIdentifier is not available.
+      - schema:
+          type: string
+          format: date-time
+        in: query
+        name: since
+        required: false
+        description: 'Request all objects modified after the specified timestamp. Format: Conform openapi in ZULU time as specified in RFC 3339, section 5.6'
+        example: "2017-07-21T17:32:28Z"
+    get:
+      summary: Get Employees for School
+      x-tags:
+        - Employee
+      tags:
+        - Administratiesysteem onderwijsmedewerker
+      operationId: get-employees-for-school
+      description: 'Request all Employee objects including basic information (identifiers and names) for a specified school.'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Employee'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+      security:
+        - OAuth2:
+            - eduv.employee.basic
+            - eduv.employee.communication
+            - eduv.employee.roles
+
+x-tags:
+  - name: Employee
+  - name: EmployeeCommunication
+  - name: EmployeeRoles

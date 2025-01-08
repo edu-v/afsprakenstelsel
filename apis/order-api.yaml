@@ -1,11 +1,11 @@
 openapi: 3.0.0
 info:
   title: Order API
-  version: '0.0.1'
+  version: '0.9.1'
   description: |-
     The Order API is implemented by the reference components `Bestelomgeving leermiddelen` and `Ordersysteem leermiddelen`.
 
-    The `Bestelomgeving leermiddelen` is able to send a OrderRequest or CreditOrderRequest to the `Ordersysteem leermiddelen`.
+    The `Bestelomgeving leermiddelen` is able to send an OrderRequest or CreditOrderRequest to the `Ordersysteem leermiddelen`.
 
     Requests are send and received via asynchronous transactions. Therefore the `Ordersysteem leermiddelen` need to implement endpoints te receive requests. Moreover the `Bestelomgeving leermiddelen` needs to implement confirmation endpoints to receive confirmations from the `Ordersysteem leermiddelen` that requests have been processed.
   contact:
@@ -17,8 +17,12 @@ components:
   
     schemaVersion:
       type: string
-      description: 'Schema version of this event/object using semantic versioning 2.0.0'
-      default: 0.1.0
+      description: |
+        Schema version of this API using semantic versioning 2.0.0.
+        The API version number is communicated in the header.
+        The major version is communicated in the URI.
+        For more information see the [Edu-V versioning guidelines](https://edu-v.atlassian.net/wiki/spaces/AFSPRAKENS/pages/9437200/Versiebeheer).
+      default: 0.9.1
     
     OrderRequest:
       title: OrderRequest
@@ -33,14 +37,16 @@ components:
           description: |
             Unique requestReferenceId for this request. This referenceId is used by the Event Mediator of the `Bestelomgeving leermiddelen` to match the OrderConfirmation conformation message(s) send by the `Ordersysteem leermiddelen`.
             If a party receives another request with the same requestReferenceId value, the receiving party should not process the request again. It should send the confirmation again.
-        schemaVersion:
-          $ref: '#/components/schemas/schemaVersion'
         purchaseOrderId:
           type: string
           description: 'Purchase order number as defined by the `Bestelomgeving leermiddelen`. This number is linked to the financial system of the `Bestelomgeving leermiddelen`.'
         purchaseOrderLineId:
           type: string
           description: 'Optional line number in case of an order with more than one product.'
+        purchaseOrderType:
+          type: string
+          description: 'Optional orderType field which can be used by suppliers to optimize processing of requests and confirmations.'
+          example: 'Tender'
         productId:
           type: string
           description: 'The Product the `Bestelomgeving leermiddelen` orders. The productId can be retrieved from the Catalogue API from the `Ordersysteem leermiddelen`.'
@@ -51,15 +57,21 @@ components:
         contractId:
           type: string
           description: 'An optional unique identifier for a contract between `Ordersysteem leermiddelen` and `Bestelomgeving leermiddelen` where this request belongs to.'
-        address:
+        deliveryLocation:
           type: object
-          description: 'An optional address where the product should be delivered. This field can be used for the delivery of physical products.'
+          description: 'An optional address at which warehouse location the Product (physical learning materials) should be delivered'
           properties:
+            name:
+              type: string
+              description: 'To the attention of...'
             street:
               type: string
             houseNumber:
+              type: integer
+              description: 'the house number'
+            houseNumberSuffix:
               type: string
-              description: 'includes additions (e.g. 55-A)'
+              description: 'additions to the house humber, e.g. A or -104'
             zipCode:
               type: string
             city:
@@ -75,9 +87,13 @@ components:
             - zipCode
             - city
             - country
+        deliveryDate:
+          type: string
+          format: date
+          description: 'Optional desired deliveryDate for delivery of the Product (physical learning materials). Format: YYYY-MM-DD (according to RFC3339).'
+          example: '2022-07-31'
       required:
         - requestReferenceId
-        - schemaVersion
         - purchaseOrderId
         - productId
         - quantity
@@ -102,8 +118,6 @@ components:
         responseReferenceId:
           type: string
           description: 'A reference to this confirmation message send by the `Ordersysteem leermiddelen` to the `Bestelomgeving leermiddelen`.'
-        schemaVersion:
-          $ref: '#/components/schemas/schemaVersion'
         productId:
           type: string
           description: 'The productId which was part of the OrderRequest send by the `Bestelomgeving leermiddelen`.'
@@ -152,7 +166,6 @@ components:
       required:
         - requestReferenceId
         - responseReferenceId
-        - schemaVersion
         - processedTimestamp
         - orderStatus
         - success
@@ -171,8 +184,6 @@ components:
           description: |
             Unique requestReferenceId for this request. This referenceId is used by the Event Mediator of the `Bestelomgeving leermiddelen` to match the CreditOrderConfirmation conformation message(s) send by the `Ordersysteem leermiddelen`.
             If a party receives another request with the same requestReferenceId value, the receiving party should not process the request again. It should send the confirmation again.
-        schemaVersion:
-          $ref: '#/components/schemas/schemaVersion'
         purchaseOrderId:
           type: string
           description: 'Purchase order number of the order to be credited as defined by the `Bestelomgeving leermiddelen`. This number is linked to the financial system of the `Bestelomgeving leermiddelen`.'
@@ -190,7 +201,6 @@ components:
           description: "Optional reference to the responseReferenceID of the confirmation message in which the `Ordersysteem leermiddelen` approved the order to the `Bestelomgeving leermiddelen`."
       required:
         - requestReferenceId
-        - schemaVersion
         - purchaseOrderId
     
     CreditOrderConfirmation:
@@ -213,8 +223,6 @@ components:
         responseReferenceId:
           type: string
           description: 'A reference to this confirmation message send by the `Ordersysteem leermiddelen` to the `Bestelomgeving leermiddelen`.'
-        schemaVersion:
-          $ref: '#/components/schemas/schemaVersion'
         purchaseOrderId:
           type: string
           description: 'Purchase order number of the order to be credited as defined by the `Bestelomgeving leermiddelen`. This number is linked to the financial system of the `Bestelomgeving leermiddelen`.'
@@ -256,7 +264,6 @@ components:
       required:
         - requestReferenceId
         - responseReferenceId
-        - schemaVersion
         - purchaseOrderId
         - processedTimestamp
         - creditOrderStatus
@@ -285,7 +292,7 @@ components:
           tokenUrl: https://api.example.com/oauth2/token
           refreshUrl: https://api.example.com/oauth2/token
           scopes:
-            order: 'scope needed to send and receive Order and CreditOrder requests and confirmations'
+            eduv.order: 'scope needed to send and receive Order and CreditOrder requests and confirmations'
       description: ''
 
 paths:
@@ -333,9 +340,9 @@ paths:
               $ref: '#/components/schemas/OrderRequest'
       security:
         - OAuth2:
-            - order
+            - eduv.order
   
-  /creditorders/:
+  /creditorders:
     put:
       summary: Accept credit order request
       operationId: accept-credit-order-request
@@ -378,7 +385,7 @@ paths:
               $ref: '#/components/schemas/CreditOrderRequest'
       security:
         - OAuth2:
-            - order
+            - eduv.order
   
   /orders/confirmations:
     put:
@@ -423,7 +430,7 @@ paths:
               $ref: '#/components/schemas/CreditOrderConfirmation'
       security:
         - OAuth2:
-            - order
+            - eduv.order
     
   /creditorders/confirmations:
     put:
@@ -468,7 +475,7 @@ paths:
               $ref: '#/components/schemas/CreditOrderConfirmation'
       security:
         - OAuth2:
-            - order
+            - eduv.order
 
 x-tags:
   - name: Order

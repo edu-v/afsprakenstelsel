@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   title: Course API
-  version: '0.0.1'
+  version: '0.0.4'
   description: |
     This API enables an `Onderwijsleeromgeving` to get more information about the Learning Materials. In the Course API a supplier of learning materials can specify the structure of these Learning Materials in Courses, Blocks, and with Assignable Units. The Course API consists of metadata about the learning materials, and does not contain the content of the Learning materials itself. The Course API is based on [xAPI cmi5](https://github.com/AICC/CMI-5_Spec_Current/blob/quartz/v1/CourseStructure.xsd). In the Catalogue API a reference is made to Learning materials in the Course API. This allows a `Onderwijsleeromgeving` to present detailed learning material information to Students or Teachers that are entitled (or licensed) to activate and use a Product.
     
@@ -19,8 +19,12 @@ components:
     
     schemaVersion:
       type: string
-      description: 'Schema version of this event/object using semantic versioning 2.0.0'
-      default: 0.1.0
+      description: |
+        Schema version of this API using semantic versioning 2.0.0.
+        The API version number is communicated in the header.
+        The major version is communicated in the URI.
+        For more information see the [Edu-V versioning guidelines](https://edu-v.atlassian.net/wiki/spaces/AFSPRAKENS/pages/9437200/Versiebeheer).
+      default: 0.0.4
     
     Course:
       title: Course
@@ -35,8 +39,6 @@ components:
           description: 'Unique identifier for this Course. This identifier equals the identifier of the corresponding CourseStructure.'
           xml:
             attribute: true
-        schemaVersion:
-          $ref: '#/components/schemas/schemaVersion'
         tile:
           type: string
           description: 'Title of the Course, to be presented in the `Onderwijsleeromgeving`.'
@@ -46,65 +48,99 @@ components:
         lastPublishedVersion:
           type: string
           description: 'Last published version of this course. Version number is defined by the supplier. After every modification the version number levels up.'
-        levelSubjects:
+        studies:
           type: array
-          description: 'The Subjects and Levels where this course applies to.'
+          description: 'The studies and study years that this product is targeted at.'
           items:
-            $ref: '#/components/schemas/LevelSubjects'
+            $ref: '#/components/schemas/Study'
+        subjects:
+          type: array
+          description: 'The subjects that this product is targeted at.'
+          items:
+            $ref: '#/components/schemas/Subject'
       required:
         - courseId
-        - schemaVersion
         - tile
         - lastPublishedVersion
+        - studies
+        - subjects
     
-    LevelSubjects:
-      title: LevelSubjects
+    Study:
+      title: Study
       type: object
-      x-tags:
-        - Course
-      description: |
-        The combination of levels and subject that indicates where this Course is targeted at.
-        
-        It is possible to include more than one level in the array levels. For example for 'onderbouw' of 'brugklas havo/vwo'.
+      description: 'A study where this product is targeted at.'
       properties:
-        levels:
+        studyName:
+          type: string
+          description: |
+            Offical name of the study.
+            - primary education: the `po-opleidingseenheden in RIO korte naam` name as specified in [Waardenlijst Opleidingseenheden po](https://www.edustandaard.nl/standaard_werkgroepen/beheergroep-waardenlijsten-rio/) is used.
+            - secondary education: the `vo-opleidingseenheden in RIO korte naam` name as specified in [Waardenlijst Opleidingseenheden vo](https://www.edustandaard.nl/standaard_werkgroepen/beheergroep-waardenlijsten-rio/) is used.              
+            - vocational education: the `kwalificatienaam` as specfied in [Register kwalificatiestructuur SBB](https://kwalificatie-mijn.s-bb.nl) is used.
+        studyCode:
+          type: string
+          description: |
+            Offical code of the study.
+            - primary education: the `erkendeopleidingscode` as specified in [Waardenlijst Opleidingseenheden po](https://www.edustandaard.nl/standaard_werkgroepen/beheergroep-waardenlijsten-rio/) is used.
+            - secondary education: the `erkendeopleidingscode` as specified in [Waardenlijst Opleidingseenheden vo](https://www.edustandaard.nl/standaard_werkgroepen/beheergroep-waardenlijsten-rio/) is used.
+            - vocational education: the `crebocode` as specfied in [Register kwalificatiestructuur SBB](https://kwalificatie-mijn.s-bb.nl) is used.
+          minLength: 4
+          maxLength: 5
+          pattern: "^[0-9]*$"
+        studyLevels:
           type: array
-          description: 'List of official levels this study and subject combination. could be multiple in case of schoollevel "Brugklas", "onderbouw", etc'
+          description: |
+            Official levels of the study.
+            Primary and secondary education studyLevels are based on the `Niveau` as specified in [SLO curriculum](https://opendata.slo.nl/curriculum/2023/api/v1/niveau/)
+            For Vocational Education Edu-V extended this list as documented on [Waardelijst onderwijsniveaus en leerjaren](https://edu-v.atlassian.net/wiki/spaces/AFSPRAKENS/pages/179470347/Waardelijst+onderwijsniveaus+en+leerjaren).
           items:
             type: object
-            description: 'List of official levels this study and subject combination. could be multiple in case of schoollevel "Brugklas", "onderbouw", etc'
             properties:
-              level:
+              studyLevelId:
                 type: string
-                description: |-
-                  Official Level. 
-                  Allowed values are: VO-PRO, VO-VMBO-BB, VO-VMBO-KB, VO-VMBO-GL, VO-VMBO-TL, VO-HAVO, VO-VWO 
-                  As specified here: https://lod.onderwijsregistratie.nl/api/catalogus/v1/klasse?subject=http://lod.onderwijsregistratie.nl/cat/cdm/def/NiveauVO-v03.2'
-                enum:
-                  - BO
-                  - SO
-                  - SBO
-                  - VO-PRO
-                  - VO-VMBO-BB
-                  - VO-VMBO-KB
-                  - VO-VMBO-GL
-                  - VO-VMBO-TL
-                  - VO-HAVO
-                  - VO-VWO
-                  - VSO
-                  - MBO-Niveau-1
-                  - MBO-Niveau-2
-                  - MBO-Niveau-3
-                  - MBO-Niveau-4
-              levelYear:
-                type: integer
-                description: 'Learning year (e.g. 1)'
+                description: 'The uuid of the level.'
+                example: 'cb61531d-61eb-4412-a52f-ca065ca37e39/'
+                pattern: '^[a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{12}$'
+              studyLevelPrefix:
+                type: string
+                description: 'The prefix of the level'
+                example: 4205
+                minLength: 4
+                maxLength: 4
+                pattern: "^[0-9]*$"
+              studyLevelName:
+                type: string
+                description: 'The name of the level.'
+                example: 'havo 5'
             required:
-              - level
-              - levelYear
-        subjectCode:
+              - studyLevelId
+              - studyLevelPrefix
+              - studyLevelName
+      required:
+        - studyName
+                
+    Subject:
+      title: Subject
+      type: object
+      x-tags:
+        - Product
+      description: 'A subject where this product is targeted at.'
+      properties:
+        subjectPrefix:
           type: string
-          description: 'Government standard subject code. Source: Ministerie van OCW, like https://zoek.officielebekendmakingen.nl/stcrt-2019-35044'
+          description: |
+            Prefix of the subject.
+            - primary education: the `vakleergebied prefix` from [SLO curriculum](https://opendata.slo.nl/curriculum/2023/api/v1/vakleergebied/)
+            - secondary education:the `vakleergebied prefix` from [SLO curriculum](https://opendata.slo.nl/curriculum/2023/api/v1/vakleergebied/)
+        subjectName:
+          type: string
+          description: |
+            Name of the subject.
+            - primary education: the `vakleergebied name` from [SLO curriculum](https://opendata.slo.nl/curriculum/2023/api/v1/vakleergebied/)
+            - secondary education:the `vakleergebied name` from [SLO curriculum](https://opendata.slo.nl/curriculum/2023/api/v1/vakleergebied/)
+      required:
+        - subjectName
+        - subjectPrefix
     
     CMI5.CourseStructure:
       title: CMI5.CourseStructure
@@ -577,39 +613,19 @@ components:
           tokenUrl: https://api.example.com/oauth2/token
           refreshUrl: https://api.example.com/oauth2/token
           scopes:
-            course: ''
+            eduv.course: 'a scope to exchange metadata about learning materials'
 paths:
   
   /courses:
     parameters:
       - schema:
-          type: integer
-        name: start
-        in: query
-        description: 'Start point for pagination of results, defaults to 0,'
-        examples:
-          default:
-            value: 0
-            summary: The start point for pagination
-      - schema:
-          type: integer
-          maximum: 100
-        in: query
-        name: limit
-        description: 'Limit of number of results returned by page, defaults to 20 with max 100.'
-        examples:
-          default:
-            value: 20
-            summary: The default value if none is provided
-          max:
-            value: 100
-            summary: The largest recommended page size
-      - schema:
           type: string
-        name: schemaVersion
+          format: date-time
         in: query
+        name: since
         required: false
-        description: 'Optional parameter to request a response in a specific schema version. If none supplied, the server will choose its default schema version.'
+        description: 'Request all Courses modified after the specified timestamp. Format: Conform openapi in ZULU time as specified in RFC 3339, section 5.6'
+        example: "2017-07-21T17:32:28Z"
     get:
       summary: Get All Courses
       operationId: get-all-courses
@@ -647,7 +663,7 @@ paths:
                 $ref: '#/components/schemas/StatusResponse'
       security:
         - OAuth2:
-            - course
+            - eduv.course
 
   /courses/{id}:
     parameters:
@@ -656,12 +672,6 @@ paths:
         name: id
         in: path
         required: true
-      - schema:
-          type: string
-        name: schemaVersion
-        in: query
-        required: false
-        description: 'Optional parameter to request a response in a specific schema version. If none supplied, the server will choose its default schema version. See the Events API for a call to get the default schema version.'
     get:
       summary: Get Course by ID
       x-tags:
@@ -698,7 +708,7 @@ paths:
         Usually the Course is found via the catalog, each product has a list of Courses that is available for a student/teacher when that product is bought. This call is used to get more information about these Courses. Moreover the call can also be used to see if there are any new versions of this Course published. The response is a Course object with basic information about the Course.
       security:
         - OAuth2:
-            - course
+            - eduv.course
   
   /courses/{id}/cmi5e:
     parameters:
@@ -707,12 +717,6 @@ paths:
         name: id
         in: path
         required: true
-      - schema:
-          type: string
-        name: schemaVersion
-        in: query
-        required: false
-        description: 'Optional parameter to request a response in a specific schema version. If none supplied, the server will choose its default schema version. See the Events API for a call to get the default schema version.'
     get:
       summary: Get CourseStructure by ID in CMI5e Format
       x-tags:
@@ -812,7 +816,7 @@ paths:
       operationId: get-coursestructure-by-id
       security:
         - OAuth2:
-            - course
+            - eduv.course
       description: |
         The CourseStructure contains information about the course, including which chapters, paragraphs and assignable units are available, including deeplinks to the publishers playing environment so the student start that unit.
         

@@ -1,0 +1,598 @@
+openapi: 3.0.0
+info:
+  title: Students API
+  version: '0.9.1'
+  description: |-
+    The Students API is implemented by the `Administratiesysteem onderwijsdeelnemer`.
+    
+    Student data is split into the following objects with corresponding attributes:
+    - Basic data: identifiers and name
+    - Demographics: gender and dateOfBirth
+    - Communication: email, phone, and mobile
+    - Accessibility: language and optional accessibility preferences
+    - DeliveryAddress: home address and email addresses
+    
+    Not all Student attributes are available to all consuming reference components. For example delivery address attributes are only available to the `Bestelomgeving leermiddelen`.
+    All objects have a different security scope which allows the `Administratiesysteem onderwijsdeelnemer` to share the attributes only with the reference components that are allowed to receive the attributes.
+    
+    All consunming reference components require consent to request data from the Student API.
+    The Notifications API can be used by consuming reference components to receive notifications about new, modified, or deleted entitities within the Students API.
+
+    The Students API has a scope of primary and secondary education. Vocational education is out of scope. For Vocational Education we advice to use the [Open Education API (OOAPI)](https://openonderwijsapi.nl/).
+  contact:
+    name: Edu-V
+    url: www.edu-v.org/afsprakenstelsel
+    email: info@edu-v.org
+components:
+  schemas:
+  
+    schemaVersion:
+      type: string
+      description: |
+        Schema version of this API using semantic versioning 2.0.0.
+        The API version number is communicated in the header.
+        The major version is communicated in the URI.
+        For more information see the [Edu-V versioning guidelines](https://edu-v.atlassian.net/wiki/spaces/AFSPRAKENS/pages/9437200/Versiebeheer).
+      default: 0.9.1
+          
+    Student:
+      title: Student
+      description: |
+        The Student object with its identifiers and name information.
+
+        Based on the scopes additional attributes can be included in this object.
+
+        ### student.demographics
+        Demographic data of a Student:
+        - `dateOfBirth`
+        - `gender`
+
+        ### student.communication
+        Communication data of the Student. For Students this is only the `e-mail` address as provided by the School.
+
+        ### student.accessibility
+        `accessibility` and `language` preferences for the Student. StudentAccessibility is an optional object for the Students API.
+        - As an illustration the accessibility of AddtitionalTestingTime is specified within this version.
+        - Based on actual requirements from schools and suppliers, this list of preferences can be extended.
+        - A possible next candidate might be the [Braille class](https://www.imsglobal.org/sites/default/files/spec/afa/3p0/information_model/imsafa3p0pnp_v1p0_InfoModel.html#Data_Braille).
+
+        ### student.deliveryaddress
+        Delivery address data of a Student:
+        - `address`
+        - `emailPrivate`
+        - `emailsParents`
+
+      type: object
+      x-tags:
+        - Student
+      properties:
+        userMasterIdentifier:
+          type: string
+          description: |
+            The primary identifier for the Student.
+            For Students the ECK iD is used.
+        userIds:
+          type: array
+          description: |
+            A secondary identifier for a User. This value is used whenever the primary identifier is not available.
+            (either userMasterIdentifier or userIds is required)
+          items:
+            type: object
+            properties:
+              userId:
+                type: string
+              userIdType:
+                type: string
+                enum:
+                  - NEPPI # nlPersonProfileId – value can be used for students and employees
+                  - BPI # Basispoort ID – value can be used for students and employees
+                  - eduID # eduID identifier – value can be used for students and employees
+                  - NEPRI # nlPersonRealId – value can be used for students only
+                  - ASI # Las-key – value can be used for students only
+            required:
+              - userId
+              - userIdType
+        givenName:
+          type: string
+        preferredFirstName:
+          type: string
+        familyName:
+          type: string
+        familyNamePrefix:
+          type: string
+        dateOfBirth:
+          type: string
+          format: date
+          description: 'format: YYYY-MM-DD (according to RFC3339)'
+        gender:
+          type: string
+          description: |
+            The gender of the Student. The following values are used:
+            - `female`: gender is Female
+            - `male`: gender is Male
+            - `other`: gender that is known buth which is not either Male or Female.
+            - `unspecified`: unspecified as no data entry for this field has been made.
+          enum:
+            - female
+            - male
+            - other
+            - unspecified
+        email:
+          type: string
+          description: 'E-mail address hosted by school (e.g. L123456@school.nl).'
+        language:
+          type: string
+          description: |
+            The language preference of the Student. Format according to [ISO639 Set 3 values](https://www.iso.org/standard/74575.html) for Language tags.
+            On [Wikipedia](https://en.wikipedia.org/wiki/List_of_ISO_639_language_codes) an example list can be found.
+          example: 'nld'
+        accessibility:
+          type: array
+          description: 'Accessibility preferences for this student. Based on [IMS Global Access for All (AfA) Personal Needs and Preferences (PNP) Information model](https://www.imsglobal.org/sites/default/files/spec/afa/3p0/information_model/imsafa3p0pnp_v1p0_InfoModel.html)'
+          items:
+            description: 'An IMS GLobal defined AfA or PNP preference.'
+            $ref: '#/components/schemas/AccessibilityPreference'
+        address:
+          type: object
+          description: 'The home address of the Student.'
+          properties:
+            street:
+              type: string
+            houseNumber:
+              type: integer
+              description: 'the house number'
+            houseNumberSuffix:
+              type: string
+              description: 'additions to the house humber, e.g. A or -104'
+            zipCode:
+              type: string
+            city:
+              type: string
+            countryCode:
+              type: string
+              description: 'According to Alpha-2 code from ISO 3166, e.g. NL'
+            country:
+              type: string
+          required:
+            - street
+            - houseNumber
+            - zipCode
+            - city
+            - country
+        emailPrivate:
+          type: string
+          description: 'Private e-mail address of the student.'
+        emailsParents:
+          type: array
+          items:
+            type: string
+            description: 'E-mail address of a parent or the legal representative (e.g. guardian) of the Student.'
+        sourceId:
+          type: string
+          format: uuid
+          description: |
+            The Source Identifier of the object. This is a GUID System ID for an object.
+            This is the GUID that Consumers will refer to when making API calls, or when needing to identify an object.
+            It is RECOMMENDED that systems are able to map whichever local ids (e.g. database key fields), userMasterIdentifier or userIds they use to SourceId.
+            The sourcedId of an object is considered an addressable property of an entity and as such will not be treated as Personally Identifiable Information (PII).
+            
+            The sourceId attribute is based on the [Base Class from OneRoster](https://www.imsglobal.org/sites/default/files/spec/oneroster/v1p2/rostering-informationmodel/OneRosterv1p2RosteringService_InfoModelv1p0.html#Data_Base).
+        status:
+          description: |
+            The status field gives an indication to Consumers about the status of an object.
+            Consumers can delete objects that are flagged `tobedeleted`  as such if they wish.
+
+            The status attribute is based on the [Base Class from OneRoster](https://www.imsglobal.org/sites/default/files/spec/oneroster/v1p2/rostering-informationmodel/OneRosterv1p2RosteringService_InfoModelv1p0.html#Data_Base).
+          type: string
+          enum:
+            - active
+            - tobedeleted
+        dateCreated:
+          type: string
+          description: 'Indicates the date and time the object was first created. Format: Conform openapi in ZULU time zoals gespecificeerd in RFC 3339, section 5.6.'
+          format: date-time
+          example: "2017-07-21T17:32:28Z"
+        dateLastModified:
+          type: string
+          description: 'Indicates the date and time the object was last modified. Format: Conform openapi in ZULU time zoals gespecificeerd in RFC 3339, section 5.6.'
+          format: date-time
+          example: "2022-08-11T15:31:12Z"
+      required:
+        - givenName
+        - familyName
+        - status
+        - sourceId
+        - dateCreated
+        - dateLastModified
+
+    AccessibilityPreference:
+      x-tags:
+        - StudentAccessibility
+      oneOf:
+        - $ref: '#/components/schemas/AdditionalTestingTime'
+
+    AdditionalTestingTime:
+      title: AdditionalTestingTime
+      description: 'The AddtionalTestingTime preference for a Student. Either `time-multiplier`, `fixed-minutes` or `unlimited` is used.'
+      type: object
+      x-tags:
+        - StudentAccessibility
+      properties:
+        additionalTestingTime:
+          type: object
+          properties:
+            time-multiplier:
+              type: number
+              description: 'Providing the additional testing time as a multiplier of the set time.'
+              example: 1.5
+            fixed-minutes:
+              type: integer
+              description: 'Providing the additional testing time as an additional number of minutes.'
+              example: 30
+            unlimited:
+              type: string
+              default: "" # The IMS Global specification prescribes an empty type. 
+              description: 'Providing the additional testing time as an unlimited time.'
+
+    # This UserReference might not be necessary for the Students API. References are made based on the sourceId of the Student object.
+    UserReference:
+      type: object
+      title: UserReference
+      properties:
+        userMasterIdentifier:
+          type: string
+          description: |
+            The primary identifier for a User.
+            For Students the ECK iD is used.
+            For Employees this value is empty. There is no primary identifier for Employees.
+            (either userMasterIdentifier or userIds is required)
+        userIds:
+          type: array
+          description: |
+            A secondary identifier for a User. This value is used whenever the primary identifier is not available.
+            For Employees this value is mandatory.
+            (either userMasterIdentifier or userIds is required)
+          items:
+            type: object
+            properties:
+              userId:
+                type: string
+              userIdType:
+                type: string
+                enum:
+                  - NEPPI # nlPersonProfileId – value can be used for students and employees
+                  - BPI # Basispoort ID – value can be used for students and employees
+                  - eduID # eduID identifier – value can be used for students and employees
+                  - NEPRI # nlPersonRealId – value can be used for students only
+                  - ASI # Las-key – value can be used for students only
+                  - eckId # ECK iD – value can be used for employees only, eckId is userIdType for userMasterIdentifier for students
+            required:
+              - userId
+              - userIdType
+    
+    SchoolReference:
+      type: object
+      title: SchoolReference
+      description: 'A reference to a School organisation.'
+      properties:
+        organisationMasterIdentifier:
+          type: string
+          description: |
+            The primary identifier for a School. For Schools the `OnderwijsaanbiederId` is used.
+            (either organisationMasterIdentifier or organisationIds is required)
+          example: '104A158' # De Mariënborn
+        organisationIds:
+          type: array
+          description: |
+            A secondary identifier for the School. This value is used whenever the primary identifier is not available.
+            (either organisationMasterIdentifier or organisationIds is required)
+          items:
+            type: object
+            properties:
+              organisationId:
+                type: string
+              organisationIdType:
+                type: string
+                enum:
+                  - OIE_CODE # Onderwijsinstellingserkenningcode e.g. 09QQ (Marienbornschool)
+                  - BP_ID # Basispoort gegenereerde identifier voor de school.
+                  - DD_ID # Door de Centrale Registratie van Edu-iX gegenereerde DigiDeliveryId van de school.
+                  - AS_ID # Door het Leerlingadministratiesysteem gegenereerde identifier van de school.
+            required:
+              - organisationId
+              - organisationIdType
+
+    StatusResponse:
+      title: StatusResponse
+      type: object
+      description: 'Functional status code and status message.'
+      properties:
+        status:
+          type: integer
+          description: 'See functional status codes within the Documentation.'
+        statusMessage:
+          type: string
+          description: 'See functional status messages within the Documentation.'
+      required:
+        - status
+  
+  securitySchemes:
+    OAuth2:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.example.com/oauth2/token
+          refreshUrl: https://api.example.com/oauth2/token
+          scopes:
+            eduv.student.basic: 'a scope that gives access to student identifiers and name.'
+            eduv.student.demographics: 'a scope that gives access to student demographics attributes.'
+            eduv.student.communication: 'a scope that gives access to student communication attributes.'
+            eduv.student.accessibility: 'a scope that gives access to student accessibility attributes.'
+            eduv.student.deliveryaddress: 'a scope that gives access to student delivery address attributes.'
+            
+paths:
+  
+  /students:
+    post:
+      summary: Search Student
+      x-tags:
+        - Student
+      tags:
+        - Administratiesysteem onderwijsdeelnemer
+      operationId: search-employee
+      description: 'Request a Student object for a specified Student at a School.'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                school:
+                  $ref: '#/components/schemas/SchoolReference'
+                student:
+                  $ref: '#/components/schemas/UserReference'
+              required:
+                - school
+                - student
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Student'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+      security:
+        - OAuth2:
+            - eduv.student.basic
+            - eduv.student.demographics
+            - eduv.student.communication
+            - eduv.student.accessibility
+            - eduv.student.deliveryaddress
+
+  /students/{sourceId}:
+    parameters:
+      - schema:
+          type: string
+        name: sourceId
+        in: path
+        required: true
+        description: 'Reference to the sourceId of the Student object.'
+      - schema:
+          type: string
+        name: orgMasterId
+        in: query
+        required: false
+        description: |
+          The organisationMasterIdentifier of the school.
+          This parameter is used when the primary identifier for a school (being the `OnderwijsaanbiederId`) is available.
+      - schema:
+          type: string
+        name: orgId
+        in: query
+        required: false
+        description: |
+          The organisationIdentifier (secondary identifier) of the school.
+          This parameter is used in combination with the orgIdType when the organisationMasterIdentifier is not available.
+      - schema:
+          type: string
+          example: DD_ID
+          enum:
+            - OIE_CODE
+            - BP_ID
+            - DD_ID
+            - AS_ID
+        name: orgIdType
+        in: query
+        required: false
+        description: |
+          The type of the organisationIdentifier.
+          This parameter is used in combination with the orgId when the organisationMasterIdentifier is not available.
+    get:
+      summary: 'Get Student'
+      x-tags:
+        - Student
+      tags:
+        - Administratiesysteem onderwijsdeelnemer
+      operationId: get-student
+      description: |
+        Request a Student object based on its sourceId.
+        The Source Identifier is the GUID System ID for an object. This is the GUID that Consumers will refer to when making API calls.
+        The sourcedId of an object is considered an addressable property of an entity and as such will not be treated as Personally Identifiable Information (PII).
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Student'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+      security:
+        - OAuth2:
+            - eduv.student.basic
+            - eduv.student.demographics
+            - eduv.student.communication
+            - eduv.student.accessibility
+            - eduv.student.deliveryaddress
+
+  /students/school:
+    parameters:
+      - schema:
+          type: string
+        name: orgMasterId
+        in: query
+        required: false
+        description: |
+          The organisationMasterIdentifier of the school.
+          This parameter is used when the primary identifier for a school (being the `OnderwijsaanbiederId`) is available.
+      - schema:
+          type: string
+        name: orgId
+        in: query
+        required: false
+        description: |
+          The organisationIdentifier (secondary identifier) of the school.
+          This parameter is used in combination with the orgIdType when the organisationMasterIdentifier is not available.
+      - schema:
+          type: string
+          example: DD_ID
+          enum:
+            - OIE_CODE
+            - BP_ID
+            - DD_ID
+            - AS_ID
+        name: orgIdType
+        in: query
+        required: false
+        description: |
+          The type of the organisationIdentifier.
+          This parameter is used in combination with the orgId when the organisationMasterIdentifier is not available.
+      - schema:
+          type: string
+        name: schoolPeriodId
+        in: query
+        required: false
+        description: 'Optional filter to request all Student objects enrolled in a specified SchoolPeriod and its corresponding schoolPeriodId.'
+      - schema:
+          type: string
+        name: studyOfferingId
+        in: query
+        required: false
+        description: 'Optional filter to request all Student objects enrolled in a StudyOffering and its corresponding studyOfferingId.'
+      - schema:
+          type: string
+        name: subjectOfferingId
+        in: query
+        required: false
+        description: 'Optional filter to request Student objects enrolled in a SubjectOffering and its corresponding subjectOfferingId.'
+      - schema:
+          type: string
+          format: date-time
+        in: query
+        name: since
+        required: false
+        description: 'Request all objects modified after the specified timestamp. Format: Conform openapi in ZULU time as specified in RFC 3339, section 5.6'
+        example: "2017-07-21T17:32:28Z"
+    get:
+      summary: Get Students for School
+      x-tags:
+        - Student
+      tags:
+        - Administratiesysteem onderwijsdeelnemer
+      operationId: get-students-for-school
+      description: 'Request all Student objects including basic information (identifiers and names) for a specified school.'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Student'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+      security:
+        - OAuth2:
+            - eduv.student.basic
+            - eduv.student.demographics
+            - eduv.student.communication
+            - eduv.student.accessibility
+            - eduv.student.deliveryaddress
+
+x-tags:
+  - name: Student
+  - name: StudentDemographics
+  - name: StudentCommunication
+  - name: StudentAccessibility
+  - name: StudentDeliveryAddress

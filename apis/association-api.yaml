@@ -1,0 +1,1358 @@
+openapi: 3.0.0
+info:
+  title: Association API
+  version: '0.9.1'
+  description: |-
+    The Association API is implemented by the `Administratiesysteem onderwijsdeelnemer`.
+    
+    The Association API has the following objects:
+    - SchoolPeriod: the school period in which this school is organized.
+    - Enrollment: an enrollment of a student into a StudyYear or subject.
+    - Assignment: an assignment of an employee to a Group or a student.
+    - Group: a class or lesson-group of students and the employees that are assigned to it.
+    
+    These objects could be considered open data from the school. As a data owner, the school authorizes the exchange of this information towards suppliers.
+    All consunming reference components require consent to request data from the Association API.
+    The Notifications API can be used by consuming reference components to receive notifications about new, modified, or deleted entitities within the Employees API.
+
+    The Association API has a scope of primary and secondary education. Vocational education is out of scope. For Vocational Education we advice to use the [Open Education API (OOAPI)](https://openonderwijsapi.nl/).
+  contact:
+    name: Edu-V
+    url: www.edu-v.org/afsprakenstelsel
+    email: info@edu-v.org
+components:
+  schemas:
+  
+    schemaVersion:
+      type: string
+      description: |
+        Schema version of this API using semantic versioning 2.0.0.
+        The API version number is communicated in the header.
+        The major version is communicated in the URI.
+        For more information see the [Edu-V versioning guidelines](https://edu-v.atlassian.net/wiki/spaces/AFSPRAKENS/pages/9437200/Versiebeheer).
+      default: 0.9.1
+          
+    SchoolPeriod:
+      title: SchoolPeriod
+      description: 'The SchoolPeriod object with its title startDate end endDate.'
+      type: object
+      x-tags:
+        - SchoolPeriod
+      properties:
+        schoolPeriodId:
+          type: string
+          format: uuid
+          description: |
+            A unique identifier for this SchoolPeriod object.
+            This is the GUID that Consumers will refer to when making API calls, or when needing to identify an object.
+        title:
+          type: string
+          description: 'The name of the SchoolPeriod.'
+          example: "2024-2025"
+        type:
+          type: string
+          description: |
+            The type of SchoolPeriod. An enumared value is used:
+            - gradingPeriod: Denotes a period over which some grade/result is to be awarded.
+            - schoolYear: Denotes the school year.
+            - semester: Denotes a semester period. Typically there a two semesters per schoolYear.
+            - term: Denotes a term period. Typically there are three terms per schoolYear.
+
+            ENUM values are corresponding the OneRoster [AcademicSession SessionType](https://www.imsglobal.org/sites/default/files/spec/oneroster/v1p2/rostering-informationmodel/OneRosterv1p2RosteringService_InfoModelv1p0.html#Union_SessionTypeEnumExt).
+          enum:
+            - gradingPeriod
+            - schoolYear
+            - semester
+            - term
+        superSchoolPeriod:
+          type: string
+          description: 'The link to a hierarchically higher Schoolperiod object. For example for a semester this is the schoolYear.'
+        subSchoolPeriods:
+          type: array
+          description: 'The link to hierarchically lower Schoolperiod objects. For example for a schoolYear these are its semesters.'
+          items:
+            type: string
+            description: 'The link to a child Schoolperiod object. For example for a schoolYear this is the semester.'
+        startDate:
+          type: string
+          description: 'The start date for the SchoolPeriod (inclusive). Format: YYYY-MM-DD (according to RFC3339).'
+          format: date
+          example: '2024-08-31'
+        endDate:
+          type: string
+          description: 'The end date for the SchoolPeriod (exclusive). Format: YYYY-MM-DD (according to RFC3339).'
+          format: date
+          example: '2025-07-31'
+        status:
+          description: |
+            The status field gives an indication to Consumers about the status of an object.
+            Consumers can delete objects that are flagged `tobedeleted`  as such if they wish.
+
+            The status attribute is based on the [Base Class from OneRoster](https://www.imsglobal.org/sites/default/files/spec/oneroster/v1p2/rostering-informationmodel/OneRosterv1p2RosteringService_InfoModelv1p0.html#Data_Base).
+          type: string
+          enum:
+            - active
+            - tobedeleted
+        dateCreated:
+          type: string
+          description: 'Indicates the date and time the object was first created. Format: Conform openapi in ZULU time zoals gespecificeerd in RFC 3339, section 5.6.'
+          format: date-time
+          example: "2017-07-21T17:32:28Z"
+        dateLastModified:
+          type: string
+          description: 'Indicates the date and time the object was last modified. Format: Conform openapi in ZULU time zoals gespecificeerd in RFC 3339, section 5.6.'
+          format: date-time
+          example: "2022-08-11T15:31:12Z"
+      required:
+        - schoolPeriodId
+        - title
+        - startDate
+        - endDate
+        - status
+        - dateCreated
+        - dateLastModified
+
+    Enrollment:
+      title: Enrollment
+      description: 'The Enrollment object for a student into a StudyYear or SubjectOffering for a SchoolPeriod.'
+      type: object
+      x-tags:
+        - Enrollment
+      properties:
+        enrollmentId:
+          type: string
+          format: uuid
+          description: |
+            A unique identifier for this Enrollment object.
+            This is the GUID that Consumers will refer to when making API calls, or when needing to identify an object.
+        student:
+          description: 'The Student to which this enrollment object belongs.'
+          $ref: '#/components/schemas/UserReference'
+        enrollmentType:
+          type: string
+          description: |
+            The type of enrollment, being one of:
+            - study: an enrollment into a StudyOffering offered by the School.
+            - subject: an enrollment into a SubjectOffering offered by the School.
+          enum:
+            - study
+            - subject
+        study:
+          type: string
+          description: 'A reference to the studyOfferingId of the StudyOffering in case this enrollment is of the enrollmentType `study`.'
+        subject:
+          type: string
+          description: 'A reference to the subjectOfferingId of the SubjectOffering in case this enrollment is of the enrollmentType `subject`.'
+        schoolPeriod:
+          type: string
+          description: 'A reference to the schoolPeriodId of the SchoolPeriod where this enrollment is part of.'
+        beginDate:
+          type: string
+          description: 'The start date on which the enrollment becomes active (inclusive). Format: YYYY-MM-DD (according to RFC3339).'
+          format: date
+          example: '2022-07-31'
+        endDate:
+          type: string
+          description: 'The end date on which the enrollment becomes inactive (exclusive). Format: YYYY-MM-DD (according to RFC3339).'
+          format: date
+          example: '2024-08-31'
+        status:
+          description: |
+            The status field gives an indication to Consumers about the status of an object.
+            Consumers can delete objects that are flagged `tobedeleted`  as such if they wish.
+
+            The status attribute is based on the [Base Class from OneRoster](https://www.imsglobal.org/sites/default/files/spec/oneroster/v1p2/rostering-informationmodel/OneRosterv1p2RosteringService_InfoModelv1p0.html#Data_Base).
+          type: string
+          enum:
+            - active
+            - tobedeleted
+        dateCreated:
+          type: string
+          description: 'Indicates the date and time the object was first created. Format: Conform openapi in ZULU time zoals gespecificeerd in RFC 3339, section 5.6.'
+          format: date-time
+          example: "2017-07-21T17:32:28Z"
+        dateLastModified:
+          type: string
+          description: 'Indicates the date and time the object was last modified. Format: Conform openapi in ZULU time zoals gespecificeerd in RFC 3339, section 5.6.'
+          format: date-time
+          example: "2022-08-11T15:31:12Z"
+      required:
+        - enrollmentId
+        - student
+        - enrollmentType
+        - schoolPeriod
+        - beginDate
+        - status
+        - dateCreated
+        - dateLastModified
+
+    Assignment:
+      title: Assignment
+      description: 'The Assignment object for an employee to a Group or Student for a SchoolPeriod.'
+      type: object
+      x-tags:
+        - Assignment
+      properties:
+        assignmentId:
+          type: string
+          format: uuid
+          description: |
+            A unique identifier for this Assignment object.
+            This is the GUID that Consumers will refer to when making API calls, or when needing to identify an object.
+        employee:
+          description: 'The Student to which this enrollment object belongs.'
+          $ref: '#/components/schemas/UserReference'
+        assignmentType:
+          type: string
+          description: |
+            The type of enrollment, being one of:
+            - class-teacher: an assignment to a class.
+            - teacher: an assignment to a lesson group for a subject.
+            - coach: an assignment to an individual student.
+          enum:
+            - class-teacher
+            - teacher
+            - coach
+        group:
+          type: string
+          description: 'A reference to the groupId of the Group in case this assignment is of the assignmentType `class-teacher` or `teacher`.'
+        subject:
+          type: string
+          description: 'A reference to the subjectOfferingId of the SubjectOffering in case this assignment is of the assignmentType `teacher`.'
+        student:
+          description: 'A reference to a Student in case this assignment is of the assignmentType `coach`.'
+          $ref: '#/components/schemas/UserReference'
+        schoolPeriod:
+          type: string
+          description: 'A reference to the schoolPeriodId of the SchoolPeriod where this assignment is part of.'
+        beginDate:
+          type: string
+          description: 'The start date on which the assignment becomes active (inclusive). Format: YYYY-MM-DD (according to RFC3339).'
+          format: date
+          example: '2022-07-31'
+        endDate:
+          type: string
+          description: 'The end date on which the assignment becomes inactive (exclusive). Format: YYYY-MM-DD (according to RFC3339).'
+          format: date
+          example: '2024-08-31'
+        status:
+          description: |
+            The status field gives an indication to Consumers about the status of an object.
+            Consumers can delete objects that are flagged `tobedeleted`  as such if they wish.
+
+            The status attribute is based on the [Base Class from OneRoster](https://www.imsglobal.org/sites/default/files/spec/oneroster/v1p2/rostering-informationmodel/OneRosterv1p2RosteringService_InfoModelv1p0.html#Data_Base).
+          type: string
+          enum:
+            - active
+            - tobedeleted
+        dateCreated:
+          type: string
+          description: 'Indicates the date and time the object was first created. Format: Conform openapi in ZULU time zoals gespecificeerd in RFC 3339, section 5.6.'
+          format: date-time
+          example: "2017-07-21T17:32:28Z"
+        dateLastModified:
+          type: string
+          description: 'Indicates the date and time the object was last modified. Format: Conform openapi in ZULU time zoals gespecificeerd in RFC 3339, section 5.6.'
+          format: date-time
+          example: "2022-08-11T15:31:12Z"
+      required:
+        - assignmentId
+        - assignmentType
+        - schoolPeriod
+        - beginDate
+        - status
+        - dateCreated
+        - dateLastModified
+
+    Group:
+      title: Group
+      description: 'The Group object in which Students follow their education and Employees are assigned to within a SchoolPeriod.'
+      type: object
+      x-tags:
+        - Group
+      properties:
+        groupId:
+          type: string
+          format: uuid
+          description: |
+            A unique identifier for this Group object.
+            This is the GUID that Consumers will refer to when making API calls, or when needing to identify an object.
+        groupName:
+          type: string
+          description: 'The name of this Group.'
+        groupType:
+          type: string
+          description: |
+            The type of group, being one of:
+            - class: a `stamgroep` where students are rostered into for their StudyOffering(s)
+            - lesson-group: a `lesgroep` where students are rostered into to follow a SubjectOffering.
+          enum:
+            - class
+            - lesson-group
+        students:
+          type: array
+          description: 'The Students which are member of this group.'
+          items:
+            $ref: '#/components/schemas/UserReference'
+        assignments:
+          type: array
+          description: 'The Assignments of Employees that are assigned to this group.'
+          items:
+            type: string
+            description: 'A reference to the assignmentId of the Assignement for this group.'
+        schoolPeriod:
+          type: string
+          description: 'A reference to the schoolPeriodId of the SchoolPeriod where this group is part of.'
+        beginDate:
+          type: string
+          description: 'The start date on which the group becomes active (inclusive). Format: YYYY-MM-DD (according to RFC3339).'
+          format: date
+          example: '2022-07-31'
+        endDate:
+          type: string
+          description: 'The end date on which the group becomes inactive (exclusive). Format: YYYY-MM-DD (according to RFC3339).'
+          format: date
+          example: '2024-08-31'
+        status:
+          description: |
+            The status field gives an indication to Consumers about the status of an object.
+            Consumers can delete objects that are flagged `tobedeleted`  as such if they wish.
+
+            The status attribute is based on the [Base Class from OneRoster](https://www.imsglobal.org/sites/default/files/spec/oneroster/v1p2/rostering-informationmodel/OneRosterv1p2RosteringService_InfoModelv1p0.html#Data_Base).
+          type: string
+          enum:
+            - active
+            - tobedeleted
+        dateCreated:
+          type: string
+          description: 'Indicates the date and time the object was first created. Format: Conform openapi in ZULU time zoals gespecificeerd in RFC 3339, section 5.6.'
+          format: date-time
+          example: "2017-07-21T17:32:28Z"
+        dateLastModified:
+          type: string
+          description: 'Indicates the date and time the object was last modified. Format: Conform openapi in ZULU time zoals gespecificeerd in RFC 3339, section 5.6.'
+          format: date-time
+          example: "2022-08-11T15:31:12Z"
+      required:
+        - groupId
+        - groupName
+        - groupType
+        - students
+        - assignments
+        - schoolPeriod
+        - beginDate
+        - status
+        - dateCreated
+        - dateLastModified    
+
+    UserReference:
+      type: object
+      title: UserReference
+      properties:
+        userMasterIdentifier:
+          type: string
+          description: |
+            The primary identifier for a User.
+            For Students the ECK iD is used.
+            For Employees this value is empty. There is no primary identifier for Employees.
+            (either userMasterIdentifier or userIds is required)
+        userIds:
+          type: array
+          description: |
+            A secondary identifier for a User. This value is used whenever the primary identifier is not available.
+            For Employees this value is mandatory.
+            (either userMasterIdentifier or userIds is required)
+          items:
+            type: object
+            properties:
+              userId:
+                type: string
+              userIdType:
+                type: string
+                enum:
+                  - NEPPI # nlPersonProfileId – value can be used for students and employees
+                  - BPI # Basispoort ID – value can be used for students and employees
+                  - eduID # eduID identifier – value can be used for students and employees
+                  - NEPRI # nlPersonRealId – value can be used for students only
+                  - ASI # Las-key – value can be used for students only
+                  - eckId # ECK iD – value can be used for employees only, eckId is userIdType for userMasterIdentifier for students
+            required:
+              - userId
+              - userIdType
+    
+    SchoolReference:
+      type: object
+      title: SchoolReference
+      description: 'A reference to a School organisation.'
+      properties:
+        organisationMasterIdentifier:
+          type: string
+          description: |
+            The primary identifier for a School. For Schools the `OnderwijsaanbiederId` is used.
+            (either organisationMasterIdentifier or organisationIds is required)
+          example: '104A158' # De Mariënborn
+        organisationIds:
+          type: array
+          description: |
+            A secondary identifier for the School. This value is used whenever the primary identifier is not available.
+            (either organisationMasterIdentifier or organisationIds is required)
+          items:
+            type: object
+            properties:
+              organisationId:
+                type: string
+              organisationIdType:
+                type: string
+                enum:
+                  - OIE_CODE # Onderwijsinstellingserkenningcode e.g. 09QQ (Marienbornschool)
+                  - BP_ID # Basispoort gegenereerde identifier voor de school.
+                  - DD_ID # Door de Centrale Registratie van Edu-iX gegenereerde DigiDeliveryId van de school.
+                  - AS_ID # Door het Leerlingadministratiesysteem gegenereerde identifier van de school.
+            required:
+              - organisationId
+              - organisationIdType
+
+    StatusResponse:
+      title: StatusResponse
+      type: object
+      description: 'Functional status code and status message.'
+      properties:
+        status:
+          type: integer
+          description: 'See functional status codes within the Documentation.'
+        statusMessage:
+          type: string
+          description: 'See functional status messages within the Documentation.'
+      required:
+        - status
+  
+  securitySchemes:
+    OAuth2:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.example.com/oauth2/token
+          refreshUrl: https://api.example.com/oauth2/token
+          scopes:
+            eduv.association: 'a scope that gives access to all objects from the Association API.'
+            
+paths:
+  
+  /schoolperiods/school/{id}:
+    parameters:
+      - schema:
+          type: string
+        name: id
+        in: path
+        required: true
+        description: 'Reference to the schoolPeriodId of the SchoolPeriod object.'
+      - schema:
+          type: string
+        name: orgMasterId
+        in: query
+        required: false
+        description: |
+          The organisationMasterIdentifier of the school.
+          This parameter is used when the primary identifier for a school (being the `OnderwijsaanbiederId`) is available.
+      - schema:
+          type: string
+        name: orgId
+        in: query
+        required: false
+        description: |
+          The organisationIdentifier (secondary identifier) of the school.
+          This parameter is used in combination with the orgIdType when the organisationMasterIdentifier is not available.
+      - schema:
+          type: string
+          example: DD_ID
+          enum:
+            - OIE_CODE
+            - BP_ID
+            - DD_ID
+            - AS_ID
+        name: orgIdType
+        in: query
+        required: false
+        description: |
+          The type of the organisationIdentifier.
+          This parameter is used in combination with the orgId when the organisationMasterIdentifier is not available.
+    get:
+      summary: 'Get SchoolPeriod'
+      x-tags:
+        - SchoolPeriod
+      tags:
+        - Administratiesysteem onderwijsdeelnemer
+      operationId: get-school-period
+      description: 'Request a SchoolPeriod object based on its schoolPeriodId.'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SchoolPeriod'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+      security:
+        - OAuth2:
+            - eduv.association
+
+  /schoolperiods/school:
+    parameters:
+      - schema:
+          type: string
+        name: orgMasterId
+        in: query
+        required: false
+        description: |
+          The organisationMasterIdentifier of the school.
+          This parameter is used when the primary identifier for a school (being the `OnderwijsaanbiederId`) is available.
+      - schema:
+          type: string
+        name: orgId
+        in: query
+        required: false
+        description: |
+          The organisationIdentifier (secondary identifier) of the school.
+          This parameter is used in combination with the orgIdType when the organisationMasterIdentifier is not available.
+      - schema:
+          type: string
+          example: DD_ID
+          enum:
+            - OIE_CODE
+            - BP_ID
+            - DD_ID
+            - AS_ID
+        name: orgIdType
+        in: query
+        required: false
+        description: |
+          The type of the organisationIdentifier.
+          This parameter is used in combination with the orgId when the organisationMasterIdentifier is not available.
+      - schema:
+          type: string
+          format: date-time
+        in: query
+        name: since
+        required: false
+        description: 'Request all objects modified after the specified timestamp. Format: Conform openapi in ZULU time as specified in RFC 3339, section 5.6'
+        example: "2017-07-21T17:32:28Z"
+    get:
+      summary: 'Get SchoolPeriods for School'
+      x-tags:
+        - SchoolPeriod
+      tags:
+        - Administratiesysteem onderwijsdeelnemer
+      operationId: get-school-periods-for-school
+      description: 'Request SchoolPeriod objects for a specified School.'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SchoolPeriod'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+      security:
+        - OAuth2:
+            - eduv.association
+
+  /enrollments/school/{id}:
+    parameters:
+      - schema:
+          type: string
+        name: id
+        in: path
+        required: true
+        description: 'Reference to the enrollmentId of the Enrollment object.'
+      - schema:
+          type: string
+        name: orgMasterId
+        in: query
+        required: false
+        description: |
+          The organisationMasterIdentifier of the school.
+          This parameter is used when the primary identifier for a school (being the `OnderwijsaanbiederId`) is available.
+      - schema:
+          type: string
+        name: orgId
+        in: query
+        required: false
+        description: |
+          The organisationIdentifier (secondary identifier) of the school.
+          This parameter is used in combination with the orgIdType when the organisationMasterIdentifier is not available.
+      - schema:
+          type: string
+          example: DD_ID
+          enum:
+            - OIE_CODE
+            - BP_ID
+            - DD_ID
+            - AS_ID
+        name: orgIdType
+        in: query
+        required: false
+        description: |
+          The type of the organisationIdentifier.
+          This parameter is used in combination with the orgId when the organisationMasterIdentifier is not available.
+    get:
+      summary: 'Get Enrollment'
+      x-tags:
+        - Enrollment
+      tags:
+        - Administratiesysteem onderwijsdeelnemer
+      operationId: get-enrollment
+      description: 'Request Enrollment object based on its enrollmentId.'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Enrollment'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+      security:
+        - OAuth2:
+            - eduv.association
+
+  /enrollments/school:
+    parameters:
+      - schema:
+          type: string
+        name: orgMasterId
+        in: query
+        required: false
+        description: |
+          The organisationMasterIdentifier of the school.
+          This parameter is used when the primary identifier for a school (being the `OnderwijsaanbiederId`) is available.
+      - schema:
+          type: string
+        name: orgId
+        in: query
+        required: false
+        description: |
+          The organisationIdentifier (secondary identifier) of the school.
+          This parameter is used in combination with the orgIdType when the organisationMasterIdentifier is not available.
+      - schema:
+          type: string
+          example: DD_ID
+          enum:
+            - OIE_CODE
+            - BP_ID
+            - DD_ID
+            - AS_ID
+        name: orgIdType
+        in: query
+        required: false
+        description: |
+          The type of the organisationIdentifier.
+          This parameter is used in combination with the orgId when the organisationMasterIdentifier is not available.
+      - schema:
+          type: string
+          enum:
+            - study
+            - subject
+        name: enrollmentType
+        in: query
+        required: false
+        description: 'Optional filter to request all Enrollment objects for a specified enrollmentType.'
+      - schema:
+          type: string
+        name: schoolPeriodId
+        in: query
+        required: false
+        description: 'Optional filter to request all Enrollment objects within a specified SchoolPeriod and its corresponding schoolPeriodId.'
+      - schema:
+          type: string
+        name: studyOfferingId
+        in: query
+        required: false
+        description: 'Optional filter to request all Enrollment objects into a StudyOffering and its corresponding studyOfferingId.'
+      - schema:
+          type: string
+        name: subjectOfferingId
+        in: query
+        required: false
+        description: 'Optional filter to request all Enrollment objects into a SubjectOffering and its corresponding subjectOfferingId.'
+      - schema:
+          type: string
+          format: date-time
+        in: query
+        name: since
+        required: false
+        description: 'Request all objects modified after the specified timestamp. Format: Conform openapi in ZULU time as specified in RFC 3339, section 5.6'
+        example: "2017-07-21T17:32:28Z"
+    get:
+      summary: Get Enrollments for School
+      x-tags:
+        - Enrollment
+      tags:
+        - Administratiesysteem onderwijsdeelnemer
+      operationId: get-enrollments-for-school
+      description: 'Request Enrollment objects for a specified School.'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Enrollment'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+      security:
+        - OAuth2:
+            - eduv.association
+
+  /enrollments/school/student:
+    parameters:
+      - schema:
+          type: string
+          enum:
+            - study
+            - subject
+        name: enrollmentType
+        in: query
+        required: false
+        description: 'Optional filter to request all Enrollment objects for a specified enrollmentType.'
+      - schema:
+          type: string
+        name: schoolPeriodId
+        in: query
+        required: false
+        description: 'Optional filter to request all Enrollment objects within a specified SchoolPeriod and its corresponding schoolPeriodId.'
+      - schema:
+          type: string
+        name: studyOfferingId
+        in: query
+        required: false
+        description: 'Optional filter to request all Enrollment objects into a StudyOffering and its corresponding studyOfferingId.'
+      - schema:
+          type: string
+        name: subjectOfferingId
+        in: query
+        required: false
+        description: 'Optional filter to request all Enrollment objects into a SubjectOffering and its corresponding subjectOfferingId.'
+      - schema:
+          type: string
+          format: date-time
+        in: query
+        name: since
+        required: false
+        description: 'Request all objects modified after the specified timestamp. Format: Conform openapi in ZULU time as specified in RFC 3339, section 5.6'
+        example: "2017-07-21T17:32:28Z"
+    post:
+      summary: Get Enrollments for Student at School
+      x-tags:
+        - Enrollment
+      tags:
+        - Administratiesysteem onderwijsdeelnemer
+      operationId: get-enrollments-for-student-at-school
+      description: 'Request Enrollment objects for a specified Student at a School.'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                school:
+                  $ref: '#/components/schemas/SchoolReference'
+                student:
+                  $ref: '#/components/schemas/UserReference'
+              required:
+                - school
+                - student
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Enrollment'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+      security:
+        - OAuth2:
+            - eduv.association
+
+  /assignments/school/{id}:
+    parameters:
+      - schema:
+          type: string
+        name: id
+        in: path
+        required: true
+        description: 'Reference to the assignmentId of the Assignment object.'
+      - schema:
+          type: string
+        name: orgMasterId
+        in: query
+        required: false
+        description: |
+          The organisationMasterIdentifier of the school.
+          This parameter is used when the primary identifier for a school (being the `OnderwijsaanbiederId`) is available.
+      - schema:
+          type: string
+        name: orgId
+        in: query
+        required: false
+        description: |
+          The organisationIdentifier (secondary identifier) of the school.
+          This parameter is used in combination with the orgIdType when the organisationMasterIdentifier is not available.
+      - schema:
+          type: string
+          example: DD_ID
+          enum:
+            - OIE_CODE
+            - BP_ID
+            - DD_ID
+            - AS_ID
+        name: orgIdType
+        in: query
+        required: false
+        description: |
+          The type of the organisationIdentifier.
+          This parameter is used in combination with the orgId when the organisationMasterIdentifier is not available.
+    get:
+      summary: 'Get Assignment'
+      x-tags:
+        - Assignment
+      tags:
+        - Administratiesysteem onderwijsdeelnemer
+      operationId: get-assignment
+      description: 'Request Assignment object based on its assignmentId.'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Assignment'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+      security:
+        - OAuth2:
+            - eduv.association
+
+  /assignments/school:
+    parameters:
+      - schema:
+          type: string
+        name: orgMasterId
+        in: query
+        required: false
+        description: |
+          The organisationMasterIdentifier of the school.
+          This parameter is used when the primary identifier for a school (being the `OnderwijsaanbiederId`) is available.
+      - schema:
+          type: string
+        name: orgId
+        in: query
+        required: false
+        description: |
+          The organisationIdentifier (secondary identifier) of the school.
+          This parameter is used in combination with the orgIdType when the organisationMasterIdentifier is not available.
+      - schema:
+          type: string
+          example: DD_ID
+          enum:
+            - OIE_CODE
+            - BP_ID
+            - DD_ID
+            - AS_ID
+        name: orgIdType
+        in: query
+        required: false
+        description: |
+          The type of the organisationIdentifier.
+          This parameter is used in combination with the orgId when the organisationMasterIdentifier is not available.
+      - schema:
+          type: string
+          enum:
+            - class-teacher
+            - teacher
+            - coach
+        name: assignmentType
+        in: query
+        required: false
+        description: 'Optional filter to request all Assignment objects for a specified assignmentType.'
+      - schema:
+          type: string
+        name: schoolPeriodId
+        in: query
+        required: false
+        description: 'Optional filter to request all Assignment objects within a specified SchoolPeriod and its corresponding schoolPeriodId.'
+      - schema:
+          type: string
+          format: date-time
+        in: query
+        name: since
+        required: false
+        description: 'Request all objects modified after the specified timestamp. Format: Conform openapi in ZULU time as specified in RFC 3339, section 5.6'
+        example: "2017-07-21T17:32:28Z"
+    get:
+      summary: Get Assignments for School
+      x-tags:
+        - Assignment
+      tags:
+        - Administratiesysteem onderwijsdeelnemer
+      operationId: get-assignments-for-school
+      description: 'Request Assignment objects for a specified School.'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Assignment'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+      security:
+        - OAuth2:
+            - eduv.association
+
+  /assignments/school/employee:
+    parameters:
+      - schema:
+          type: string
+          enum:
+            - class-teacher
+            - teacher
+            - coach
+        name: assignmentType
+        in: query
+        required: false
+        description: 'Optional filter to request all Assignment objects for a specified assignmentType.'
+      - schema:
+          type: string
+        name: schoolPeriodId
+        in: query
+        required: false
+        description: 'Optional filter to request all Assignment objects within a specified SchoolPeriod and its corresponding schoolPeriodId.'
+      - schema:
+          type: string
+          format: date-time
+        in: query
+        name: since
+        required: false
+        description: 'Request all objects modified after the specified timestamp. Format: Conform openapi in ZULU time as specified in RFC 3339, section 5.6'
+        example: "2017-07-21T17:32:28Z"
+    post:
+      summary: Get Assignments for Employee at School
+      x-tags:
+        - Assignment
+      tags:
+        - Administratiesysteem onderwijsdeelnemer
+      operationId: get-assignments-for-employee-at-school
+      description: 'Request Assignment objects for a specified Employee at a School.'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                school:
+                  $ref: '#/components/schemas/SchoolReference'
+                employee:
+                  $ref: '#/components/schemas/UserReference'
+              required:
+                - school
+                - employee
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Assignment'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+      security:
+        - OAuth2:
+            - eduv.association
+
+  /groups/school/{id}:
+    parameters:
+      - schema:
+          type: string
+        name: id
+        in: path
+        required: true
+        description: 'Reference to the groupId of the Group object.'
+      - schema:
+          type: string
+        name: orgMasterId
+        in: query
+        required: false
+        description: |
+          The organisationMasterIdentifier of the school.
+          This parameter is used when the primary identifier for a school (being the `OnderwijsaanbiederId`) is available.
+      - schema:
+          type: string
+        name: orgId
+        in: query
+        required: false
+        description: |
+          The organisationIdentifier (secondary identifier) of the school.
+          This parameter is used in combination with the orgIdType when the organisationMasterIdentifier is not available.
+      - schema:
+          type: string
+          example: DD_ID
+          enum:
+            - OIE_CODE
+            - BP_ID
+            - DD_ID
+            - AS_ID
+        name: orgIdType
+        in: query
+        required: false
+        description: |
+          The type of the organisationIdentifier.
+          This parameter is used in combination with the orgId when the organisationMasterIdentifier is not available.
+    get:
+      summary: 'Get Group'
+      x-tags:
+        - Group
+      tags:
+        - Administratiesysteem onderwijsdeelnemer
+      operationId: get-group
+      description: 'Request Group object based on its groupId.'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Group'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+      security:
+        - OAuth2:
+            - eduv.association
+
+  /groups/school:
+    parameters:
+      - schema:
+          type: string
+        name: orgMasterId
+        in: query
+        required: false
+        description: |
+          The organisationMasterIdentifier of the school.
+          This parameter is used when the primary identifier for a school (being the `OnderwijsaanbiederId`) is available.
+      - schema:
+          type: string
+        name: orgId
+        in: query
+        required: false
+        description: |
+          The organisationIdentifier (secondary identifier) of the school.
+          This parameter is used in combination with the orgIdType when the organisationMasterIdentifier is not available.
+      - schema:
+          type: string
+          example: DD_ID
+          enum:
+            - OIE_CODE
+            - BP_ID
+            - DD_ID
+            - AS_ID
+        name: orgIdType
+        in: query
+        required: false
+        description: |
+          The type of the organisationIdentifier.
+          This parameter is used in combination with the orgId when the organisationMasterIdentifier is not available.
+      - schema:
+          type: string
+          enum:
+            - class
+            - lesson-group
+        name: groupType
+        in: query
+        required: false
+        description: 'Optional filter to request all Group objects for a specified groupType.'
+      - schema:
+          type: string
+        name: schoolPeriodId
+        in: query
+        required: false
+        description: 'Optional filter to request all Group objects within a specified SchoolPeriod and its corresponding schoolPeriodId.'
+      - schema:
+          type: string
+        name: studyOfferingId
+        in: query
+        required: false
+        description: 'Optional filter to request all Group objects for a StudyOffering and its corresponding studyOfferingId.'
+      - schema:
+          type: string
+        name: subjectOfferingId
+        in: query
+        required: false
+        description: 'Optional filter to request all Group objects for a SubjectOffering and its corresponding subjectOfferingId.'
+      - schema:
+          type: string
+          format: date-time
+        in: query
+        name: since
+        required: false
+        description: 'Request all objects modified after the specified timestamp. Format: Conform openapi in ZULU time as specified in RFC 3339, section 5.6'
+        example: "2017-07-21T17:32:28Z"
+    get:
+      summary: Get Groups for School
+      x-tags:
+        - Group
+      tags:
+        - Administratiesysteem onderwijsdeelnemer
+      operationId: get-groups-for-school
+      description: 'Request Group objects for a specified School.'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Group'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+      security:
+        - OAuth2:
+            - eduv.association
+
+x-tags:
+  - name: StudyPeriod
+  - name: Enrollment
+  - name: Association
+  - name: Group

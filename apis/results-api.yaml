@@ -1,245 +1,465 @@
 openapi: 3.0.0
 info:
   title: Results API
-  version: '0.0.1'
-  
-tags: 
-    - name: Cijferadministratie
+  version: '0.9.2'
 
 paths: 
-  /results/{id}:
-    put:
-      operationId: putResult
-      summary: The REST create request message for the putResultsId() API call.
-      tags: 
-        - Cijferadministratie
+  /results:
+    post:
+      operationId: postResults
+      summary: The request to create/change the assessment scores and results for an individual student or group of students.
       description: |
-        To create a new Result object or change an exisiting Result object.
+        List of student scores/results items, for each item to create a new scores/results object for the student or change an exisiting student scores/results object, including general information (e.g. the assessment/test and date and time of offering).
       security:
         - OAuth2:
-            - la.result
-      parameters: 
-        - name: id
-          in: path
-          description: |
-              The unique identifier for the Result object.
-          required: true
-          schema: 
-            type: string
-          style: simple
+            - eduv.result
+      tags:
+        - Administratiesysteem leerresultaten
+        - Leermiddelendashboard
       requestBody:
         description: |
-          The result data that is to be stored.
+          The general data and bundle of student scores/results that is to be stored in object assessment scores/results.
         content: 
-          application/json: 
-            schema: 
-              $ref: "#/components/schemas/Result"
-            examples:
-                  Voorbeeld (volledig):
-                    value:
-                      id: result123abc
-                      schemaVersion: 1.3.0
-                      additionalInfo: 'Betrapt op spieken'
-                      assessmentDateTime: '2023-06-24T14:15:22Z'
-                      assessmentId: toets-34-123-666-222-33333
-                      assessmentName: ProefExamen Nederlands
-                      eckId: eck-S123abc
-                      employees:
-                        - eckId: eck-M123abc
-                      missing: false
-                      resultValue: '7.6'
-                      resultType: 0.0-10.0
-                      reviewUrl: "https://assessmentsystem.nl/student123598025729729/result4"
-                      status: final
-                  Voorbeeld (minimaal):
-                    value:
-                      id: result123abc
-                      schemaVersion: 1.3.0
-                      assessmentId: toets-34-123-666-222-33333
-                      eckId: eck-S123abc
-                      employees:
-                        - eckId: eck-M123abc
-                      resultValue: '7.6'
-                      resultType: 0.0-10.0
-                      status: final
-                  Voorbeeld (verwijdering):
-                    value:
-                      id: result123abc
-                      schemaVersion: 1.3.0
-                      assessmentId: toets-34-123-666-222-33333
-                      eckId: eck-S123abc
-                      employees:
-                        - eckId: eck-M123abc
-                      resultValue: '7.6'
-                      resultType: 0.0-10.0
-                      status: canceled
-
-        required: true
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AssessmentScoresAndResults"
       responses: 
-        "200" : 
+        "201" : 
           description: |
-            The object has been successfully stored in the score/result administration.
+            The request has led to the creation of a resource. 
+        "202" : 
+          description: |
+            The request has been accepted for processing, but the processing has not been completed; in fact, processing may not have started yet. The request might or might not eventually be acted upon, as it might be disallowed when processing actually takes place. 
         "400" : 
           description: |
-            This is the error response for HTTP status code 400.
+            This is the error response for HTTP status code 400 (Bad request).
           content: 
             application/json: 
               schema: 
                 $ref: "#/components/schemas/StatusResponse"
         "401" : 
           description: |
-            This is the error response for HTTP status code 401.
+            This is the error response for HTTP status code 401 (Unauthorized).
           content: 
             application/json: 
               schema: 
                 $ref: "#/components/schemas/StatusResponse"
         "403" : 
           description: |
-            This is the error response for HTTP status code 403.
+            This is the error response for HTTP status code 403 (Forbidden).
           content: 
             application/json: 
               schema: 
                 $ref: "#/components/schemas/StatusResponse"
-
+  
 components:
   schemas:
-    
-    SchemaVersion:
-      type: string
-      description: 'Schema version of this event/object using semantic versioning 2.0.0'
-      default: 1.3.0
-      
-    Result:
-      title: Result
+
+    Assessment:
+      title: Assessment
       type: object
       x-tags:
         - Result
-      description: 'A description of a result statement'
+      description: 'Definition of assessment for which scores/results are reported.'
       properties:
         id:
           type: string
-          description: 'Unique id of this result'
-        schemaVersion:
-          $ref: '#/components/schemas/SchemaVersion'
-        eckId:
+          description: 'Assessment identifier that is used for reference for which scores/results are reported.'
+        name:
           type: string
-          description: |-
-            The ECK-iD of the assessment participant (student or pupil) for which the Result is reported. This eckId is required when available.
-        userIds:
+          description: 'Name of the assessment to be displayed to employees that register results in the gradebook.'
+        subjects:
           type: array
-          description: |
-            The list of user identifiers of the assessment participant (student or pupil) for which the Result is reported. This attribute userIds is required when the eckId is not available.
           items:
             type: object
+            description: "Subject for which scores/results are reported as a result of the assessment."
             properties:
-              userId:
+              subjectPrefix:
                 type: string
-              userIdType:
+                description: 'Prefix of the subject.'
+              subjectName:
                 type: string
-                enum:
-                  - nlPersonProfileId
-                  - nlPersonRealId
-                  - Las-key
-                  - Leerlingnummer
+                description: 'Name of the subject'
+        studyLevelId:
+          type: string
+          description: 'Id of the study level of the assessment.'
+        parts:
+          type: array
+          items:
+            type: object
+            description: "Definition of assessment parts for which scores/results are reported."
+            properties:
+              id:
+                type: string
+                description: 'Assessment part reference for which scores/results are reported.'
+              name:
+                type: string
+                description: 'Name of the assessment part to be displayed in the gradebook.'
+              index:
+                type: integer
+                description: 'Number for sequencing the assessment parts.'
             required:
-              - userId
-              - userIdType
+            - id
+            - name
+            - index
+      required:
+        - id
+        - name
 
+    AssessmentScoresAndResults:
+      title: AssessmentScoresAndResults
+      type: object
+      x-tags:
+        - Result
+      description: 'The message that contains information about the assessment (test) that has been taken and the scores and results for one or more participants (students).'
+      properties:
+        id:
+          type: string
+          description: 'Message id.'
         additionalInfo:
           type: string
-          description: 'Optional additional information about this result. E.g. for indicating which judgement level has been applied or the reason for absence of the result.'
+          description: 'Optional additional information about the bundle of student scores/results. E.g. a generic remark regarding all scores/results.'
         assessmentDateTime:
           type: string
           format: date-time
-          description: 'Date and time of the assessment execution. Format: Conform openapi in ZULU time as specified in RFC 3339, section 5.6'
-        assessmentId:
-          type: string
-          description: 'Assessment reference for which result is reported.'
-        assessmentName:
-          type: string
-          description: 'Name of the Assessment to be displayed to employees that register result in the gradebook.'
-        missing:
-          type: boolean
-          description: 'The indication whether the result is missing or not.'
-        resultValue:
-          type: string
-          description: 'Value of the achieved assessment result (see resultType for interpretation).'
-        resultType:
-          type: string
-          enum:
-            - '0.0-10.0'
-            - 'OVG'
-            - 'RnTR'
-            - 'RnERK'
-          description: |-
-            Enum that defines allowed values for result 
-            - "00-10.0": number, with 1 decimal :[0.0-10.0] 
-            - OVG: 1 letter ([G], [V] or [O]) for Goed, Voldoende or Onvoldoende (dutch specific)
-            - RnTR: code for the achieved reference level in Referentieniveau Taal en Rekenen, e.g. 1F or 2S
-            - RnERK: code for the achieved reference level in Europees Referentiekader voor talen, e.g. A1 or C2
-        reviewUrl:
-          type: string
-          description: 'Optional link into the assesment system (deeplink) to the details of this result.'
-        status:
-          type: string
-          description: 'The status of the Result.'
-          enum:
-            - in progress
-            - final
-            - canceled
+          description: 'Date and time of the assessment offering. Format: Conform openapi in ZULU time as specified in RFC 3339, section 5.6.'
+        assessmentDefinition:
+          $ref: "#/components/schemas/Assessment"
         employees:
           type: array
-          description: 'List of employee that is allowed to register the Result in the gradebook.'
+          description: "List of employee identifications."
           items:
-            type: object
-            description: 'Identifier of the Employee that is allowed to register the Result in the gradebook.'
-            properties:
-              eckId:
-                type: string
-                description: |-
-                  The ECK-ID of the Employee who is allowed to administer the Result.
-                  (either eckId or userIds is required)
-              userIds:
-                type: array
-                description: |
-                  The User ID(s) of the Employee who is allowed to administer the Result.
-                  (either eckId, userIds is required)
-                items:
-                  type: object
-                  properties:
-                    userId:
-                      type: string
-                    userIdType:
-                      type: string
-                      enum:
-                        - nlPersonProfileId
-                        - nlPersonRealId
-                        - Las-key
-                        - Medewerkernummer
-                  required:
-                    - userId
-                    - userIdType
+              $ref: "#/components/schemas/EmployeeReference"
+        reviewUrl:
+          type: string
+          description: 'Optional link into the assesment system (deeplink) to the details of about the bundle of student scores/results.'
+        school:
+          $ref: "#/components/schemas/SchoolReference"
+        schoolPeriod:
+          type: string
+          description: 'School period, e.g. schoolyear of semester.'
+        scoreScaleDefinitions:
+          type: array
+          description: "List of score scale definitions."
+          items:
+              $ref: "#/components/schemas/ScoreScale"
+        studentScoresAndResults:
+          type: array
+          items:
+              $ref: "#/components/schemas/StudentScoresAndResults"
+        timestamp:
+          type: string
+          format: date-time
+          description: 'Date and time of the message assembling. Format: Conform openapi in ZULU time as specified in RFC 3339, section 5.6.'
+        toolName:
+          type: string
+          description: 'Name of tool/system that sends these assessment scores/results.'
       required:
         - id
-        - schemaVersion
-        - assessmentId
-        - resultType
+        - assessmentDateTime
+        - assessmentDefinition
         - employees
+        - school
+        - schoolPeriod
+        - timestamp
+
+    EmployeeIdEntry:
+      title: EmployeeIdEntry
+      type: object
+      x-tags:
+        - Result
+      description: 'A single reference to an employee, using id and type in an identification entry.'
+      properties:
+        userId:
+          type: string
+          description: 'Extra unique id of this user according to the type userIdType, besides the userMasterIdentifier.'
+        userIdType:
+          type: string
+          description: 'The type of extra unique id of this user in userId.'
+          enum:
+            - NEPRI # nlPersonRealId – value can be used for students and employees
+            - BPI # Basispoort ID – value can be used for students and employees
+            - eduID # eduID identifier – value can be used for students and employees
+            - ASI # LAS-key – value for identifier generated by student administration
+      required:
+        - userId
+        - userIdType
+
+    EmployeeReference:
+      title: EmployeeReference
+      type: object
+      x-tags:
+        - Result
+      description: 'A reference to an assessment participant (Employee) based on identification.'
+      properties:
+        userMasterIdentifier:
+          type: string
+          description: 'Unique id of this employee-user according to the master identifier type.'
+        userIds:
+          type: array
+          items:
+            $ref: "#/components/schemas/EmployeeIdEntry"
+
+    ResultEntry:
+      title: ResultEntry
+      type: object
+      x-tags:
+        - Result
+      description: 'A single result, using value and type in a result entry.'
+      properties:
+        resultValue:
+          type: string
+          description: 'Value of the achieved assessment Result.'
+        resultType:
+          $ref: '#/components/schemas/ResultType_enum'
+        assessmentId:
+          type: string
+          description: 'Reference to the assessment or assessment part of this result.'
+      required:
+        - resultValue
+        - resultType
+
+    ResultType_enum:
+      type: string
+      description: 'Enumumeration for the type of results that defines allowed values for resultValue.' 
+      enum:
+        - 'DLE'
+        - 'Grade0-10'
+        - 'Grade0.0-10.0'
+        - 'OVG'
+        - 'PassOrFail'
+        - 'RnTR'
+        - 'RnERK'
+        - 'Percentiel'
+      example: OVG
+
+    SchemaVersionType:
+      type: string
+      description: |
+        Schema version of this API using semantic versioning 2.0.0.
+        The API version number is communicated in the header.
+        The major version is communicated in the URI.
+        For more information see the [Edu-V versioning guidelines](https://edu-v.atlassian.net/wiki/spaces/AFSPRAKENS/pages/9437200/Versiebeheer).
+      default: 0.9.2
+      
+    SchoolIdEntry:
+      title: SchoolIdEntry
+      type: object
+      x-tags:
+        - Result
+      description: 'A single reference to a school by using id and type in an identification entry.'
+      properties:
+        organisationId:
+          type: string
+          description: 'Unique id of this organisation to the type organisationIdType, besides the organisationMasterIdentifier.'
+        organisationIdType:
+          type: string
+          description: 'The type of extra unique id of this organisation in organisationId.'
+          enum:
+            - OIE_CODE # Onderwijsinstellingserkenningcode e.g. 09QQ (Marienbornschool)
+            - BP_ID # Basispoort gegenereerde identifier voor de school.
+            - DD_ID # Door de Centrale Registratie van Edu-iX gegenereerde DigiDeliveryId van de school.
+            - AS_ID # Door het Leerlingadministratiesysteem gegenereerde identifier van de school.
+      required:
+        - organisationId
+        - organisationIdType
+
+    SchoolReference:
+      title: SchoolReference
+      type: object
+      x-tags:
+        - Result
+      description: 'A reference to a school based on its identifications.'
+      properties:
+        organisationMasterIdentifier:
+          type: string
+          description: 'Unique id of this school according to the master identifier type.'
+        organisationIds:
+          type: array
+          items:
+            $ref: "#/components/schemas/SchoolIdEntry"
+
+    ScoreScale:
+      title: ScoreScale
+      type: object
+      x-tags:
+        - Result
+      description: 'Definition of score scales for conversion from score to result.'
+      properties:
+        id:
+          type: string
+          description: "Score scale identifier that is used for reference.'" 
+        name:
+          type: string
+          description: "Name of the score scale."
+        scoreScaleEntries:
+          type: object
+          description: 'Entry for LHS & RHS combination.'
+          properties:
+            LHS:
+              type: string
+              description: "Defines the score interval, e.g. '0-5' or '0.0-5.5'. The format is either a single value ('x') or a range ('x' - 'y'). In the case of a single value this is considered to be the inclusive lower value for the implied interval. When a range is specified (lower-to-upper) the values are inclusive for the specified interval." 
+            RHS:
+              type: string
+              description: "Defines the result label which is based on the scoreValue and LHS, e.g. 'Onvoldoende'."
+          required:
+            - LHS
+            - RHS
+      required:
+        - id
+        - name
+        - scoreScaleEntries
+
+    ScoreEntry:
+      title: ScoreEntry
+      type: object
+      x-tags:
+        - Result
+      description: 'A single score, using value and type in a score entry.'
+      properties:
+        scoreValue:
+          type: string
+          description: 'Value of the achieved assessment score.'
+        scoreType:
+          $ref: '#/components/schemas/ScoreType_enum'
+        scoreMaximum:
+          type: string
+          description: 'Maximum value of the achieved assessment score.'
+        assessmentId:
+          type: string
+          description: 'Reference to the assessment or assessment part of this score.'
+        scoreScaleId:
+          type: string
+          description: 'Reference to the score scale for comversion to result value.'
+      required:
+        - scoreValue
+        - scoreType
+
+    ScoreType_enum:
+      type: string
+      description: 'Enumumeration for the type of scores that defines allowed values for scoreValue.' 
+      enum:
+        - DurationInSeconds
+        - NumberCorrect
+        - NumberIncorrect
+        - NumberItems
+        - PercentageCorrect
+        - ScorePoints
+        - SkillScore
+      example: 'ScorePoints'
 
     StatusResponse:
       title: StatusResponse
-      type: object
-      description: 'Functional status code and status message.'
-      properties:
-        status:
-          type: integer
-          description: 'See functional status codes within the Documentation.'
-        statusMessage:
-          type: string
-          description: 'See functional status messages within the Documentation.'
-      required:
-        - status
+      description: 'Functional status code and status message in list per student scores/results.'
+      type: array
+      items:
+          type: object
+          description: "Functional status code and status message in list item per student scores/results."
+          properties:
+            id:
+              type: string
+              description: 'Unique id of the student scores/results.'
+            status:
+              type: integer
+              description: 'See functional status codes within the Documentation.'
+            statusMessage:
+              type: string
+              description: 'See functional status messages within the Documentation.'
+          required:
+          - status
   
+    StatusType_enum:
+      type: string
+      description: 'Status of the student student scores/results statement.'
+      example: final
+      enum:
+        - InProgress
+        - Final
+        - Canceled
+
+    StudentIdEntry:
+      title: StudentIdEntry
+      type: object
+      x-tags:
+        - Result
+      description: 'A single reference to a student, using id and type in an identification entry.'
+      properties:
+        userId:
+          type: string
+          description: 'Extra unique id of this user according to the type userIdType, besides the userMasterIdentifier.'
+        userIdType:
+          type: string
+          description: 'The type of extra unique id of this user in userId.'
+          enum:
+            - NEPPI # nlPersonProfileId – value can be used for students and employees
+            - BPI # Basispoort ID – value can be used for students and employees
+            - eduID # eduID identifier – value can be used for students and employees
+            - NEPRI # nlPersonRealId – value can be used for students only
+            - ASI # Las-key – value can be used for students only
+      required:
+        - userId
+        - userIdType
+
+    StudentReference:
+      title: StudentReference
+      type: object
+      x-tags:
+        - Result
+      description: 'A reference to an assessment participant (Student) based on its identifications.'
+      properties:
+        userMasterIdentifier:
+          type: string
+          description: 'Unique id of this student-user according to the master identifier type.'
+        userIds:
+          type: array
+          items:
+            $ref: "#/components/schemas/StudentIdEntry"
+
+    StudentScoresAndResults:
+      title: StudentScoresAndResults
+      type: object
+      x-tags:
+        - Result
+      description: 'Scores/results statement for a specific student.'
+      properties:
+        id:
+          type: string
+          description: 'Unique id of this scores/results statement'
+        additionalInfo:
+          type: string
+          description: 'Optional additional information about these scores/results. E.g. for indicating which judgement level has been applied or the reason for absence of student scores/results.'
+        missing:
+          type: boolean
+          description: 'The indication whether the student scores/results are missing or not.'
+        results:
+          type: array
+          description: 'List of student results.'
+          items:
+            $ref: '#/components/schemas/ResultEntry'
+        reviewUrl:
+          type: string
+          description: 'Optional link into the assesment system (deeplink) to the details of these student scores/results.'
+        scores:
+          type: array
+          description: 'List of student scores.'
+          items:
+            $ref: '#/components/schemas/ScoreEntry'
+        status:
+          $ref: '#/components/schemas/StatusType_enum'
+        student:
+          $ref: "#/components/schemas/StudentReference"
+        dateCreated:
+          type: string
+          format: date-time
+          description: 'Date and time of the creation of this object. Format: Conform openapi in ZULU time as specified in RFC 3339, section 5.6.'
+        dateLastModified:
+          type: string
+          format: date-time
+          description: 'Date and time of the latest modification of this object. Format: Conform openapi in ZULU time as specified in RFC 3339, section 5.6.'
+      required:
+        - id
+        - student
+
   securitySchemes:
     OAuth2:
       type: oauth2
@@ -248,7 +468,7 @@ components:
           tokenUrl: https://api.example.com/oauth2/token
           refreshUrl: https://api.example.com/oauth2/token
           scopes:
-            la.result: scope to send and receive result object
+            eduv.result: scope to send and receive assessment result objects
 
 x-tags:
   - name: Result

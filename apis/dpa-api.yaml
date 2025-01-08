@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   title: DPA (Data Processing Agreement) API
-  version: 0.0.1
+  version: 0.9.1
   
   description: |-
     The DPA API is implemented by the reference component `Verwerkersregister` to allow parties to validate if a suppliers has a Data Processing Agreement with a certain school board for a specified ecosystem (Ketensamenwerking) and data services (Gegevensdiesnsten).
@@ -57,10 +57,13 @@ paths:
             items:
               type: string
               enum:
-                - Onderwijsadministratie
-                - Aanspraken en leermiddelactivatie
-                - Leermiddelactivatie en leermiddelgebruik
-                - Licenties
+                - Onderwijsaanbod
+                - Onderwijsinrichting
+                - Onderwijsdeelnemers
+                - Onderwijsmedewerkers
+                - Leveringsorders
+                - Aanspraken
+                - Leermiddelgebruik
                 - Leermateriaalgebruik
                 - Leerresultaten
       responses:
@@ -90,7 +93,7 @@ paths:
                 $ref: '#/components/schemas/StatusResponse'
       security:
         - OAuth2:
-            - dpa
+            - eduv.dpa
             
   /agreements:
     get:
@@ -136,10 +139,13 @@ paths:
             items:
               type: string
               enum:
-                - Onderwijsadministratie
-                - Aanspraken en leermiddelactivatie
-                - Leermiddelactivatie en leermiddelgebruik
-                - Licenties
+                - Onderwijsaanbod
+                - Onderwijsinrichting
+                - Onderwijsdeelnemers
+                - Onderwijsmedewerkers
+                - Leveringsorders
+                - Aanspraken
+                - Leermiddelgebruik
                 - Leermateriaalgebruik
                 - Leerresultaten
       responses:
@@ -169,28 +175,29 @@ paths:
                 $ref: '#/components/schemas/StatusResponse'
       security:
         - OAuth2:
-            - dpa
+            - eduv.dpa
         
 components:
   schemas:
     schemaVersion:
       type: string
-      description: 'Schema version of this object using semantic versioning 2.0.0'
-      default: 0.0.1
+      description: |
+        Schema version of this API using semantic versioning 2.0.0.
+        The API version number is communicated in the header.
+        The major version is communicated in the URI.
+        For more information see the [Edu-V versioning guidelines](https://edu-v.atlassian.net/wiki/spaces/AFSPRAKENS/pages/9437200/Versiebeheer).
+      default: 0.9.1
     
     Agreement:
       type: object
       required:
         - agreementId
-        - schemaVersion
         - supplierOin
         - boardId
         - valid
       properties:
         agreementId:
           type: string
-        schemaVersion:
-          $ref: '#/components/schemas/schemaVersion'
         supplierOin:
           type: string
         boardId:
@@ -203,12 +210,15 @@ components:
           items:
             type: string
             enum:
-              - Onderwijsadministratie
-              - Aanspraken en leermiddelactivatie
-              - Leermiddelactivatie en leermiddelgebruik
-              - Licenties
-              - Leermateriaalgebruik
-              - Leerresultaten
+              - Onderwijsaanbod
+                - Onderwijsinrichting
+                - Onderwijsdeelnemers
+                - Onderwijsmedewerkers
+                - Leveringsorders
+                - Aanspraken
+                - Leermiddelgebruik
+                - Leermateriaalgebruik
+                - Leerresultaten
         valid:
           type: boolean
           example: true
@@ -226,7 +236,6 @@ components:
       required:
         - supplierOin
         - boardId
-        - schemaVersion
         - ecosystem
         - valid
       properties:
@@ -234,8 +243,6 @@ components:
           type: string
         boardId:
           type: string
-        schemaVersion:
-          $ref: '#/components/schemas/schemaVersion'
         ecosystem:
           type: string
           default: Edu-V
@@ -244,12 +251,15 @@ components:
           items:
             type: string
             enum:
-              - Onderwijsadministratie
-              - Aanspraken en leermiddelactivatie
-              - Leermiddelactivatie en leermiddelgebruik
-              - Licenties
-              - Leermateriaalgebruik
-              - Leerresultaten
+              - Onderwijsaanbod
+                - Onderwijsinrichting
+                - Onderwijsdeelnemers
+                - Onderwijsmedewerkers
+                - Leveringsorders
+                - Aanspraken
+                - Leermiddelgebruik
+                - Leermateriaalgebruik
+                - Leerresultaten
         valid:
           type: boolean
           example: true
@@ -276,4 +286,4 @@ components:
           tokenUrl: https://api.example.com/oauth2/token
           refreshUrl: https://api.example.com/oauth2/token
           scopes:
-            dpa: 'scope that allows parties to request information from the DPA api.'
+            eduv.dpa: 'scope that allows parties to request information from the DPA api.'

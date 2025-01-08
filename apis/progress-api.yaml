@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   title: Progress API
-  version: '0.0.1'
+  version: '0.0.5'
   description: |-
     This API defines progress about specific learning materials (assignable Units) in the course to report to the `Leermiddelendashboard`. Main goal is to inform teachers on progress (which activities are completed) and possible indication that the activity was completed, but needs attention of the teacher. 
 
@@ -10,7 +10,11 @@ info:
 
     Activities have a life cycle of not-started, started, completed. The not started is the default and will not be reported, unless (for some reason) the status goes back to not-started. The abandoned state is to indicate that the activity was started, but will never be completed (optional).
 
-    The API does not force the supplier of the learning material to use a standard for the indication about the quality of the progress. It is optional to indicate a signal and/or pleaseFollowUp to the `Leermiddelendashboard`. This provides the supplier a way to tell the Teacher via the `Leermiddelendashboard` that the progress was not standard and the Teacher is advised to have a look at the more detailed dashboard (with a direct url) within the `Gebruiksomgeving digitaal leermateriaal`. A supplier can provide any scale (1-10, average, good, bad) by adding this as text. The `Leermiddelendashboard` should not try to combine these indications for a complete chapter or paragraph.
+    The API does not force the supplier of the learning material to use a standard for the indication about the quality of the progress. It is optional to indicate a signal and/or pleaseFollowUp to the `Leermiddelendashboard`.
+    This provides the supplier a way to tell the Teacher via the `Leermiddelendashboard` that the progress was not standard and the Teacher is advised to have a look at the more detailed dashboard (with a direct url) within the `Gebruiksomgeving digitaal leermateriaal`.
+    A supplier can provide any scale (1-10, average, good, bad) by adding this as text. The `Leermiddelendashboard` should not try to combine these indications for a complete chapter or paragraph.
+
+    Consent is required to exchange Progress information from the `Gebruiksomgeving digitaal leermateriaal` to the `Leermiddelendashboard`.
     
   contact:
     name: Edu-V
@@ -21,8 +25,12 @@ components:
     
     schemaVersion:
       type: string
-      description: 'Schema version of this event/object using semantic versioning 2.0.0'
-      default: 0.1.0
+      description: |
+        Schema version of this API using semantic versioning 2.0.0.
+        The API version number is communicated in the header.
+        The major version is communicated in the URI.
+        For more information see the [Edu-V versioning guidelines](https://edu-v.atlassian.net/wiki/spaces/AFSPRAKENS/pages/9437200/Versiebeheer).
+      default: 0.0.5
     
     SimpleProgress:
       title: SimpleProgress
@@ -46,33 +54,12 @@ components:
         id:
           type: string
           description: Unique id
-        schemaVersion:
-          $ref: '#/components/schemas/schemaVersion'
-        eckId:
-          type: string
-          description: |-
-            The ECK-ID of the Student for which the progress is reported.
-            (either eckId or userId is required)
-        userId:
-          type: array
-          description: |
-            The User ID(s) of the Student for which the progress is reported.
-            (either eckId, userId is required)
-          items:
-            type: object
-            properties:
-              userId:
-                type: string
-              userIdType:
-                type: string
-                enum:
-                  - nlPersonProfileId
-                  - nlPersonRealId
-                  - Las-key
-                  - Leerlingnummer
-            required:
-              - userId
-              - userIdType
+        student:
+          description: 'The Student for which progress is reported.'
+          $ref: '#/components/schemas/UserReference'
+        school:
+          description: 'The School of the Student.'
+          $ref: '#/components/schemas/SchoolReference'
         assignableUnitId:
           type: string
           description: 'Assignable Unit for which progress is reported. This is strongly linked to an identifier of an Assignable Unit in the CourseStructure object in the Course API.'
@@ -111,12 +98,80 @@ components:
             This can be used by the `Leermiddelendashboard` to show a list of signals that the teacher should followup
       required:
         - id
-        - schemaVersion
+        - student
+        - school
         - assignableUnitId
         - courseId
         - status
         - timestamp
     
+    UserReference:
+      type: object
+      title: UserReference
+      properties:
+        userMasterIdentifier:
+          type: string
+          description: |
+            The primary identifier for a User.
+            For Students the ECK iD is used.
+            For Employees this value is empty. There is no primary identifier for Employees.
+            (either userMasterIdentifier or userIds is required)
+        userIds:
+          type: array
+          description: |
+            A secondary identifier for a User. This value is used whenever the primary identifier is not available.
+            For Employees this value is mandatory.
+            (either userMasterIdentifier or userIds is required)
+          items:
+            type: object
+            properties:
+              userId:
+                type: string
+              userIdType:
+                type: string
+                enum:
+                  - NEPPI # nlPersonProfileId – value can be used for students and employees
+                  - BPI # Basispoort ID – value can be used for students and employees
+                  - eduID # eduID identifier – value can be used for students and employees
+                  - NEPRI # nlPersonRealId – value can be used for students only
+                  - ASI # Las-key – value can be used for students only
+                  - eckId # ECK iD – value can be used for employees only, eckId is userIdType for userMasterIdentifier for students
+            required:
+              - userId
+              - userIdType
+    
+    SchoolReference:
+      type: object
+      title: SchoolReference
+      description: 'A reference to a School organisation.'
+      properties:
+        organisationMasterIdentifier:
+          type: string
+          description: |
+            The primary identifier for a School. For Schools the `OnderwijsaanbiederId` is used.
+            (either organisationMasterIdentifier or organisationIds is required)
+          example: '104A158' # De Mariënborn
+        organisationIds:
+          type: array
+          description: |
+            A secondary identifier for the School. This value is used whenever the primary identifier is not available.
+            (either organisationMasterIdentifier or organisationIds is required)
+          items:
+            type: object
+            properties:
+              organisationId:
+                type: string
+              organisationIdType:
+                type: string
+                enum:
+                  - OIE_CODE # Onderwijsinstellingserkenningcode e.g. 09QQ (Marienbornschool)
+                  - BP_ID # Basispoort gegenereerde identifier voor de school.
+                  - DD_ID # Door de Centrale Registratie van Edu-iX gegenereerde DigiDeliveryId van de school.
+                  - AS_ID # Door het Leerlingadministratiesysteem gegenereerde identifier van de school.
+            required:
+              - organisationId
+              - organisationIdType
+
     StatusResponse:
         title: StatusResponse
         type: object
@@ -139,7 +194,7 @@ components:
           tokenUrl: https://api.example.com/oauth2/token
           refreshUrl: https://api.example.com/oauth2/token
           scopes:
-            la.progress: scope to send progress messages to a `Leermiddelendashboard`
+            eduv.progress: scope to send progress messages to a `Leermiddelendashboard`
 
 paths: 
   /progess/{id}:
@@ -152,7 +207,7 @@ paths:
         To create a new SimpleProgress object or change an exisiting SimpleProgress object.
       security:
         - OAuth2:
-            - progress
+            - eduv.progress
       parameters: 
         - name: id
           in: path
@@ -161,7 +216,6 @@ paths:
           required: true
           schema: 
             type: string
-          style: simple
       requestBody:
         description: |
           The progress data that is to be stored.
