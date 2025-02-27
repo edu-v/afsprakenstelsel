@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   title: Education API
-  version: '0.9.2'
+  version: '1.1.0'
   description: |-
     The Education API is implemented by the `Administratiesysteem onderwijsdeelnemer`.
     
@@ -186,6 +186,10 @@ components:
               - VMBO: 0, 1, 2, 3 or 4
               - HAVO: 0, 1, 2, 3, 4 or 5
               - VWO: 0, 1, 2, 3, 4, 6 or 6
+        schoolPeriod:
+          description: |
+            Reference to the school period (object SchoolPeriod) for this StudyOffering.
+          type: string
         status:
           description: |
             The status field gives an indication to Consumers about the status of an object.
