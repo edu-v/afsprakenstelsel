@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   title: Association API
-  version: '0.9.1'
+  version: '1.1.0'
   description: |-
     The Association API is implemented by the `Administratiesysteem onderwijsdeelnemer`.
     
@@ -137,12 +137,59 @@ components:
           enum:
             - study
             - subject
+        publicStudyOfferingId:
+          type: string
+          format: uuid
+          description: 'Identifier of the study offering in RIO for this enrollment.'
         study:
           type: string
           description: 'A reference to the studyOfferingId of the StudyOffering in case this enrollment is of the enrollmentType `study`.'
         subject:
           type: string
           description: 'A reference to the subjectOfferingId of the SubjectOffering in case this enrollment is of the enrollmentType `subject`.'
+        location:
+          type: array
+          description: |
+            A reference to an education location. 
+          items:
+            type: object
+            properties:
+              locationMasterIdentifier:
+                type: string
+                description: |
+                  A primary identifier for a education location.
+                  (either locationMasterIdentifier or locationIds is required)
+              locationIds:
+                type: array
+                description: |
+                  A secondary identifier for a education location. This value is used whenever the primary identifier is not available.
+                  (either locationMasterIdentifier or locationIds is required)
+                items:
+                  type: object
+                  properties:
+                    locationId:
+                      type: string
+                    locationIdType:
+                      type: string
+                      enum:
+                        - VE_CODE # Code for location recognition (Vestigingscode)
+                  required:
+                    - locationId
+                    - locationIdType
+              name:
+                type: string
+            required:
+              - name
+        studyYear:
+          type: integer
+          description: |
+              The study year of this enrollment.
+              
+              Example values are:
+              - Basisschool: 0, 1, 2, 3, 4, 5, 6, 7 or 8
+              - VMBO: 0, 1, 2, 3 or 4
+              - HAVO: 0, 1, 2, 3, 4 or 5
+              - VWO: 0, 1, 2, 3, 4, 6 or 6
         schoolPeriod:
           type: string
           description: 'A reference to the schoolPeriodId of the SchoolPeriod where this enrollment is part of.'
