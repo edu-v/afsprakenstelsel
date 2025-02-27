@@ -169,15 +169,18 @@ components:
                   properties:
                     locationId:
                       type: string
+                      description: 'The identifier of this education location accordnig to the type in locationIdType.'
                     locationIdType:
                       type: string
+                      description: 'The type of identifier in locationId of this education location.'
                       enum:
-                        - VE_CODE # Code for location recognition (Vestigingscode)
+                        - VE_CODE # Code for location recognition (Vestigingscode van vestigingserkenning)
                   required:
                     - locationId
                     - locationIdType
               name:
                 type: string
+                description: 'The name of this education location.'
             required:
               - name
         studyYear:
