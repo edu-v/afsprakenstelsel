@@ -2,6 +2,19 @@ openapi: 3.0.0
 info:
   title: Results API
   version: '1.1.0'
+  description: |-
+    The Results API is implemented by the publisher of assessment or test scores/results.
+    
+    The Results API is the destination of Learning results and provides a POST endpoint to receive the latest state.
+
+    One main entity is available to Consumers of the Results API:
+    - **AssessmentScoresAndResults**: the full set of scores/results information for an individual or a group of students, especially useful for the `Toetssysteem`, `Administratiesysteem leerresultaten`, and `Leermiddelendashboard`.   
+    
+    In this object AssessmentScoresAndResults sevaral objects are defined and used, like Assessment, ScoreScale and StudentScoresAndResults.
+  contact:
+    name: Edu-V
+    url: www.edu-v.org/afsprakenstelsel
+    email: info@edu-v.org
 
 paths: 
   /results:
