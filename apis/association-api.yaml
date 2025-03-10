@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   title: Association API
-  version: '0.9.1'
+  version: '0.9.2'
   description: |-
     The Association API is implemented by the `Administratiesysteem onderwijsdeelnemer`.
     
@@ -30,7 +30,7 @@ components:
         The API version number is communicated in the header.
         The major version is communicated in the URI.
         For more information see the [Edu-V versioning guidelines](https://edu-v.atlassian.net/wiki/spaces/AFSPRAKENS/pages/9437200/Versiebeheer).
-      default: 0.9.1
+      default: 0.9.2
           
     SchoolPeriod:
       title: SchoolPeriod
@@ -125,6 +125,10 @@ components:
           description: |
             A unique identifier for this Enrollment object.
             This is the GUID that Consumers will refer to when making API calls, or when needing to identify an object.
+        organisationId:
+          type: string
+          format: uuid
+          description: 'A reference to the sourceId of the Organisation in case this enrollment is of the enrollmentType `school`.'
         student:
           description: 'The Student to which this enrollment object belongs.'
           $ref: '#/components/schemas/UserReference'
@@ -134,17 +138,39 @@ components:
             The type of enrollment, being one of:
             - study: an enrollment into a StudyOffering offered by the School.
             - subject: an enrollment into a SubjectOffering offered by the School.
+            - school: an enrollment into a School Organisation.
           enum:
             - study
             - subject
+            - school
         study:
           type: string
+          format: uuid
           description: 'A reference to the studyOfferingId of the StudyOffering in case this enrollment is of the enrollmentType `study`.'
+        studyPublicId:
+          type: string
+          format: uuid
+          description: 'A reference to the public id of the StudyOffering in RIO in case this enrollment is of the enrollmentType `study`'
+        studyYear:
+          type: integer
+          description: |
+            The study year of this object.
+            
+            Example values are:
+              - Basisschool: 0, 1, 2, 3, 4, 5, 6, 7 or 8
+              - VMBO: 0, 1, 2, 3 or 4
+              - HAVO: 0, 1, 2, 3, 4 or 5
+              - VWO: 0, 1, 2, 3, 4, 6 or 6
+        location:
+          description: 'The Location to which this enrollment object belongs.'
+          $ref: '#/components/schemas/LocationReference'
         subject:
           type: string
+          format: uuid
           description: 'A reference to the subjectOfferingId of the SubjectOffering in case this enrollment is of the enrollmentType `subject`.'
         schoolPeriod:
           type: string
+          format: uuid
           description: 'A reference to the schoolPeriodId of the SchoolPeriod where this enrollment is part of.'
         beginDate:
           type: string
@@ -411,6 +437,41 @@ components:
             required:
               - organisationId
               - organisationIdType
+    
+    LocationReference:
+      type: object
+      title: LocationReference
+      description: 'A reference to a Location of a School.'
+      properties:
+        locationMasterIdentifier:
+          type: string
+          description: |
+            The primary identifier for a Location. For Locations the `Onderwijslocatie` aka `OL_CODE` is used.
+            (either locationMasterIdentifier or locationIds is required)
+          example: '112X995' # Mariënbergweg 28 6862ZM Oosterbeek
+        locationIds:
+          type: array
+          description: |
+            A secondary identifier for the Location. For Locations the `Vestigingserkenning` aka `VE_CODE` is used.
+            This value is used whenever the primary identifier is not available.
+            (either locationMasterIdentifier or locationIds is required)
+          items:
+            type: object
+            properties:
+              locationId:
+                type: string
+              locationIdType:
+                type: string
+                enum:
+                  - 'VE_CODE'
+            required:
+              - locationId
+              - locationIdType
+        name:
+          type: string
+          description: 'A name for the Location.'
+      required:
+        - name
 
     StatusResponse:
       title: StatusResponse
