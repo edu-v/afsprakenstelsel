@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   title: Results API
-  version: '1.1.0'
+  version: '1.1.1'
   description: |-
     The Results API is implemented by the publisher of assessment or test scores/results.
     
@@ -229,10 +229,14 @@ components:
           $ref: '#/components/schemas/ResultType_enum'
         assessmentId:
           type: string
-          description: 'Reference to the assessment or assessment part of this result.'
+          description: 'Reference to the assessment of this result.'
+        assessmentPartId:
+          type: string
+          description: 'Reference to the assessment part of this result.'
       required:
         - resultValue
         - resultType
+        - assessmentId
 
     ResultType_enum:
       type: string
@@ -252,9 +256,9 @@ components:
         - 'LGH'
         - 'OVG'
         - 'PassOrFail'
-        - 'RnTR'
-        - 'RnERK'
         - 'Percentiel'
+        - 'RnERK'
+        - 'RnTR'
       example: OVG
 
     SchemaVersionType:
@@ -353,7 +357,10 @@ components:
           description: 'Maximum value of the achieved assessment score.'
         assessmentId:
           type: string
-          description: 'Reference to the assessment or assessment part of this score.'
+          description: 'Reference to the assessment of this score.'
+        assessmentPartId:
+          type: string
+          description: 'Reference to the assessment part of this score.'
         scoreScaleIds:
           type: array
           description: 'References to the score scale for conversion to result value.'
@@ -362,6 +369,7 @@ components:
       required:
         - scoreValue
         - scoreType
+        - assessmentId
 
     ScoreType_enum:
       type: string
@@ -487,6 +495,8 @@ components:
       required:
         - id
         - student
+        - dateCreated
+        - dateLastModified
 
   securitySchemes:
     OAuth2:
