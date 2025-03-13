@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   title: Usage API
-  version: '0.9.1'
+  version: '1.0.0'
   description: |
     The Usage API is implemented by the `Licentieregistratie` and `Aanspraakmanager`.
     The Usage API is used to report InitialActivations of digital learning materials to the `Aanspraakmanager`.
@@ -25,7 +25,7 @@ components:
         The API version number is communicated in the header.
         The major version is communicated in the URI.
         For more information see the [Edu-V versioning guidelines](https://edu-v.atlassian.net/wiki/spaces/AFSPRAKENS/pages/9437200/Versiebeheer).
-      default: 0.9.1
+      default: 1.0.0
     
     InitialActivation:
       title: InitialActivation
