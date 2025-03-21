@@ -3,14 +3,14 @@ info:
   title: Results API
   version: '2.0.0'
   description: |-
-    The Results API is implemented by the publisher of assessment or test scores/results.
+    The Results API is implemented by the receiver of assessment or test scores/results, typically the `Administratiesysteem leerresultaten` and `Gebruiksomgeving digitale leermiddelen`.
     
-    The Results API is the destination of Learning results and provides a POST endpoint to receive the latest state.
+    The Results API is the destination of assessment or test scores and/or results and provides a POST endpoint to receive the latest state.
 
-    One main entity is available to Consumers of the Results API:
-    - **AssessmentScoresAndResults**: the full set of scores/results information for an individual or a group of students, especially useful for the `Toetssysteem`, `Administratiesysteem leerresultaten`, and `Leermiddelendashboard`.   
+    One main entity is available to consumers of the Results API (e.g. `Digitaal toetssysteem` and `Leermiddelendashboard`):
+    - **AssessmentScoresAndResults**: the full set of scores/results information for an individual or a group of students.   
     
-    In this object AssessmentScoresAndResults sevaral objects are defined and used, like Assessment, ScoreScale and StudentScoresAndResults.
+    In this object AssessmentScoresAndResults several objects are defined and used, like Assessment, ScoreScale and StudentScoresAndResults.
   contact:
     name: Edu-V
     url: www.edu-v.org/afsprakenstelsel
@@ -307,6 +307,37 @@ components:
           items:
             $ref: "#/components/schemas/SchoolIdEntry"
 
+    ScoreEntry:
+      title: ScoreEntry
+      type: object
+      x-tags:
+        - Result
+      description: 'A single score, using value and type in a score entry.'
+      properties:
+        scoreValue:
+          type: string
+          description: 'Value of the achieved assessment score.'
+        scoreType:
+          $ref: '#/components/schemas/ScoreType_enum'
+        scoreMaximum:
+          type: string
+          description: 'Maximum value of the achieved assessment score.'
+        assessmentId:
+          type: string
+          description: 'Reference to the assessment of this score.'
+        assessmentPartId:
+          type: string
+          description: 'Reference to the assessment part of this score.'
+        scoreScaleIds:
+          type: array
+          description: 'References to the score scale for conversion to result value.'
+          items:
+            type: string
+      required:
+        - scoreValue
+        - scoreType
+        - assessmentId
+
     ScoreScale:
       title: ScoreScale
       type: object
@@ -339,37 +370,6 @@ components:
         - id
         - name
         - scoreScaleEntries
-
-    ScoreEntry:
-      title: ScoreEntry
-      type: object
-      x-tags:
-        - Result
-      description: 'A single score, using value and type in a score entry.'
-      properties:
-        scoreValue:
-          type: string
-          description: 'Value of the achieved assessment score.'
-        scoreType:
-          $ref: '#/components/schemas/ScoreType_enum'
-        scoreMaximum:
-          type: string
-          description: 'Maximum value of the achieved assessment score.'
-        assessmentId:
-          type: string
-          description: 'Reference to the assessment of this score.'
-        assessmentPartId:
-          type: string
-          description: 'Reference to the assessment part of this score.'
-        scoreScaleIds:
-          type: array
-          description: 'References to the score scale for conversion to result value.'
-          items:
-            type: string
-      required:
-        - scoreValue
-        - scoreType
-        - assessmentId
 
     ScoreType_enum:
       type: string
