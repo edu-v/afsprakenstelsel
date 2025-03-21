@@ -10,7 +10,7 @@ info:
     One main entity is available to consumers of the Results API (e.g. `Digitaal toetssysteem` and `Gebruiksomgeving digitale leermiddelen`):
     - **AssessmentScoresAndResults**: the full set of scores/results information for an individual or a group of students.   
     
-    In this object AssessmentScoresAndResults several objects are defined and used, like Assessment, ScoreScale and StudentScoresAndResults.
+    In this object **AssessmentScoresAndResults** several objects are defined and used, like **Assessment**, **ScoreScale** and **StudentScoresAndResults**.
   contact:
     name: Edu-V
     url: www.edu-v.org/afsprakenstelsel
