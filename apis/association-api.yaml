@@ -138,11 +138,9 @@ components:
             The type of enrollment, being one of:
             - study: an enrollment into a StudyOffering offered by the School.
             - subject: an enrollment into a SubjectOffering offered by the School.
-            - school: an enrollment into a School Organisation.
           enum:
             - study
             - subject
-            - school
         study:
           type: string
           format: uuid
@@ -158,9 +156,9 @@ components:
             
             Example values are:
               - Basisschool: 0, 1, 2, 3, 4, 5, 6, 7 or 8
-              - VMBO: 0, 1, 2, 3 or 4
-              - HAVO: 0, 1, 2, 3, 4 or 5
-              - VWO: 0, 1, 2, 3, 4, 6 or 6
+              - VMBO: 1, 2, 3 or 4
+              - HAVO: 1, 2, 3, 4 or 5
+              - VWO: 1, 2, 3, 4, 6 or 6
         location:
           description: 'The Location to which this enrollment object belongs.'
           $ref: '#/components/schemas/LocationReference'
