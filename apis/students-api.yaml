@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   title: Students API
-  version: '0.9.1'
+  version: '0.9.2'
   description: |-
     The Students API is implemented by the `Administratiesysteem onderwijsdeelnemer`.
     
@@ -33,7 +33,7 @@ components:
         The API version number is communicated in the header.
         The major version is communicated in the URI.
         For more information see the [Edu-V versioning guidelines](https://edu-v.atlassian.net/wiki/spaces/AFSPRAKENS/pages/9437200/Versiebeheer).
-      default: 0.9.1
+      default: 0.9.2
           
     Student:
       title: Student
@@ -533,14 +533,6 @@ paths:
         in: query
         required: false
         description: 'Optional filter to request Student objects enrolled in a SubjectOffering and its corresponding subjectOfferingId.'
-      - schema:
-          type: string
-          format: date-time
-        in: query
-        name: since
-        required: false
-        description: 'Request all objects modified after the specified timestamp. Format: Conform openapi in ZULU time as specified in RFC 3339, section 5.6'
-        example: "2017-07-21T17:32:28Z"
     get:
       summary: Get Students for School
       x-tags:

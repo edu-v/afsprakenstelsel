@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   title: Association API
-  version: '0.9.2'
+  version: '0.9.3'
   description: |-
     The Association API is implemented by the `Administratiesysteem onderwijsdeelnemer`.
     
@@ -30,7 +30,7 @@ components:
         The API version number is communicated in the header.
         The major version is communicated in the URI.
         For more information see the [Edu-V versioning guidelines](https://edu-v.atlassian.net/wiki/spaces/AFSPRAKENS/pages/9437200/Versiebeheer).
-      default: 0.9.2
+      default: 0.9.3
           
     SchoolPeriod:
       title: SchoolPeriod
@@ -610,14 +610,6 @@ paths:
         description: |
           The type of the organisationIdentifier.
           This parameter is used in combination with the orgId when the organisationMasterIdentifier is not available.
-      - schema:
-          type: string
-          format: date-time
-        in: query
-        name: since
-        required: false
-        description: 'Request all objects modified after the specified timestamp. Format: Conform openapi in ZULU time as specified in RFC 3339, section 5.6'
-        example: "2017-07-21T17:32:28Z"
     get:
       summary: 'Get SchoolPeriods for School'
       x-tags:
@@ -803,14 +795,6 @@ paths:
         in: query
         required: false
         description: 'Optional filter to request all Enrollment objects into a SubjectOffering and its corresponding subjectOfferingId.'
-      - schema:
-          type: string
-          format: date-time
-        in: query
-        name: since
-        required: false
-        description: 'Request all objects modified after the specified timestamp. Format: Conform openapi in ZULU time as specified in RFC 3339, section 5.6'
-        example: "2017-07-21T17:32:28Z"
     get:
       summary: Get Enrollments for School
       x-tags:
@@ -885,14 +869,6 @@ paths:
         in: query
         required: false
         description: 'Optional filter to request all Enrollment objects into a SubjectOffering and its corresponding subjectOfferingId.'
-      - schema:
-          type: string
-          format: date-time
-        in: query
-        name: since
-        required: false
-        description: 'Request all objects modified after the specified timestamp. Format: Conform openapi in ZULU time as specified in RFC 3339, section 5.6'
-        example: "2017-07-21T17:32:28Z"
     post:
       summary: Get Enrollments for Student at School
       x-tags:
@@ -1080,14 +1056,6 @@ paths:
         in: query
         required: false
         description: 'Optional filter to request all Assignment objects within a specified SchoolPeriod and its corresponding schoolPeriodId.'
-      - schema:
-          type: string
-          format: date-time
-        in: query
-        name: since
-        required: false
-        description: 'Request all objects modified after the specified timestamp. Format: Conform openapi in ZULU time as specified in RFC 3339, section 5.6'
-        example: "2017-07-21T17:32:28Z"
     get:
       summary: Get Assignments for School
       x-tags:
@@ -1151,14 +1119,6 @@ paths:
         in: query
         required: false
         description: 'Optional filter to request all Assignment objects within a specified SchoolPeriod and its corresponding schoolPeriodId.'
-      - schema:
-          type: string
-          format: date-time
-        in: query
-        name: since
-        required: false
-        description: 'Request all objects modified after the specified timestamp. Format: Conform openapi in ZULU time as specified in RFC 3339, section 5.6'
-        example: "2017-07-21T17:32:28Z"
     post:
       summary: Get Assignments for Employee at School
       x-tags:
@@ -1357,14 +1317,6 @@ paths:
         in: query
         required: false
         description: 'Optional filter to request all Group objects for a SubjectOffering and its corresponding subjectOfferingId.'
-      - schema:
-          type: string
-          format: date-time
-        in: query
-        name: since
-        required: false
-        description: 'Request all objects modified after the specified timestamp. Format: Conform openapi in ZULU time as specified in RFC 3339, section 5.6'
-        example: "2017-07-21T17:32:28Z"
     get:
       summary: Get Groups for School
       x-tags:
