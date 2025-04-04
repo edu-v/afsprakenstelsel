@@ -686,6 +686,12 @@ paths:
         in: query
         required: false
         description: 'Optional filter to request all StudyOffering objects of a specified studyCode.'
+      - schema:
+          type: string
+        name: schoolPeriodId
+        in: query
+        required: false
+        description: 'Optional filter to request all StudyOffering objects within a specified SchoolPeriod and its corresponding schoolPeriodId.'
     get:
       summary: Get StudyOfferings for School
       x-tags:
@@ -856,6 +862,12 @@ paths:
         in: query
         required: false
         description: 'Optional filter to request all SubjectOffering objects offered within a Study and its corresponding studyOfferingId.'
+      - schema:
+          type: string
+        name: schoolPeriodId
+        in: query
+        required: false
+        description: 'Optional filter to request all SubjectOffering objects within a specified SchoolPeriod and its corresponding schoolPeriodId.'
     get:
       summary: Get SubjectOfferings for School
       x-tags:

@@ -41,10 +41,11 @@ components:
       properties:
         schoolPeriodId:
           type: string
-          format: uuid
+          format: string
           description: |
             A unique identifier for this SchoolPeriod object.
-            This is the GUID that Consumers will refer to when making API calls, or when needing to identify an object.
+            For a full schoolyear this identifier has the format "beginyear-endyear", for example "2024-2025". Otherwise this identifier is a UUID.
+            This is the UUID that Consumers will refer to when making API calls, or when needing to identify an object.
         title:
           type: string
           description: 'The name of the SchoolPeriod.'
@@ -168,7 +169,7 @@ components:
           description: 'A reference to the subjectOfferingId of the SubjectOffering in case this enrollment is of the enrollmentType `subject`.'
         schoolPeriod:
           type: string
-          format: uuid
+          format: string
           description: 'A reference to the schoolPeriodId of the SchoolPeriod where this enrollment is part of.'
         beginDate:
           type: string

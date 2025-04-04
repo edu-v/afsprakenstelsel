@@ -445,6 +445,12 @@ paths:
         description: |
           The type of the organisationIdentifier.
           This parameter is used in combination with the orgId when the organisationMasterIdentifier is not available.
+      - schema:
+          type: string
+        name: schoolPeriodId
+        in: query
+        required: false
+        description: 'Optional filter to request all Employee objects within a specified SchoolPeriod and its corresponding schoolPeriodId.'
     get:
       summary: Get Employees for School
       x-tags:
