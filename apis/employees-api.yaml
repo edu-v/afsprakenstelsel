@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   title: Employees API
-  version: '0.9.2'
+  version: '0.9.3'
   description: |-
     The Employees API is implemented by the `Administratiesysteem onderwijsmedewerker`.
     
@@ -31,7 +31,7 @@ components:
         The API version number is communicated in the header.
         The major version is communicated in the URI.
         For more information see the [Edu-V versioning guidelines](https://edu-v.atlassian.net/wiki/spaces/AFSPRAKENS/pages/9437200/Versiebeheer).
-      default: 0.9.2
+      default: 0.9.3
           
     Employee:
       title: Employee
@@ -52,8 +52,10 @@ components:
         userMasterIdentifier:
           type: string
           description: |
-            The primary identifier for the Employee.
+            The primary identifier for a User.
+            For Students the ECK iD is used.
             For Employees this value is empty. There is no primary identifier for Employees.
+            (either userMasterIdentifier or userIds is required)
         userIds:
           type: array
           description: |
@@ -71,6 +73,8 @@ components:
                   - NEPPI # nlPersonProfileId – value can be used for students and employees
                   - BPI # Basispoort ID – value can be used for students and employees
                   - eduID # eduID identifier – value can be used for students and employees
+                  - NEPRI # nlPersonRealId – value can be used for students only
+                  - ASI # Las-key – value can be used for students only
                   - eckId # ECK iD – value can be used for employees only, eckId is userIdType for userMasterIdentifier for students
             required:
               - userId
