@@ -707,7 +707,10 @@ paths:
         in: query
         name: since
         required: false
-        description: 'Request all products modified after the specified timestamp. Format: Conform openapi in ZULU time as specified in RFC 3339, section 5.6'
+        description: |
+          Request all products modified after the specified timestamp. Format: Conform openapi in ZULU time as specified in RFC 3339, section 5.6.  
+          Clients are encouraged to use the since parameter above fetching the resource fully.  
+          **Maximum age of the timestamp is 7 days in the past.**
         example: "2017-07-21T17:32:28Z"
     get:
       summary: Get All Products
@@ -800,7 +803,10 @@ paths:
         in: query
         name: since
         required: false
-        description: 'Request all products modified after the specified timestamp. Format: Conform openapi in ZULU time as specified in RFC 3339, section 5.6'
+        description: |
+          Request all products modified after the specified timestamp. Format: Conform openapi in ZULU time as specified in RFC 3339, section 5.6.  
+          Clients are encouraged to use the since parameter above fetching the resource fully.  
+          **Maximum age of the timestamp is 7 days in the past.**
         example: "2017-07-21T17:32:28Z"
     get:
       summary: Get All Products Info for Display In Portal
