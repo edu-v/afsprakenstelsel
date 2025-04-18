@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   title: Catalogue API
-  version: '1.0.0'
+  version: '1.0.1'
   description: |-
     The Catalogue API is implemented by the publisher or reseller of learning materials.
     
@@ -26,7 +26,7 @@ components:
         The API version number is communicated in the header.
         The major version is communicated in the URI.
         For more information see the [Edu-V versioning guidelines](https://edu-v.atlassian.net/wiki/spaces/AFSPRAKENS/pages/9437200/Versiebeheer).
-      default: 1.0.0
+      default: 1.0.1
     
     Product:
       title: Product
@@ -473,8 +473,8 @@ components:
         bundledProducts:
           type: array
           description: |
-            In case this product is a combi product or set, all underlying products can be included and referred in this attribute.
-            This field is mandatory for sets of digital products.
+            In case this product is a combi product or set, all underlying products can be included and referred in this attribute.  
+            This field is mandatory for sets of digital products.  
             This field is optional (but recommended) for combi products and sets of physical products.
           items:
             $ref: '#/components/schemas/ProductID'
@@ -684,7 +684,10 @@ paths:
         in: query
         name: since
         required: false
-        description: 'Request all products modified after the specified timestamp. Format: Conform openapi in ZULU time as specified in RFC 3339, section 5.6'
+        description: |
+          Request all products modified after the specified timestamp. Format: Conform openapi in ZULU time as specified in RFC 3339, section 5.6.  
+          Clients are encouraged to use the since parameter above fetching the resource fully.  
+          **Maximum age of the timestamp is 7 days in the past.**
         example: "2017-07-21T17:32:28Z"
     get:
       summary: Get All Products
@@ -777,7 +780,10 @@ paths:
         in: query
         name: since
         required: false
-        description: 'Request all products modified after the specified timestamp. Format: Conform openapi in ZULU time as specified in RFC 3339, section 5.6'
+        description: |
+          Request all products modified after the specified timestamp. Format: Conform openapi in ZULU time as specified in RFC 3339, section 5.6.  
+          Clients are encouraged to use the since parameter above fetching the resource fully.  
+          **Maximum age of the timestamp is 7 days in the past.**
         example: "2017-07-21T17:32:28Z"
     get:
       summary: Get All Products Info for Display In Portal
