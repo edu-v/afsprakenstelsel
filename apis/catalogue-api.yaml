@@ -1,16 +1,16 @@
 openapi: 3.0.0
 info:
   title: Catalogue API
-  version: '1.0.0'
+  version: '1.1.0'
   description: |-
     The Catalogue API is implemented by the publisher or reseller of learning materials.
-    
+
     The Catalogue API is the source of Product information and provides GET endpoints to receive the latest state.
 
     Two entities are available to Consumers of the Catalogue API:
     - **Product**: the full set of attributes including metadata, media, licensing, pricing, and payment information, especially useful for the `Overkoepelende leermiddelencatalogus`, `Selectieomgeving leermiddelen`, and `Bestelomgeving leermiddelen`.
     - **ProductInfo**: a smaller subset of attributes focused on displaying the product within a portal, especially useful for the `Leermiddelenportaal` and `Onderwijsleeromgeving`
-    
+
     In a future version the Notifications API can be used to notify Consumers of the Catalogue API whenever a Product changes (new, update or delete).
   contact:
     name: Edu-V
@@ -18,7 +18,7 @@ info:
     email: info@edu-v.org
 components:
   schemas:
-  
+
     schemaVersion:
       type: string
       description: |
@@ -26,8 +26,8 @@ components:
         The API version number is communicated in the header.
         The major version is communicated in the URI.
         For more information see the [Edu-V versioning guidelines](https://edu-v.atlassian.net/wiki/spaces/AFSPRAKENS/pages/9437200/Versiebeheer).
-      default: 1.0.0
-    
+      default: 0.9.2
+
     Product:
       title: Product
       type: object
@@ -203,7 +203,7 @@ components:
               type: string
               description: |
                 The variant that should be applied to calculate the ActivationUntilDate.
-                
+
                 - days: number of days after the startDate of the activation period. Value activationDays is a mandatory field.
                 - date: fixed activationDate for every entitlement. Value activationUntilDate is a mandatory field.
                 - schoolyear: the activationUntilDate is set at 31st of July after the startDate.
@@ -244,6 +244,26 @@ components:
             The default Access Url used to access the product after selection or purchase.
             Mandatory field for combi and digital products.
             For sets of digital products and combi products a single Access URl is listed from which all underlying digital products can be activated.
+        specificAccessUrls:
+          type: array
+          description: |
+            list of fields where specific access links can be specified.
+          items:
+            type: object
+            properties:
+              accessUrl:
+                type: string
+                description: 'The URL of the access link.'
+              accessUrlType:
+                type: string
+                description: 'The type URL of the access link in accessUrl.'
+                enum:
+                  - OIDC
+                  - BP
+                  - ENTREE
+            required:
+              - accessUrl
+              - accessUrlType
         shortDescription:
           type: string
           description: 'Short description for display on search pages or other marketing blocks.'
@@ -388,7 +408,7 @@ components:
         - firstPublishedDate
         - dateCreated
         - dateLastModified
-    
+
     ProductInfo:
       title: ProductInfo
       type: object
@@ -442,6 +462,9 @@ components:
           description: 'The subjects that this product is targeted at.'
           items:
             $ref: '#/components/schemas/Subject'
+        infoLink:
+          type: string
+          description: 'URL to the information about the product.'
         trialAccessUrl:
           type: string
           description: 'Optional trial / preview URL.'
@@ -519,7 +542,7 @@ components:
         - firstPublishedDate
         - dateCreated
         - dateLastModified
-    
+
     CourseReference:
       title: CourseReference
       type: object
@@ -536,7 +559,7 @@ components:
         A reference to the content of the products.
         The details of the content can be retrieved via the Course API.
         A product gives access to one or more courses. A course can be referenced by one or more Products.
-    
+
     Study:
       title: Study
       type: object
@@ -547,7 +570,7 @@ components:
           description: |
             Official name of the study.
             - primary education: the `po-opleidingseenheden in RIO korte naam` name as specified in [Waardenlijst Opleidingseenheden po](https://www.edustandaard.nl/standaard_werkgroepen/beheergroep-waardenlijsten-rio/) is used.
-            - secondary education: the `vo-opleidingseenheden in RIO korte naam` name as specified in [Waardenlijst Opleidingseenheden vo](https://www.edustandaard.nl/standaard_werkgroepen/beheergroep-waardenlijsten-rio/) is used.              
+            - secondary education: the `vo-opleidingseenheden in RIO korte naam` name as specified in [Waardenlijst Opleidingseenheden vo](https://www.edustandaard.nl/standaard_werkgroepen/beheergroep-waardenlijsten-rio/) is used.
             - vocational education: the `kwalificatienaam` as specified in [Register kwalificatiestructuur SBB](https://kwalificatie-mijn.s-bb.nl) is used.
         studyCode:
           type: string
@@ -587,7 +610,7 @@ components:
               - studyLevelName
       required:
         - studyName
-                
+
     Subject:
       title: Subject
       type: object
@@ -610,7 +633,7 @@ components:
       required:
         - subjectName
         - subjectPrefix
-  
+
     Media:
       title: Media
       type: object
@@ -625,14 +648,14 @@ components:
           description: 'short description of the media object, which can be displayed as hover info.'
         width:
           type: integer
-          description: 'width in pixels' 
+          description: 'width in pixels'
         height:
           type: integer
           description: 'height in pixels'
       description: 'A reference to a media object.'
       required:
         - url
-    
+
     ProductID:
       title: ProductID
       x-tags:
@@ -664,7 +687,7 @@ components:
           description: 'See functional status messages within the Documentation.'
       required:
         - status
-  
+
   securitySchemes:
     OAuth2:
       type: oauth2
@@ -675,7 +698,7 @@ components:
           scopes:
             eduv.catalogue: scope that allows a party to retrieve products from the catalogue
 paths:
-  
+
   /products:
     parameters:
       - schema:
@@ -724,7 +747,7 @@ paths:
       security:
         - OAuth2:
             - eduv.catalogue
-  
+
   /products/{id}:
     parameters:
       - schema:
@@ -817,7 +840,7 @@ paths:
       security:
         - OAuth2:
             - eduv.catalogue
-  
+
   /products/info/{id}:
     parameters:
       - schema:
