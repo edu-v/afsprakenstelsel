@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   title: Association API
-  version: '0.9.3'
+  version: '0.9.4'
   description: |-
     The Association API is implemented by the `Administratiesysteem onderwijsdeelnemer`.
     
@@ -14,7 +14,7 @@ info:
     These objects could be considered open data from the school. As a data owner, the school authorizes the exchange of this information towards suppliers.
     All consunming reference components require consent to request data from the Association API.
     The Notifications API can be used by consuming reference components to receive notifications about new, modified, or deleted entitities within the Employees API.
-
+    
     The Association API has a scope of primary and secondary education. Vocational education is out of scope. For Vocational Education we advice to use the [Open Education API (OOAPI)](https://openonderwijsapi.nl/).
   contact:
     name: Edu-V
@@ -23,15 +23,6 @@ info:
 components:
   schemas:
   
-    schemaVersion:
-      type: string
-      description: |
-        Schema version of this API using semantic versioning 2.0.0.
-        The API version number is communicated in the header.
-        The major version is communicated in the URI.
-        For more information see the [Edu-V versioning guidelines](https://edu-v.atlassian.net/wiki/spaces/AFSPRAKENS/pages/9437200/Versiebeheer).
-      default: 0.9.3
-          
     SchoolPeriod:
       title: SchoolPeriod
       description: 'The SchoolPeriod object with its title startDate end endDate.'
@@ -220,10 +211,10 @@ components:
       properties:
         assignmentId:
           type: string
-          format: uuid
           description: |
             A unique identifier for this Assignment object.
-            This is the GUID that Consumers will refer to when making API calls, or when needing to identify an object.
+            This is the identifier that Consumers will refer to when making API calls, or when needing to identify an object.
+          example: '1ad4d41c-921a-4767-adc0-12bbf912f9dd'
         employee:
           description: 'The Student to which this enrollment object belongs.'
           $ref: '#/components/schemas/UserReference'
