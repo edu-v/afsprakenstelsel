@@ -79,10 +79,10 @@ components:
             $ref: '#/components/schemas/LocationReference'
         sourceId:
           type: string
-          format: uuid
+          example: '8cdd4fde-eaa7-468c-b588-6394f10d54df' 
           description: |
-            The Source Identifier of the object. This is a GUID System ID for an object.
-            This is the GUID that Consumers will refer to when making API calls, or when needing to identify an object.
+            The Source Identifier of the object. 
+            This is the Identifier that Consumers will refer to when making API calls, or when needing to identify an object.
             It is RECOMMENDED that systems are able to map whichever local ids (e.g. database key fields), userMasterIdentifier or userIds they use to SourceId.
             The sourcedId of an object is considered an addressable property of an entity and as such will not be treated as Personally Identifiable Information (PII).
             
