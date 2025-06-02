@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   title: Association API
-  version: '0.9.4'
+  version: '0.9.5'
   description: |-
     The Association API is implemented by the `Administratiesysteem onderwijsdeelnemer`.
     
@@ -117,10 +117,6 @@ components:
           description: |
             A unique identifier for this Enrollment object.
             This is the GUID that Consumers will refer to when making API calls, or when needing to identify an object.
-        organisationId:
-          type: string
-          format: uuid
-          description: 'A reference to the sourceId of the Organisation in case this enrollment is of the enrollmentType `school`.'
         student:
           description: 'The Student to which this enrollment object belongs.'
           $ref: '#/components/schemas/UserReference'
