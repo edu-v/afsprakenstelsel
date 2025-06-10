@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   title: Employees API
-  version: '0.9.3'
+  version: '0.9.4'
   description: |-
     The Employees API is implemented by the `Administratiesysteem onderwijsmedewerker`.
     
@@ -31,7 +31,7 @@ components:
         The API version number is communicated in the header.
         The major version is communicated in the URI.
         For more information see the [Edu-V versioning guidelines](https://edu-v.atlassian.net/wiki/spaces/AFSPRAKENS/pages/9437200/Versiebeheer).
-      default: 0.9.3
+      default: 0.9.4
           
     Employee:
       title: Employee
@@ -131,7 +131,7 @@ components:
                 example: '2024-08-31'
             required:
               - organisation
-              - organisationRoles
+              - organisationRole
               - beginDate
         alias:
           type: string
