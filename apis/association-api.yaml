@@ -286,7 +286,7 @@ components:
         groupId:
           type: string
           format: string
-		  example: '3EFDC9BE-9127-4008-8809-8A24165315AF'
+          example: '3EFDC9BE-9127-4008-8809-8A24165315AF'
           description: |
             A unique identifier for this Group object.
             This is the GUID that Consumers will refer to when making API calls, or when needing to identify an object.
