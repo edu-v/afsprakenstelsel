@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   title: Association API
-  version: '0.9.6'
+  version: '0.9.7'
   description: |-
     The Association API is implemented by the `Administratiesysteem onderwijsdeelnemer`.
     
@@ -494,36 +494,6 @@ paths:
         in: path
         required: true
         description: 'Reference to the schoolPeriodId of the SchoolPeriod object.'
-      - schema:
-          type: string
-        name: orgMasterId
-        in: query
-        required: false
-        description: |
-          The organisationMasterIdentifier of the school.
-          This parameter is used when the primary identifier for a school (being the `OnderwijsaanbiederId`) is available.
-      - schema:
-          type: string
-        name: orgId
-        in: query
-        required: false
-        description: |
-          The organisationIdentifier (secondary identifier) of the school.
-          This parameter is used in combination with the orgIdType when the organisationMasterIdentifier is not available.
-      - schema:
-          type: string
-          example: DD_ID
-          enum:
-            - OIE_CODE
-            - BP_ID
-            - DD_ID
-            - AS_ID
-        name: orgIdType
-        in: query
-        required: false
-        description: |
-          The type of the organisationIdentifier.
-          This parameter is used in combination with the orgId when the organisationMasterIdentifier is not available.
     get:
       summary: 'Get SchoolPeriod'
       x-tags:
@@ -652,36 +622,6 @@ paths:
         in: path
         required: true
         description: 'Reference to the enrollmentId of the Enrollment object.'
-      - schema:
-          type: string
-        name: orgMasterId
-        in: query
-        required: false
-        description: |
-          The organisationMasterIdentifier of the school.
-          This parameter is used when the primary identifier for a school (being the `OnderwijsaanbiederId`) is available.
-      - schema:
-          type: string
-        name: orgId
-        in: query
-        required: false
-        description: |
-          The organisationIdentifier (secondary identifier) of the school.
-          This parameter is used in combination with the orgIdType when the organisationMasterIdentifier is not available.
-      - schema:
-          type: string
-          example: DD_ID
-          enum:
-            - OIE_CODE
-            - BP_ID
-            - DD_ID
-            - AS_ID
-        name: orgIdType
-        in: query
-        required: false
-        description: |
-          The type of the organisationIdentifier.
-          This parameter is used in combination with the orgId when the organisationMasterIdentifier is not available.
     get:
       summary: 'Get Enrollment'
       x-tags:
@@ -924,36 +864,6 @@ paths:
         in: path
         required: true
         description: 'Reference to the assignmentId of the Assignment object.'
-      - schema:
-          type: string
-        name: orgMasterId
-        in: query
-        required: false
-        description: |
-          The organisationMasterIdentifier of the school.
-          This parameter is used when the primary identifier for a school (being the `OnderwijsaanbiederId`) is available.
-      - schema:
-          type: string
-        name: orgId
-        in: query
-        required: false
-        description: |
-          The organisationIdentifier (secondary identifier) of the school.
-          This parameter is used in combination with the orgIdType when the organisationMasterIdentifier is not available.
-      - schema:
-          type: string
-          example: DD_ID
-          enum:
-            - OIE_CODE
-            - BP_ID
-            - DD_ID
-            - AS_ID
-        name: orgIdType
-        in: query
-        required: false
-        description: |
-          The type of the organisationIdentifier.
-          This parameter is used in combination with the orgId when the organisationMasterIdentifier is not available.
     get:
       summary: 'Get Assignment'
       x-tags:
@@ -1174,36 +1084,6 @@ paths:
         in: path
         required: true
         description: 'Reference to the groupId of the Group object.'
-      - schema:
-          type: string
-        name: orgMasterId
-        in: query
-        required: false
-        description: |
-          The organisationMasterIdentifier of the school.
-          This parameter is used when the primary identifier for a school (being the `OnderwijsaanbiederId`) is available.
-      - schema:
-          type: string
-        name: orgId
-        in: query
-        required: false
-        description: |
-          The organisationIdentifier (secondary identifier) of the school.
-          This parameter is used in combination with the orgIdType when the organisationMasterIdentifier is not available.
-      - schema:
-          type: string
-          example: DD_ID
-          enum:
-            - OIE_CODE
-            - BP_ID
-            - DD_ID
-            - AS_ID
-        name: orgIdType
-        in: query
-        required: false
-        description: |
-          The type of the organisationIdentifier.
-          This parameter is used in combination with the orgId when the organisationMasterIdentifier is not available.
     get:
       summary: 'Get Group'
       x-tags:
