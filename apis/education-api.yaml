@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   title: Education API
-  version: '0.9.5'
+  version: '0.9.6'
   description: |-
     The Education API is implemented by the `Administratiesysteem onderwijsdeelnemer`.
     
@@ -29,7 +29,7 @@ components:
         The API version number is communicated in the header.
         The major version is communicated in the URI.
         For more information see the [Edu-V versioning guidelines](https://edu-v.atlassian.net/wiki/spaces/AFSPRAKENS/pages/9437200/Versiebeheer).
-      default: 0.9.5
+      default: 0.9.6
           
     Organisation:
       title: Organisation
@@ -575,36 +575,6 @@ paths:
         in: path
         required: true
         description: 'Reference to the studyOfferingId of the StudyOffering object.'
-      - schema:
-          type: string
-        name: orgMasterId
-        in: query
-        required: false
-        description: |
-          The organisationMasterIdentifier of the school.
-          This parameter is used when the primary identifier for a school (being the `OnderwijsaanbiederId`) is available.
-      - schema:
-          type: string
-        name: orgId
-        in: query
-        required: false
-        description: |
-          The organisationIdentifier (secondary identifier) of the school.
-          This parameter is used in combination with the orgIdType when the organisationMasterIdentifier is not available.
-      - schema:
-          type: string
-          example: DD_ID
-          enum:
-            - OIE_CODE
-            - BP_ID
-            - DD_ID
-            - AS_ID
-        name: orgIdType
-        in: query
-        required: false
-        description: |
-          The type of the organisationIdentifier.
-          This parameter is used in combination with the orgId when the organisationMasterIdentifier is not available.
     get:
       summary: 'Get StudyOffering'
       x-tags:
@@ -745,36 +715,6 @@ paths:
         in: path
         required: true
         description: 'Reference to the subjectOfferingId of the SubjectOffering object.'
-      - schema:
-          type: string
-        name: orgMasterId
-        in: query
-        required: false
-        description: |
-          The organisationMasterIdentifier of the school.
-          This parameter is used when the primary identifier for a school (being the `OnderwijsaanbiederId`) is available.
-      - schema:
-          type: string
-        name: orgId
-        in: query
-        required: false
-        description: |
-          The organisationIdentifier (secondary identifier) of the school.
-          This parameter is used in combination with the orgIdType when the organisationMasterIdentifier is not available.
-      - schema:
-          type: string
-          example: DD_ID
-          enum:
-            - OIE_CODE
-            - BP_ID
-            - DD_ID
-            - AS_ID
-        name: orgIdType
-        in: query
-        required: false
-        description: |
-          The type of the organisationIdentifier.
-          This parameter is used in combination with the orgId when the organisationMasterIdentifier is not available.
     get:
       summary: 'Get SubjectOffering'
       x-tags:
