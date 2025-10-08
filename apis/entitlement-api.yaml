@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   title: Entitlement API
-  version: '1.0.0'
+  version: '1.1.0'
   description: |
     The Entitlement API is implemented by the `Aanspraakmanager`, `Licentieregistratie`, and `Leermiddelenportaal`.
     The Entitlement API is used to orchestrate the digital delivery of learning materials to all involved reference components.
@@ -30,7 +30,7 @@ components:
         The API version number is communicated in the header.
         The major version is communicated in the URI.
         For more information see the [Edu-V versioning guidelines](https://edu-v.atlassian.net/wiki/spaces/AFSPRAKENS/pages/9437200/Versiebeheer).
-      default: 1.0.0
+      default: 1.1.0
     
     EntitlementRequest:
       title: EntitlementRequest
@@ -149,7 +149,6 @@ components:
         - entitlementReferenceId
         - entitlementReceiveId
         - entitlementId
-        - deliveryOrderId
         - productId
         - processedTimestamp
         - success
@@ -269,7 +268,6 @@ components:
           example: "2022-08-11T15:31:12Z"
       required:
         - entitlementId
-        - deliveryOrderId
         - buyer
         - productId
         - startDate
