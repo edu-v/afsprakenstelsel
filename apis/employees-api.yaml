@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   title: Employees API
-  version: '0.9.4'
+  version: '1.0.0'
   description: |-
     The Employees API is implemented by the `Administratiesysteem onderwijsmedewerker`.
     
