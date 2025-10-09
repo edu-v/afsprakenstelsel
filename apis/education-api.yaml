@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   title: Education API
-  version: '0.9.5'
+  version: '0.9.6'
   description: |-
     The Education API is implemented by the `Administratiesysteem onderwijsdeelnemer`.
     
@@ -29,7 +29,7 @@ components:
         The API version number is communicated in the header.
         The major version is communicated in the URI.
         For more information see the [Edu-V versioning guidelines](https://edu-v.atlassian.net/wiki/spaces/AFSPRAKENS/pages/9437200/Versiebeheer).
-      default: 0.9.5
+      default: 0.9.6
           
     Organisation:
       title: Organisation
@@ -77,16 +77,6 @@ components:
           description: 'A list of all school locations of this organisation.'
           items:
             $ref: '#/components/schemas/LocationReference'
-        sourceId:
-          type: string
-          example: '8cdd4fde-eaa7-468c-b588-6394f10d54df' 
-          description: |
-            The Source Identifier of the object. 
-            This is the Identifier that Consumers will refer to when making API calls, or when needing to identify an object.
-            It is RECOMMENDED that systems are able to map whichever local ids (e.g. database key fields), userMasterIdentifier or userIds they use to SourceId.
-            The sourcedId of an object is considered an addressable property of an entity and as such will not be treated as Personally Identifiable Information (PII).
-            
-            The sourceId attribute is based on the [Base Class from OneRoster](https://www.imsglobal.org/sites/default/files/spec/oneroster/v1p2/rostering-informationmodel/OneRosterv1p2RosteringService_InfoModelv1p0.html#Data_Base).
         status:
           description: |
             The status field gives an indication to Consumers about the status of an object.
@@ -110,7 +100,6 @@ components:
       required:
         - name
         - status
-        - sourceId
         - dateCreated
         - dateLastModified
 
@@ -401,59 +390,6 @@ components:
             
 paths:
   
-  /organisations/{id}:
-    parameters:
-      - schema:
-          type: string
-        name: id
-        in: path
-        required: true
-        description: 'Reference to the sourceId of the Organisation object.'
-    get:
-      summary: 'Get Organisation'
-      x-tags:
-        - Organisation
-      tags:
-        - Administratiesysteem onderwijsdeelnemer
-      operationId: get-organisation
-      description: |
-        Request an Organisation object based on its sourceId.
-        The Source Identifier is the GUID System ID for an object. This is the GUID that Consumers will refer to when making API calls.
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Organisation'
-        '400':
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/StatusResponse'
-        '401':
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/StatusResponse'
-        '403':
-          description: Forbidden
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/StatusResponse'
-        '404':
-          description: Not Found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/StatusResponse'
-      security:
-        - OAuth2:
-            - eduv.education
-
   /organisations:
     parameters:
       - schema:
@@ -575,36 +511,6 @@ paths:
         in: path
         required: true
         description: 'Reference to the studyOfferingId of the StudyOffering object.'
-      - schema:
-          type: string
-        name: orgMasterId
-        in: query
-        required: false
-        description: |
-          The organisationMasterIdentifier of the school.
-          This parameter is used when the primary identifier for a school (being the `OnderwijsaanbiederId`) is available.
-      - schema:
-          type: string
-        name: orgId
-        in: query
-        required: false
-        description: |
-          The organisationIdentifier (secondary identifier) of the school.
-          This parameter is used in combination with the orgIdType when the organisationMasterIdentifier is not available.
-      - schema:
-          type: string
-          example: DD_ID
-          enum:
-            - OIE_CODE
-            - BP_ID
-            - DD_ID
-            - AS_ID
-        name: orgIdType
-        in: query
-        required: false
-        description: |
-          The type of the organisationIdentifier.
-          This parameter is used in combination with the orgId when the organisationMasterIdentifier is not available.
     get:
       summary: 'Get StudyOffering'
       x-tags:
@@ -745,36 +651,6 @@ paths:
         in: path
         required: true
         description: 'Reference to the subjectOfferingId of the SubjectOffering object.'
-      - schema:
-          type: string
-        name: orgMasterId
-        in: query
-        required: false
-        description: |
-          The organisationMasterIdentifier of the school.
-          This parameter is used when the primary identifier for a school (being the `OnderwijsaanbiederId`) is available.
-      - schema:
-          type: string
-        name: orgId
-        in: query
-        required: false
-        description: |
-          The organisationIdentifier (secondary identifier) of the school.
-          This parameter is used in combination with the orgIdType when the organisationMasterIdentifier is not available.
-      - schema:
-          type: string
-          example: DD_ID
-          enum:
-            - OIE_CODE
-            - BP_ID
-            - DD_ID
-            - AS_ID
-        name: orgIdType
-        in: query
-        required: false
-        description: |
-          The type of the organisationIdentifier.
-          This parameter is used in combination with the orgId when the organisationMasterIdentifier is not available.
     get:
       summary: 'Get SubjectOffering'
       x-tags:
