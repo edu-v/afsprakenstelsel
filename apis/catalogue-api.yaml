@@ -4,21 +4,21 @@ info:
   version: '1.0.1'
   description: |-
     The Catalogue API is implemented by the publisher or reseller of learning materials.
-    
+
     The Catalogue API is the source of Product information and provides GET endpoints to receive the latest state.
 
     Two entities are available to Consumers of the Catalogue API:
     - **Product**: the full set of attributes including metadata, media, licensing, pricing, and payment information, especially useful for the `Overkoepelende leermiddelencatalogus`, `Selectieomgeving leermiddelen`, and `Bestelomgeving leermiddelen`.
     - **ProductInfo**: a smaller subset of attributes focused on displaying the product within a portal, especially useful for the `Leermiddelenportaal` and `Onderwijsleeromgeving`
-    
+
     In a future version the Notifications API can be used to notify Consumers of the Catalogue API whenever a Product changes (new, update or delete).
   contact:
     name: Edu-V
-    url: www.edu-v.org/afsprakenstelsel
+    url: https://www.edu-v.org/afsprakenstelsel/
     email: info@edu-v.org
 components:
   schemas:
-  
+
     schemaVersion:
       type: string
       description: |
@@ -27,7 +27,7 @@ components:
         The major version is communicated in the URI.
         For more information see the [Edu-V versioning guidelines](https://edu-v.atlassian.net/wiki/spaces/AFSPRAKENS/pages/9437200/Versiebeheer).
       default: 1.0.1
-    
+
     Product:
       title: Product
       type: object
@@ -152,8 +152,8 @@ components:
               priceCurrency:
                 type: string
                 description: 'The applicable currency according to ISO4217 currency codes, see: https://en.wikipedia.org/wiki/ISO_4217.'
-                default: "EUR"
-                pattern: "[A-Z]{3}$"
+                default: 'EUR'
+                pattern: '[A-Z]{3}$'
               validFrom:
                 type: string
                 format: date
@@ -203,7 +203,7 @@ components:
               type: string
               description: |
                 The variant that should be applied to calculate the ActivationUntilDate.
-                
+
                 - days: number of days after the startDate of the activation period. Value activationDays is a mandatory field.
                 - date: fixed activationDate for every entitlement. Value activationUntilDate is a mandatory field.
                 - schoolyear: the activationUntilDate is set at 31st of July after the startDate.
@@ -258,7 +258,7 @@ components:
             Indicator if copyright is applicable to the Product.
             The Creative Commons licenses are specified according to the [CreativeCommons version 4.0 specification](https://purl.edustandaard.nl/copyrightsandotherrestrictions_nllom_20131202).'
             In case, another type of copyright is applicable to the product, the value `yes` is used.
-            If no copyyright is applicable to the product, the value `no` is used.
+            If no copyright is applicable to the product, the value `no` is used.
           enum:
             - cc-by-40
             - cc-by-sa-40
@@ -366,12 +366,12 @@ components:
           type: string
           description: 'Indicates the date and time the object was first created. Format: Conform openapi in ZULU time zoals gespecificeerd in RFC 3339, section 5.6.'
           format: date-time
-          example: "2017-07-21T17:32:28Z"
+          example: '2017-07-21T17:32:28Z'
         dateLastModified:
           type: string
           description: 'Indicates the date and time the object was last modified. Format: Conform openapi in ZULU time zoals gespecificeerd in RFC 3339, section 5.6.'
           format: date-time
-          example: "2022-08-11T15:31:12Z"
+          example: '2022-08-11T15:31:12Z'
       required:
         - productId
         - publisher
@@ -388,7 +388,7 @@ components:
         - firstPublishedDate
         - dateCreated
         - dateLastModified
-    
+
     ProductInfo:
       title: ProductInfo
       type: object
@@ -473,8 +473,8 @@ components:
         bundledProducts:
           type: array
           description: |
-            In case this product is a combi product or set, all underlying products can be included and referred in this attribute.  
-            This field is mandatory for sets of digital products.  
+            In case this product is a combi product or set, all underlying products can be included and referred in this attribute.
+            This field is mandatory for sets of digital products.
             This field is optional (but recommended) for combi products and sets of physical products.
           items:
             $ref: '#/components/schemas/ProductID'
@@ -499,12 +499,12 @@ components:
           type: string
           description: 'Indicates the date and time the object was first created. Format: Conform openapi in ZULU time zoals gespecificeerd in RFC 3339, section 5.6.'
           format: date-time
-          example: "2017-07-21T17:32:28Z"
+          example: '2017-07-21T17:32:28Z'
         dateLastModified:
           type: string
           description: 'Indicates the date and time the object was last modified. Format: Conform openapi in ZULU time zoals gespecificeerd in RFC 3339, section 5.6.'
           format: date-time
-          example: "2022-08-11T15:31:12Z"
+          example: '2022-08-11T15:31:12Z'
       required:
         - productId
         - publisher
@@ -519,7 +519,7 @@ components:
         - firstPublishedDate
         - dateCreated
         - dateLastModified
-    
+
     CourseReference:
       title: CourseReference
       type: object
@@ -536,7 +536,7 @@ components:
         A reference to the content of the products.
         The details of the content can be retrieved via the Course API.
         A product gives access to one or more courses. A course can be referenced by one or more Products.
-    
+
     Study:
       title: Study
       type: object
@@ -547,7 +547,7 @@ components:
           description: |
             Official name of the study.
             - primary education: the `po-opleidingseenheden in RIO korte naam` name as specified in [Waardenlijst Opleidingseenheden po](https://www.edustandaard.nl/standaard_werkgroepen/beheergroep-waardenlijsten-rio/) is used.
-            - secondary education: the `vo-opleidingseenheden in RIO korte naam` name as specified in [Waardenlijst Opleidingseenheden vo](https://www.edustandaard.nl/standaard_werkgroepen/beheergroep-waardenlijsten-rio/) is used.              
+            - secondary education: the `vo-opleidingseenheden in RIO korte naam` name as specified in [Waardenlijst Opleidingseenheden vo](https://www.edustandaard.nl/standaard_werkgroepen/beheergroep-waardenlijsten-rio/) is used.
             - vocational education: the `kwalificatienaam` as specified in [Register kwalificatiestructuur SBB](https://kwalificatie-mijn.s-bb.nl) is used.
         studyCode:
           type: string
@@ -576,7 +576,7 @@ components:
                 example: 4205
                 minLength: 4
                 maxLength: 4
-                pattern: "^[0-9]*$"
+                pattern: '^[0-9]*$'
               studyLevelName:
                 type: string
                 description: 'The name of the level.'
@@ -587,7 +587,7 @@ components:
               - studyLevelName
       required:
         - studyName
-                
+
     Subject:
       title: Subject
       type: object
@@ -610,7 +610,7 @@ components:
       required:
         - subjectName
         - subjectPrefix
-  
+
     Media:
       title: Media
       type: object
@@ -625,14 +625,14 @@ components:
           description: 'short description of the media object, which can be displayed as hover info.'
         width:
           type: integer
-          description: 'width in pixels' 
+          description: 'width in pixels'
         height:
           type: integer
           description: 'height in pixels'
       description: 'A reference to a media object.'
       required:
         - url
-    
+
     ProductID:
       title: ProductID
       x-tags:
@@ -664,7 +664,7 @@ components:
           description: 'See functional status messages within the Documentation.'
       required:
         - status
-  
+
   securitySchemes:
     OAuth2:
       type: oauth2
@@ -675,7 +675,7 @@ components:
           scopes:
             eduv.catalogue: scope that allows a party to retrieve products from the catalogue
 paths:
-  
+
   /products:
     parameters:
       - schema:
@@ -688,7 +688,7 @@ paths:
           Request all products modified after the specified timestamp. Format: Conform openapi in ZULU time as specified in RFC 3339, section 5.6.  
           Clients are encouraged to use the since parameter above fetching the resource fully.  
           **Maximum age of the timestamp is 7 days in the past.**
-        example: "2017-07-21T17:32:28Z"
+        example: '2017-07-21T17:32:28Z'
     get:
       summary: Get All Products
       operationId: get-all-products
@@ -727,7 +727,7 @@ paths:
       security:
         - OAuth2:
             - eduv.catalogue
-  
+
   /products/{id}:
     parameters:
       - schema:
@@ -784,7 +784,7 @@ paths:
           Request all products modified after the specified timestamp. Format: Conform openapi in ZULU time as specified in RFC 3339, section 5.6.  
           Clients are encouraged to use the since parameter above fetching the resource fully.  
           **Maximum age of the timestamp is 7 days in the past.**
-        example: "2017-07-21T17:32:28Z"
+        example: '2017-07-21T17:32:28Z'
     get:
       summary: Get All Products Info for Display In Portal
       operationId: get-all-products-info
@@ -823,7 +823,7 @@ paths:
       security:
         - OAuth2:
             - eduv.catalogue
-  
+
   /products/info/{id}:
     parameters:
       - schema:
