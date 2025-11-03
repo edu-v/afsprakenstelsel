@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   title: Order API
-  version: '0.9.3'
+  version: '0.9.4'
   description: |-
     The Order API is implemented by the reference components `Bestelomgeving leermiddelen` and `Ordersysteem leermiddelen`.
 
@@ -22,7 +22,7 @@ components:
         The API version number is communicated in the header.
         The major version is communicated in the URI.
         For more information see the [Edu-V versioning guidelines](https://edu-v.atlassian.net/wiki/spaces/AFSPRAKENS/pages/9437200/Versiebeheer).
-      default: 0.9.3
+      default: 0.9.4
     
     OrderRequest:
       title: OrderRequest
@@ -83,8 +83,47 @@ components:
           format: date
           description: 'Optional desired deliveryDate for delivery of the Product (physical learning materials). Format: YYYY-MM-DD (according to RFC3339).'
           example: '2022-07-31'
-        Buyer:
-          $ref: './delivery-api.yaml#/components/schemas/DeliveryOrder/properties/Buyer'
+        schoolBuyer:
+          type: object
+          properties:
+            displayName:
+              type: string
+              description: 'Display name of the school'
+              example: 'De Regenboog'
+            email:
+              type: string
+              format: email
+              description: 'Email address of the school'
+              example: 'info@deregenboog.nl'
+            organisationMasterIdentifier:
+              type: string
+              description: |
+                The primary identifier for a School. For Schools the `OnderwijsaanbiederId` is used.
+                (either organisationMasterIdentifier or organisationIds is required)
+              example: '104A158'
+            organisationIds:
+              type: array
+              description: |
+                A secondary identifier for the School.
+                (either organisationMasterIdentifier or organisationIds is required)
+              items:
+                type: object
+                properties:
+                  organisationId:
+                    type: string
+                  organisationIdType:
+                    type: string
+                    enum:
+                      - OIE_CODE
+                      - BP_ID
+                      - DD_ID
+                      - AS_ID
+                required:
+                  - organisationId
+                  - organisationIdType
+          required:
+            - displayName
+            - email
         deliveryType:
           $ref: './delivery-api.yaml#/components/schemas/DeliveryOrder/properties/deliveryType'
         orderLines:
