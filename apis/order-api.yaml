@@ -88,13 +88,13 @@ components:
           properties:
             displayName:
               type: string
-              description: 'Display name of the school'
-              example: 'De Regenboog'
+              description: 'Weergavenaam van de contactpersoon van de onderwijsorganisatie.'
+              example: 'Jan Jansen'
             email:
               type: string
               format: email
-              description: 'Email address of the school'
-              example: 'info@deregenboog.nl'
+              description: 'E-mailadres van de contactpersoon van de onderwijsorganisatie.'
+              example: 'j.jansen@deregenboog.nl'
             organisationMasterIdentifier:
               type: string
               description: |
