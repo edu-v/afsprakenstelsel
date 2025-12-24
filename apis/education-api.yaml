@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   title: Education API
-  version: '1.0.1'
+  version: '1.0.2'
   description: |-
     The Education API is implemented by the `Administratiesysteem onderwijsdeelnemer`.
     
@@ -89,12 +89,12 @@ components:
             - tobedeleted
         dateCreated:
           type: string
-          description: 'Indicates the date and time the object was first created. Format: Conform openapi in ZULU time zoals gespecificeerd in RFC 3339, section 5.6.'
+          description: 'Indicates the date and time the object was first created. Format: According to openapi in ZULU time as specified in RFC 3339, section 5.6.'
           format: date-time
           example: "2017-07-21T17:32:28Z"
         dateLastModified:
           type: string
-          description: 'Indicates the date and time the object was last modified. Format: Conform openapi in ZULU time zoals gespecificeerd in RFC 3339, section 5.6.'
+          description: 'Indicates the date and time the object was first created. Format: According to openapi in ZULU time as specified in RFC 3339, section 5.6.'
           format: date-time
           example: "2022-08-11T15:31:12Z"
       required:
@@ -187,12 +187,12 @@ components:
             - tobedeleted
         dateCreated:
           type: string
-          description: 'Indicates the date and time the object was first created. Format: Conform openapi in ZULU time zoals gespecificeerd in RFC 3339, section 5.6.'
+          description: 'Indicates the date and time the object was first created. Format: According to openapi in ZULU time as specified in RFC 3339, section 5.6.'
           format: date-time
           example: "2017-07-21T17:32:28Z"
         dateLastModified:
           type: string
-          description: 'Indicates the date and time the object was last modified. Format: Conform openapi in ZULU time zoals gespecificeerd in RFC 3339, section 5.6.'
+          description: 'Indicates the date and time the object was last modified. Format: According to openapi in ZULU time as specified in RFC 3339, section 5.6.'
           format: date-time
           example: "2022-08-11T15:31:12Z"
       required:
@@ -246,12 +246,12 @@ components:
             - tobedeleted
         dateCreated:
           type: string
-          description: 'Indicates the date and time the object was first created. Format: Conform openapi in ZULU time zoals gespecificeerd in RFC 3339, section 5.6.'
+          description: 'Indicates the date and time the object was first created. Format: According to openapi in ZULU time as specified in RFC 3339, section 5.6.'
           format: date-time
           example: "2017-07-21T17:32:28Z"
         dateLastModified:
           type: string
-          description: 'Indicates the date and time the object was last modified. Format: Conform openapi in ZULU time zoals gespecificeerd in RFC 3339, section 5.6.'
+          description: 'Indicates the date and time the object was last modified. Format: According to openapi in ZULU time as specified in RFC 3339, section 5.6.'
           format: date-time
           example: "2022-08-11T15:31:12Z"
       required:
@@ -301,7 +301,7 @@ components:
         organisationMasterIdentifier:
           type: string
           description: |
-            The primary identifier for a School Board. For Schools the `OnderwijsbestuurId` is used.
+            The primary identifier for a School Board. For boards the `OnderwijsbestuurId` is used.
             (either organisationMasterIdentifier or organisationIds is required)
           example: '106B996' # Stichting Flores Onderwijs
         organisationIds:
@@ -437,7 +437,7 @@ paths:
         required: false
         description: |
           The boardIdentifier (secondary identifier) of a board.
-          This parameter is used in combination with the boardIdType when the boardMasterIdentifier is not available.
+          This parameter is used in combination with the boardIdType when the organisationMasterIdentifier of the Board is not available.
       - schema:
           type: string
           example: DD_ID
@@ -448,7 +448,7 @@ paths:
         required: false
         description: |
           The type of the boardIdentifier.
-          This parameter is used in combination with the boardId when the boardMasterIdentifier is not available.
+          This parameter is used in combination with the boardId when the organisationMasterIdentifier of the Board is not available.
       - schema:
           type: string
         name: name
