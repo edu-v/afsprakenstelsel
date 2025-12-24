@@ -1,15 +1,15 @@
 openapi: 3.0.0
 info:
   title: Students API
-  version: '0.9.1'
+  version: '1.0.1'
   description: |-
     The Students API is implemented by the `Administratiesysteem onderwijsdeelnemer`.
     
     Student data is split into the following objects with corresponding attributes:
     - Basic data: identifiers and name
     - Demographics: gender and dateOfBirth
-    - Communication: email, phone, and mobile
-    - Accessibility: language and optional accessibility preferences
+    - Communication: email
+    - Accessibility: language and accessibility preferences
     - DeliveryAddress: home address and email addresses
     
     Not all Student attributes are available to all consuming reference components. For example delivery address attributes are only available to the `Bestelomgeving leermiddelen`.
@@ -33,7 +33,7 @@ components:
         The API version number is communicated in the header.
         The major version is communicated in the URI.
         For more information see the [Edu-V versioning guidelines](https://edu-v.atlassian.net/wiki/spaces/AFSPRAKENS/pages/9437200/Versiebeheer).
-      default: 0.9.1
+      default: 1.0.0
           
     Student:
       title: Student
@@ -167,16 +167,11 @@ components:
           items:
             type: string
             description: 'E-mail address of a parent or the legal representative (e.g. guardian) of the Student.'
-        sourceId:
+        alias:
           type: string
-          format: uuid
+          format: string
           description: |
-            The Source Identifier of the object. This is a GUID System ID for an object.
-            This is the GUID that Consumers will refer to when making API calls, or when needing to identify an object.
-            It is RECOMMENDED that systems are able to map whichever local ids (e.g. database key fields), userMasterIdentifier or userIds they use to SourceId.
-            The sourcedId of an object is considered an addressable property of an entity and as such will not be treated as Personally Identifiable Information (PII).
-            
-            The sourceId attribute is based on the [Base Class from OneRoster](https://www.imsglobal.org/sites/default/files/spec/oneroster/v1p2/rostering-informationmodel/OneRosterv1p2RosteringService_InfoModelv1p0.html#Data_Base).
+            An additional field to distinct students on screen who carry the same name.
         status:
           description: |
             The status field gives an indication to Consumers about the status of an object.
@@ -189,19 +184,18 @@ components:
             - tobedeleted
         dateCreated:
           type: string
-          description: 'Indicates the date and time the object was first created. Format: Conform openapi in ZULU time zoals gespecificeerd in RFC 3339, section 5.6.'
+          description: 'Indicates the date and time the object was first created. Format: According to openapi in ZULU time as specified in RFC 3339, section 5.6.'
           format: date-time
           example: "2017-07-21T17:32:28Z"
         dateLastModified:
           type: string
-          description: 'Indicates the date and time the object was last modified. Format: Conform openapi in ZULU time zoals gespecificeerd in RFC 3339, section 5.6.'
+          description: 'Indicates the date and time the object was last modified. Format: According to openapi in ZULU time as specified in RFC 3339, section 5.6.'
           format: date-time
           example: "2022-08-11T15:31:12Z"
       required:
         - givenName
         - familyName
         - status
-        - sourceId
         - dateCreated
         - dateLastModified
 
@@ -234,7 +228,6 @@ components:
               default: "" # The IMS Global specification prescribes an empty type. 
               description: 'Providing the additional testing time as an unlimited time.'
 
-    # This UserReference might not be necessary for the Students API. References are made based on the sourceId of the Student object.
     UserReference:
       type: object
       title: UserReference
@@ -244,13 +237,11 @@ components:
           description: |
             The primary identifier for a User.
             For Students the ECK iD is used.
-            For Employees this value is empty. There is no primary identifier for Employees.
             (either userMasterIdentifier or userIds is required)
         userIds:
           type: array
           description: |
             A secondary identifier for a User. This value is used whenever the primary identifier is not available.
-            For Employees this value is mandatory.
             (either userMasterIdentifier or userIds is required)
           items:
             type: object
@@ -339,7 +330,7 @@ paths:
         - Student
       tags:
         - Administratiesysteem onderwijsdeelnemer
-      operationId: search-employee
+      operationId: search-student
       description: 'Request a Student object for a specified Student at a School.'
       requestBody:
         content:
@@ -363,94 +354,6 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Student'
-        '400':
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/StatusResponse'
-        '401':
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/StatusResponse'
-        '403':
-          description: Forbidden
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/StatusResponse'
-        '404':
-          description: Not Found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/StatusResponse'
-      security:
-        - OAuth2:
-            - eduv.student.basic
-            - eduv.student.demographics
-            - eduv.student.communication
-            - eduv.student.accessibility
-            - eduv.student.deliveryaddress
-
-  /students/{sourceId}:
-    parameters:
-      - schema:
-          type: string
-        name: sourceId
-        in: path
-        required: true
-        description: 'Reference to the sourceId of the Student object.'
-      - schema:
-          type: string
-        name: orgMasterId
-        in: query
-        required: false
-        description: |
-          The organisationMasterIdentifier of the school.
-          This parameter is used when the primary identifier for a school (being the `OnderwijsaanbiederId`) is available.
-      - schema:
-          type: string
-        name: orgId
-        in: query
-        required: false
-        description: |
-          The organisationIdentifier (secondary identifier) of the school.
-          This parameter is used in combination with the orgIdType when the organisationMasterIdentifier is not available.
-      - schema:
-          type: string
-          example: DD_ID
-          enum:
-            - OIE_CODE
-            - BP_ID
-            - DD_ID
-            - AS_ID
-        name: orgIdType
-        in: query
-        required: false
-        description: |
-          The type of the organisationIdentifier.
-          This parameter is used in combination with the orgId when the organisationMasterIdentifier is not available.
-    get:
-      summary: 'Get Student'
-      x-tags:
-        - Student
-      tags:
-        - Administratiesysteem onderwijsdeelnemer
-      operationId: get-student
-      description: |
-        Request a Student object based on its sourceId.
-        The Source Identifier is the GUID System ID for an object. This is the GUID that Consumers will refer to when making API calls.
-        The sourcedId of an object is considered an addressable property of an entity and as such will not be treated as Personally Identifiable Information (PII).
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Student'
         '400':
           description: Bad Request
           content:
@@ -533,14 +436,6 @@ paths:
         in: query
         required: false
         description: 'Optional filter to request Student objects enrolled in a SubjectOffering and its corresponding subjectOfferingId.'
-      - schema:
-          type: string
-          format: date-time
-        in: query
-        name: since
-        required: false
-        description: 'Request all objects modified after the specified timestamp. Format: Conform openapi in ZULU time as specified in RFC 3339, section 5.6'
-        example: "2017-07-21T17:32:28Z"
     get:
       summary: Get Students for School
       x-tags:

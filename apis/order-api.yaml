@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   title: Order API
-  version: '0.9.1'
+  version: '0.9.2'
   description: |-
     The Order API is implemented by the reference components `Bestelomgeving leermiddelen` and `Ordersysteem leermiddelen`.
 
@@ -22,7 +22,7 @@ components:
         The API version number is communicated in the header.
         The major version is communicated in the URI.
         For more information see the [Edu-V versioning guidelines](https://edu-v.atlassian.net/wiki/spaces/AFSPRAKENS/pages/9437200/Versiebeheer).
-      default: 0.9.1
+      default: 0.9.2
     
     OrderRequest:
       title: OrderRequest
@@ -34,26 +34,17 @@ components:
       properties:
         requestReferenceId:
           type: string
+          format: uuid
           description: |
             Unique requestReferenceId for this request. This referenceId is used by the Event Mediator of the `Bestelomgeving leermiddelen` to match the OrderConfirmation conformation message(s) send by the `Ordersysteem leermiddelen`.
             If a party receives another request with the same requestReferenceId value, the receiving party should not process the request again. It should send the confirmation again.
         purchaseOrderId:
           type: string
           description: 'Purchase order number as defined by the `Bestelomgeving leermiddelen`. This number is linked to the financial system of the `Bestelomgeving leermiddelen`.'
-        purchaseOrderLineId:
-          type: string
-          description: 'Optional line number in case of an order with more than one product.'
         purchaseOrderType:
           type: string
           description: 'Optional orderType field which can be used by suppliers to optimize processing of requests and confirmations.'
           example: 'Tender'
-        productId:
-          type: string
-          description: 'The Product the `Bestelomgeving leermiddelen` orders. The productId can be retrieved from the Catalogue API from the `Ordersysteem leermiddelen`.'
-        quantity:
-          type: integer
-          example: 1
-          description: 'The quantity of the Product the `Bestelomgeving leermiddelen` orders.'
         contractId:
           type: string
           description: 'An optional unique identifier for a contract between `Ordersysteem leermiddelen` and `Bestelomgeving leermiddelen` where this request belongs to.'
@@ -92,11 +83,28 @@ components:
           format: date
           description: 'Optional desired deliveryDate for delivery of the Product (physical learning materials). Format: YYYY-MM-DD (according to RFC3339).'
           example: '2022-07-31'
+        orderLines:
+            type: array
+            items:
+              type: object
+              properties:
+                purchaseOrderLineId:
+                  type: string
+                  description: 'Optional line item identifier.'
+                productId:
+                  type: string
+                  description: 'The Product the `Bestelomgeving leermiddelen` orders. The productId can be retrieved from the Catalogue API from the `Ordersysteem leermiddelen`.'
+                quantity:
+                  type: integer
+                  example: 1
+                  description: 'The quantity of the Product the `Bestelomgeving leermiddelen` orders.'
+              required:
+                - productId
+                - quantity
       required:
         - requestReferenceId
         - purchaseOrderId
-        - productId
-        - quantity
+        - orderLines
     
     OrderConfirmation:
       title: OrderConfirmation
@@ -107,34 +115,28 @@ components:
         The confirmation that is send back by the `Ordersysteem leermiddelen` as an asynchronous reply to the request of the `Bestelomgeving leermiddelen`.
 
         The `Ordersysteem leermiddelen` will send a confirmation message back to the `Bestelomgeving leermiddelen` approving or declining the order request. In case the `Ordersysteem leermiddelen` declines, a functional status code and message is replied. 
-
+        responseReferenceId:
+          type: string
+          description: 'A reference to this confirmation message send by the `Ordersysteem leermiddelen` to the `Bestelomgeving leermiddelen`.'
         Confirmations are only handled ones. If a confirmation with the similar requestReferenceId is received the processing is only done the first time. The confirmation may be send multiple times, but always with the same responseReferenceId. In this way the `Bestelomgeving leermiddelen` can validate that the response is processed only once.
         
         Functional status codes and messages are described in the Documentation.
       properties:
-        requestReferenceId:
-          type: string
-          description: 'The requestReferenceId that was send by the `Bestelomgeving leermiddelen` as part of the OrderRequest request'
         responseReferenceId:
           type: string
+          format: uuid
           description: 'A reference to this confirmation message send by the `Ordersysteem leermiddelen` to the `Bestelomgeving leermiddelen`.'
-        productId:
+        requestReferenceId:
           type: string
-          description: 'The productId which was part of the OrderRequest send by the `Bestelomgeving leermiddelen`.'
-        quantity:
-          type: integer
-          example: 1
-          description: 'The quantity of the Product the `Bestelomgeving leermiddelen` has ordered.'
+          format: uuid
+          description: 'The requestReferenceId that was send by the `Bestelomgeving leermiddelen` as part of the OrderRequest request'
         purchaseOrderId:
           type: string
           description: 'Purchase order number as defined by the `Bestelomgeving leermiddelen`. This number is linked to the financial system of the `Bestelomgeving leermiddelen`.'
-        purchaseOrderLineId:
-          type: string
-          description: 'Optional line number in case of an order with more than one product.'
         salesOrderId:
           type: string
           description: 'Sales order number as defined by the `Ordersysteem leermiddelen`. This number is linked to the financial system of the `Ordersysteem leermiddelen`.'
-        salesOrderLineId:
+        purchaseOrderLineId:
           type: string
           description: 'Optional line number in case of an order with more than one product.'
         processedTimestamp:
@@ -163,9 +165,36 @@ components:
         statusMessage:
           type: string
           description: 'See functional status messages within the Documentation.'
+        orderConfirmationLines:
+          type: array
+          items:
+            type: object
+            properties:
+              salesOrderLineId:
+                type: string
+                description: 'An identifier from the `Ordersysteem leermiddelen` to reference this order confirmation line.'
+              purchaseOrderLineId:
+                type: string
+                description: 'To echo the `purchaseOrderLineId` of the Order that is being confirmed.'
+              productId:
+                type: string
+                description: 'To echo the `productId` from the Order for confirmation.'
+              quantity:
+                type: integer
+                example: 1
+                description: 'To echo the `quantity` from the Order for confirmation.'
+              status:
+                type: integer
+                description: 'See functional status codes within the Documentation.'
+              statusMessage:
+                type: string
+                description: 'See functional status codes within the Documentation.'
+            required:
+              - productId
+              - status
       required:
-        - requestReferenceId
         - responseReferenceId
+        - requestReferenceId
         - processedTimestamp
         - orderStatus
         - success
@@ -181,24 +210,42 @@ components:
       properties:
         requestReferenceId:
           type: string
+          format: uuid
           description: |
             Unique requestReferenceId for this request. This referenceId is used by the Event Mediator of the `Bestelomgeving leermiddelen` to match the CreditOrderConfirmation conformation message(s) send by the `Ordersysteem leermiddelen`.
             If a party receives another request with the same requestReferenceId value, the receiving party should not process the request again. It should send the confirmation again.
         purchaseOrderId:
           type: string
           description: 'Purchase order number of the order to be credited as defined by the `Bestelomgeving leermiddelen`. This number is linked to the financial system of the `Bestelomgeving leermiddelen`.'
-        purchaseOrderLineId:
-          type: string
-          description: 'Optional line number in case of an order with more than one product.'
         salesOrderId:
           type: string
           description: 'Sales order number of the order to be credited as defined by the `Ordersysteem leermiddelen`. This number is linked to the financial system of the `Ordersysteem leermiddelen`.'
-        salesOrderLineId:
-          type: string
-          description: 'Optional line number in case of an order with more than one product.'
         responseReferenceId:
           type: string
+          format: uuid
           description: "Optional reference to the responseReferenceID of the confirmation message in which the `Ordersysteem leermiddelen` approved the order to the `Bestelomgeving leermiddelen`."
+        orderLines:
+          type: array
+          description: 'Optional specification of the products in the OrderRequest to be be cancelled.'
+          items:
+            type: object
+            properties:
+              purchaseOrderLineId:
+                type: string
+                description: 'Optional reference to the `purchaseOrderLineId` of the OrderRequest for the product to be cancelled.'
+              salesOrderLineId:
+                type: string
+                description: 'Optional reference to the `salesOrderLineId` of the OrderConfirmation for the product to be cancelled.'
+              productId:
+                type: string
+                description: 'The Product that is to be cancelled.'
+              quantity:
+                type: integer
+                example: 1
+                description: 'The quantity of Product that is to be cancelled.'
+            required:
+              - productId
+              - quantity
       required:
         - requestReferenceId
         - purchaseOrderId
@@ -219,16 +266,15 @@ components:
       properties:
         requestReferenceId:
           type: string
+          format: uuid
           description: 'The requestReferenceId that was send by the `Bestelomgeving leermiddelen` as part of the CreditOrderRequest request'
         responseReferenceId:
           type: string
+          format: uuid
           description: 'A reference to this confirmation message send by the `Ordersysteem leermiddelen` to the `Bestelomgeving leermiddelen`.'
         purchaseOrderId:
           type: string
           description: 'Purchase order number of the order to be credited as defined by the `Bestelomgeving leermiddelen`. This number is linked to the financial system of the `Bestelomgeving leermiddelen`.'
-        purchaseOrderLineId:
-          type: string
-          description: 'Optional line number in case of an order with more than one product.'
         salesOrderId:
           type: string
           description: 'Sales order number of the order to be credited as defined by the `Ordersysteem leermiddelen`. This number is linked to the financial system of the `Ordersysteem leermiddelen`.'
@@ -261,6 +307,33 @@ components:
         statusMessage:
           type: string
           description: 'See functional status messages within the Documentation.'
+        creditOrderConfirmationLines:
+          type: array
+          items:
+            type: object
+            properties:
+              purchaseOrderLineId:
+                type: string
+                description: 'Reference to the `purchaseOrderLineId` that has been cancelled.'
+              salesOrderLineId:
+                type: string
+                description: 'Reference to the `salesOrderLineId` that has been cancelled.'
+              productId:
+                type: string
+                description: 'Echo of the `productId` from the CreditOrderRequest for confirmation.'
+              quantity:
+                type: integer
+                example: 1
+                description: 'Echo of the `quantity` from the CreditOrderRequest for confirmation.'
+              status:
+                type: integer
+                description: 'See functional status codes within the Documentation.'
+              statusMessage:
+                type: string
+                description: 'See functional status codes within the Documentation.'
+            required:
+              - productId
+              - status
       required:
         - requestReferenceId
         - responseReferenceId
@@ -427,7 +500,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CreditOrderConfirmation'
+              $ref: '#/components/schemas/OrderConfirmation'
       security:
         - OAuth2:
             - eduv.order

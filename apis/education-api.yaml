@@ -1,7 +1,8 @@
 openapi: 3.0.0
 info:
   title: Education API
-  version: '1.1.0'
+  version: '1.1.2'
+  version: '1.0.2'
   description: |-
     The Education API is implemented by the `Administratiesysteem onderwijsdeelnemer`.
     
@@ -29,8 +30,8 @@ components:
         The API version number is communicated in the header.
         The major version is communicated in the URI.
         For more information see the [Edu-V versioning guidelines](https://edu-v.atlassian.net/wiki/spaces/AFSPRAKENS/pages/9437200/Versiebeheer).
-      default: 0.9.2
-          
+      default: 1.0.1
+
     Organisation:
       title: Organisation
       description: 'The Organisation object with its identifiers, name, board and locations information.'
@@ -77,16 +78,6 @@ components:
           description: 'A list of all school locations of this organisation.'
           items:
             $ref: '#/components/schemas/LocationReference'
-        sourceId:
-          type: string
-          format: uuid
-          description: |
-            The Source Identifier of the object. This is a GUID System ID for an object.
-            This is the GUID that Consumers will refer to when making API calls, or when needing to identify an object.
-            It is RECOMMENDED that systems are able to map whichever local ids (e.g. database key fields), userMasterIdentifier or userIds they use to SourceId.
-            The sourcedId of an object is considered an addressable property of an entity and as such will not be treated as Personally Identifiable Information (PII).
-            
-            The sourceId attribute is based on the [Base Class from OneRoster](https://www.imsglobal.org/sites/default/files/spec/oneroster/v1p2/rostering-informationmodel/OneRosterv1p2RosteringService_InfoModelv1p0.html#Data_Base).
         status:
           description: |
             The status field gives an indication to Consumers about the status of an object.
@@ -99,18 +90,17 @@ components:
             - tobedeleted
         dateCreated:
           type: string
-          description: 'Indicates the date and time the object was first created. Format: Conform openapi in ZULU time zoals gespecificeerd in RFC 3339, section 5.6.'
+          description: 'Indicates the date and time the object was first created. Format: According to openapi in ZULU time as specified in RFC 3339, section 5.6.'
           format: date-time
           example: "2017-07-21T17:32:28Z"
         dateLastModified:
           type: string
-          description: 'Indicates the date and time the object was last modified. Format: Conform openapi in ZULU time zoals gespecificeerd in RFC 3339, section 5.6.'
+          description: 'Indicates the date and time the object was first created. Format: According to openapi in ZULU time as specified in RFC 3339, section 5.6.'
           format: date-time
           example: "2022-08-11T15:31:12Z"
       required:
         - name
         - status
-        - sourceId
         - dateCreated
         - dateLastModified
 
@@ -142,7 +132,7 @@ components:
             Offical code of the study.
             - primary education: the `opleidingseenheidcode` as specified in [Waardenlijst Opleidingseenheden po](https://www.edustandaard.nl/standaard_werkgroepen/beheergroep-waardenlijsten-rio/) is used.
             - secondary education: the `opleidingseenheidcode` as specified in [Waardenlijst Opleidingseenheden vo](https://www.edustandaard.nl/standaard_werkgroepen/beheergroep-waardenlijsten-rio/) is used.
-        studyCharacterstics:
+        studyCharacteristics:
           type: array
           description: |
             Offical characteristic of the study.
@@ -202,12 +192,12 @@ components:
             - tobedeleted
         dateCreated:
           type: string
-          description: 'Indicates the date and time the object was first created. Format: Conform openapi in ZULU time zoals gespecificeerd in RFC 3339, section 5.6.'
+          description: 'Indicates the date and time the object was first created. Format: According to openapi in ZULU time as specified in RFC 3339, section 5.6.'
           format: date-time
           example: "2017-07-21T17:32:28Z"
         dateLastModified:
           type: string
-          description: 'Indicates the date and time the object was last modified. Format: Conform openapi in ZULU time zoals gespecificeerd in RFC 3339, section 5.6.'
+          description: 'Indicates the date and time the object was last modified. Format: According to openapi in ZULU time as specified in RFC 3339, section 5.6.'
           format: date-time
           example: "2022-08-11T15:31:12Z"
       required:
@@ -261,12 +251,12 @@ components:
             - tobedeleted
         dateCreated:
           type: string
-          description: 'Indicates the date and time the object was first created. Format: Conform openapi in ZULU time zoals gespecificeerd in RFC 3339, section 5.6.'
+          description: 'Indicates the date and time the object was first created. Format: According to openapi in ZULU time as specified in RFC 3339, section 5.6.'
           format: date-time
           example: "2017-07-21T17:32:28Z"
         dateLastModified:
           type: string
-          description: 'Indicates the date and time the object was last modified. Format: Conform openapi in ZULU time zoals gespecificeerd in RFC 3339, section 5.6.'
+          description: 'Indicates the date and time the object was last modified. Format: According to openapi in ZULU time as specified in RFC 3339, section 5.6.'
           format: date-time
           example: "2022-08-11T15:31:12Z"
       required:
@@ -316,7 +306,7 @@ components:
         organisationMasterIdentifier:
           type: string
           description: |
-            The primary identifier for a School Board. For Schools the `OnderwijsbestuurId` is used.
+            The primary identifier for a School Board. For boards the `OnderwijsbestuurId` is used.
             (either organisationMasterIdentifier or organisationIds is required)
           example: '106B996' # Stichting Flores Onderwijs
         organisationIds:
@@ -405,59 +395,6 @@ components:
             
 paths:
   
-  /organisations/{id}:
-    parameters:
-      - schema:
-          type: string
-        name: id
-        in: path
-        required: true
-        description: 'Reference to the sourceId of the Organisation object.'
-    get:
-      summary: 'Get Organisation'
-      x-tags:
-        - Organisation
-      tags:
-        - Administratiesysteem onderwijsdeelnemer
-      operationId: get-organisation
-      description: |
-        Request an Organisation object based on its sourceId.
-        The Source Identifier is the GUID System ID for an object. This is the GUID that Consumers will refer to when making API calls.
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Organisation'
-        '400':
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/StatusResponse'
-        '401':
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/StatusResponse'
-        '403':
-          description: Forbidden
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/StatusResponse'
-        '404':
-          description: Not Found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/StatusResponse'
-      security:
-        - OAuth2:
-            - eduv.education
-
   /organisations:
     parameters:
       - schema:
@@ -505,7 +442,7 @@ paths:
         required: false
         description: |
           The boardIdentifier (secondary identifier) of a board.
-          This parameter is used in combination with the boardIdType when the boardMasterIdentifier is not available.
+          This parameter is used in combination with the boardIdType when the organisationMasterIdentifier of the Board is not available.
       - schema:
           type: string
           example: DD_ID
@@ -516,7 +453,7 @@ paths:
         required: false
         description: |
           The type of the boardIdentifier.
-          This parameter is used in combination with the boardId when the boardMasterIdentifier is not available.
+          This parameter is used in combination with the boardId when the organisationMasterIdentifier of the Board is not available.
       - schema:
           type: string
         name: name
@@ -692,12 +629,10 @@ paths:
         description: 'Optional filter to request all StudyOffering objects of a specified studyCode.'
       - schema:
           type: string
-          format: date-time
+        name: schoolPeriodId
         in: query
-        name: since
         required: false
-        description: 'Request all objects modified after the specified timestamp. Format: Conform openapi in ZULU time as specified in RFC 3339, section 5.6'
-        example: "2017-07-21T17:32:28Z"
+        description: 'Optional filter to request all StudyOffering objects within a specified SchoolPeriod and its corresponding schoolPeriodId.'
     get:
       summary: Get StudyOfferings for School
       x-tags:
@@ -870,12 +805,10 @@ paths:
         description: 'Optional filter to request all SubjectOffering objects offered within a Study and its corresponding studyOfferingId.'
       - schema:
           type: string
-          format: date-time
+        name: schoolPeriodId
         in: query
-        name: since
         required: false
-        description: 'Request all objects modified after the specified timestamp. Format: Conform openapi in ZULU time as specified in RFC 3339, section 5.6'
-        example: "2017-07-21T17:32:28Z"
+        description: 'Optional filter to request all SubjectOffering objects within a specified SchoolPeriod and its corresponding schoolPeriodId.'
     get:
       summary: Get SubjectOfferings for School
       x-tags:
