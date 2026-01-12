@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   title: Results API
-  version: '2.1.0'
+  version: '2.0.0'
   description: |-
     The Results API is implemented by the receiver of assessment or test scores/results, typically the `Administratiesysteem leerresultaten` and `Leermiddelendashboard`.
     
@@ -246,7 +246,6 @@ components:
         - 'AVI'
         - 'CAE'
         - 'CIV'
-        - 'CPercentiel'
         - 'DLE'
         - 'EducationLevel'
         - 'FunctioningLevel'
