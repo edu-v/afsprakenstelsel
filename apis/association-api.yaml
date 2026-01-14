@@ -139,7 +139,7 @@ components:
           description: 'A reference to the public id of the StudyOffering in RIO in case this enrollment is of the enrollmentType `study`'
         studyYear:
           type: integer
-          description:
+          description: |
             The study year of this object in case the enrollment is of the enrollmentType ‘study’
             
             Example values are:
