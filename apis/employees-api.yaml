@@ -13,10 +13,10 @@ info:
     Not all Employee attributes are available to all consuming reference components.
     All objects have a different security scope which allows the `Administratiesysteem onderwijsmedewerker` to share the attributes only with the reference components that are allowed to receive the attributes.
     
-    All consunming reference components require consent to request data from the Employees API.
-    The Notifications API can be used by consuming reference components to receive notifications about new, modified, or deleted entitities within the Employees API.
+    All consuming reference components require consent to request data from the Employees API.
+    The Notifications API can be used by consuming reference components to receive notifications about new, modified, or deleted entities within the Employees API.
 
-    The Employees API has a scope of primary and secondary education. Vocational education is out of scope. For Vocational Education we advice to use the [Open Education API (OOAPI)](https://openonderwijsapi.nl/).
+    The Employees API has a scope of primary and secondary education. Vocational education is out of scope. For Vocational Education we advise to use the [Open Education API (OOAPI)](https://openonderwijsapi.nl/).
   contact:
     name: Edu-V
     url: www.edu-v.org/afsprakenstelsel

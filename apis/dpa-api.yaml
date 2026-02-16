@@ -4,7 +4,7 @@ info:
   version: 0.9.1
   
   description: |-
-    The DPA API is implemented by the reference component `Verwerkersregister` to allow parties to validate if a suppliers has a Data Processing Agreement with a certain school board for a specified ecosystem (Ketensamenwerking) and data services (Gegevensdiesnsten).
+    The DPA API is implemented by the reference component `Verwerkersregister` to allow parties to validate if a suppliers has a Data Processing Agreement with a certain school board for a specified ecosystem (Ketensamenwerking) and data services (Gegevensdiensten).
     
   contact:
     name: Edu-V

@@ -258,7 +258,7 @@ components:
             Indicator if copyright is applicable to the Product.
             The Creative Commons licenses are specified according to the [CreativeCommons version 4.0 specification](https://purl.edustandaard.nl/copyrightsandotherrestrictions_nllom_20131202).'
             In case, another type of copyright is applicable to the product, the value `yes` is used.
-            If no copyyright is applicable to the product, the value `no` is used.
+            If no copyright is applicable to the product, the value `no` is used.
           enum:
             - cc-by-40
             - cc-by-sa-40

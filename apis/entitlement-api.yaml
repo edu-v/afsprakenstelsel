@@ -10,7 +10,7 @@ info:
     The Aanspraakmanager is the source of Entitlement information and provides GET endpoints to receive the latest state.
     
     Entitlements are send and received via several asynchronous transactions.
-    Therefore the consuming reference components `Licentieregistratie`, and `Leermiddelenportaal` need to implement endpoints te receive data.
+    Therefore the consuming reference components `Licentieregistratie`, and `Leermiddelenportaal` need to implement endpoints to receive data.
     Moreover the `Aanspraakmanager` needs to implement confirmation endpoints to receive confirmations from the consumer that entitlements have been processed.
 
     After consent by the School, a `Leermiddelendashboard` is able to request information about entitlements from the `Aanspraakmanager`. The `Leermiddelendashboard` uses the GET endpoints provided by the `Aanspraakmanager`.
@@ -49,7 +49,7 @@ components:
           format: uuid
           description: |
             Unique entitlementReferenceId for this request.
-            This referenceId is used by the Event Mediator of the `Aanspraakmanager` to match the EntitlementConfirmation conformation message(s) send by the `Licentieregistratie` and/or the `Leermiddelenportaal`.
+            This referenceId is used by the Event Mediator of the `Aanspraakmanager` to match the EntitlementConfirmation confirmation message(s) send by the `Licentieregistratie` and/or the `Leermiddelenportaal`.
             If a party receives another request with the same entitlementReferenceId value, the receiving party should not process the request again. It should send the confirmation again.
         entitlement:
           $ref: '#/components/schemas/Entitlement'
