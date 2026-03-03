@@ -399,6 +399,7 @@ components:
         - saleUnitSize
         - name
         - studies
+        - edition
         - subjects
         - shortDescription
         - copyrightType
