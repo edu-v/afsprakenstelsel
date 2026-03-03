@@ -445,7 +445,7 @@ components:
           description: 'Name of the Product'
         productFamilyName:
           type: string
-          description: 'Name of the Product Family this Product belongs to.'
+          description: 'Name of the Product Family this Product belongs to. Required if the product is part of a method family.'
         courseReferences:
           type: array
           description: 'Reference to this products course detailed description'
