@@ -197,14 +197,14 @@ components:
             eduv.progress: scope to send progress messages to a `Leermiddelendashboard`
 
 paths: 
-  /progess/{id}:
+  /progress/{id}:
     put:
       operationId: putSimpleProgress
-      summary: The REST create request message for the putProgessId() API call.
+      summary: The REST create request message for the putProgressId() API call.
       tags: 
         - Leermiddelendashboard
       description: |
-        To create a new SimpleProgress object or change an exisiting SimpleProgress object.
+        To create a new SimpleProgress object or change an existing SimpleProgress object.
       security:
         - OAuth2:
             - eduv.progress
@@ -212,7 +212,7 @@ paths:
         - name: id
           in: path
           description: |
-              The unique identifier for the Progess object.
+              The unique identifier for the Progress object.
           required: true
           schema: 
             type: string

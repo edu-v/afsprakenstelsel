@@ -12,10 +12,10 @@ info:
     - Group: a class or lesson-group of students and the employees that are assigned to it.
     
     These objects could be considered open data from the school. As a data owner, the school authorizes the exchange of this information towards suppliers.
-    All consunming reference components require consent to request data from the Association API.
-    The Notifications API can be used by consuming reference components to receive notifications about new, modified, or deleted entitities within the Association API.
+    All consuming reference components require consent to request data from the Association API.
+    The Notifications API can be used by consuming reference components to receive notifications about new, modified, or deleted entities within the Association API.
     
-    The Association API has a scope of primary and secondary education. Vocational education is out of scope. For Vocational Education we advice to use the [Open Education API (OOAPI)](https://openonderwijsapi.nl/).
+    The Association API has a scope of primary and secondary education. Vocational education is out of scope. For Vocational Education we advise to use the [Open Education API (OOAPI)](https://openonderwijsapi.nl/).
   contact:
     name: Edu-V
     url: www.edu-v.org/afsprakenstelsel
@@ -44,7 +44,7 @@ components:
         type:
           type: string
           description: |
-            The type of SchoolPeriod. An enumared value is used:
+            The type of SchoolPeriod. An enumerated value is used:
             - gradingPeriod: Denotes a period over which some grade/result is to be awarded.
             - schoolYear: Denotes the school year.
             - semester: Denotes a semester period. Typically there are two semesters per schoolYear.
@@ -118,7 +118,7 @@ components:
             A unique identifier for this Enrollment object.
             This is the GUID that Consumers will refer to when making API calls, or when needing to identify an object.
         student:
-          description: 'The Employee to which this enrollment object belongs.'
+          description: 'The Student to which this enrollment object belongs.'
           $ref: '#/components/schemas/UserReference'
         enrollmentType:
           type: string
@@ -146,7 +146,7 @@ components:
               - Basisschool: 0, 1, 2, 3, 4, 5, 6, 7 or 8
               - VMBO: 1, 2, 3 or 4
               - HAVO: 1, 2, 3, 4 or 5
-              - VWO: 1, 2, 3, 4, 6 or 6
+              - VWO: 1, 2, 3, 4, 5 or 6
         location:
           description: 'The Location to which this enrollment object belongs.'
           $ref: '#/components/schemas/LocationReference'
@@ -313,7 +313,7 @@ components:
           description: 'The Assignments of Employees that are assigned to this group.'
           items:
             type: string
-            description: 'A reference to the assignmentId of the Assignement for this group.'
+            description: 'A reference to the assignmentId of the Assignment for this group.'
         schoolPeriod:
           type: string
           description: 'A reference to the schoolPeriodId of the SchoolPeriod where this group is part of.'

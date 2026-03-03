@@ -22,7 +22,7 @@ paths:
       operationId: postResults
       summary: The request to create/change the assessment scores and results for an individual student or group of students.
       description: |
-        List of student scores/results items, for each item to create a new scores/results object for the student or change an exisiting student scores/results object, including general information (e.g. the assessment/test and date and time of offering).
+        List of student scores/results items, for each item to create a new scores/results object for the student or change an existing student scores/results object, including general information (e.g. the assessment/test and date and time of offering).
       security:
         - OAuth2:
             - eduv.result
@@ -240,7 +240,7 @@ components:
 
     ResultType_enum:
       type: string
-      description: 'Enumumeration for the type of results that defines allowed values for resultValue.' 
+      description: 'Enumeration for the type of results that defines allowed values for resultValue.' 
       enum:
         - 'AE'
         - 'AVI'
@@ -374,7 +374,7 @@ components:
 
     ScoreType_enum:
       type: string
-      description: 'Enumumeration for the type of scores that defines allowed values for scoreValue.' 
+      description: 'Enumeration for the type of scores that defines allowed values for scoreValue.' 
       enum:
         - DurationInSeconds
         - NumberCorrect

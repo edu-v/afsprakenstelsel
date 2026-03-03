@@ -15,10 +15,10 @@ info:
     Not all Student attributes are available to all consuming reference components. For example delivery address attributes are only available to the `Bestelomgeving leermiddelen`.
     All objects have a different security scope which allows the `Administratiesysteem onderwijsdeelnemer` to share the attributes only with the reference components that are allowed to receive the attributes.
     
-    All consunming reference components require consent to request data from the Student API.
-    The Notifications API can be used by consuming reference components to receive notifications about new, modified, or deleted entitities within the Students API.
+    All consuming reference components require consent to request data from the Student API.
+    The Notifications API can be used by consuming reference components to receive notifications about new, modified, or deleted entities within the Students API.
 
-    The Students API has a scope of primary and secondary education. Vocational education is out of scope. For Vocational Education we advice to use the [Open Education API (OOAPI)](https://openonderwijsapi.nl/).
+    The Students API has a scope of primary and secondary education. Vocational education is out of scope. For Vocational Education we advise to use the [Open Education API (OOAPI)](https://openonderwijsapi.nl/).
   contact:
     name: Edu-V
     url: www.edu-v.org/afsprakenstelsel
@@ -52,7 +52,7 @@ components:
 
         ### student.accessibility
         `accessibility` and `language` preferences for the Student. StudentAccessibility is an optional object for the Students API.
-        - As an illustration the accessibility of AddtitionalTestingTime is specified within this version.
+        - As an illustration the accessibility of AdditionalTestingTime is specified within this version.
         - Based on actual requirements from schools and suppliers, this list of preferences can be extended.
         - A possible next candidate might be the [Braille class](https://www.imsglobal.org/sites/default/files/spec/afa/3p0/information_model/imsafa3p0pnp_v1p0_InfoModel.html#Data_Braille).
 
@@ -110,7 +110,7 @@ components:
             The gender of the Student. The following values are used:
             - `female`: gender is Female
             - `male`: gender is Male
-            - `other`: gender that is known buth which is not either Male or Female.
+            - `other`: gender that is known but which is not either Male or Female.
             - `unspecified`: unspecified as no data entry for this field has been made.
           enum:
             - female
@@ -130,7 +130,7 @@ components:
           type: array
           description: 'Accessibility preferences for this student. Based on [IMS Global Access for All (AfA) Personal Needs and Preferences (PNP) Information model](https://www.imsglobal.org/sites/default/files/spec/afa/3p0/information_model/imsafa3p0pnp_v1p0_InfoModel.html)'
           items:
-            description: 'An IMS GLobal defined AfA or PNP preference.'
+            description: 'An IMS Global defined AfA or PNP preference.'
             $ref: '#/components/schemas/AccessibilityPreference'
         address:
           type: object
@@ -143,7 +143,7 @@ components:
               description: 'the house number'
             houseNumberSuffix:
               type: string
-              description: 'additions to the house humber, e.g. A or -104'
+              description: 'additions to the house number, e.g. A or -104'
             zipCode:
               type: string
             city:
@@ -207,7 +207,7 @@ components:
 
     AdditionalTestingTime:
       title: AdditionalTestingTime
-      description: 'The AddtionalTestingTime preference for a Student. Either `time-multiplier`, `fixed-minutes` or `unlimited` is used.'
+      description: 'The AdditionalTestingTime preference for a Student. Either `time-multiplier`, `fixed-minutes` or `unlimited` is used.'
       type: object
       x-tags:
         - StudentAccessibility

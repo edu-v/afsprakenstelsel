@@ -8,11 +8,11 @@ info:
     The `Aanspraakmanager` is responsible for this delivery process. The `Bestelomgeving leermiddelen` gives a DeliveryOrder to the `Aanspraakmanager`.
     
     DeliveryOrders are send and received via several asynchronous transactions.
-    Therefore the `Aanspraakmanager` needs to implement endpoints te receive data.
+    Therefore the `Aanspraakmanager` needs to implement endpoints to receive data.
     Moreover the `Bestelomgeving leermiddelen` needs to implement confirmation endpoints to receive confirmations from the `Aanspraakmanager` that DeliveryOrders have been processed.
 
     The `Bestelomgeving leermiddelen` is the source of DeliveryOrder information and provides GET endpoints to receive the latest state.
-    These GET endpoitns are available to the `Aanspraakmanager` and the `Licentieregistratie` involved in the delivery process.
+    These GET endpoints are available to the `Aanspraakmanager` and the `Licentieregistratie` involved in the delivery process.
     Moreover a school can provide information to a `Leermiddelendashboard` or a `Leermiddelenportaal`. A school should give consent for the exchange of information to these two reference components.
 
   contact:
@@ -65,7 +65,7 @@ components:
         The deliveryOrderReferenceId, deliveryOrderId are echoed back to the `Bestelomgeving leermiddelen`, with a new deliveryOrderReceiveId.
         
         Requests are only handled once. If a request with a similar deliveryOrderReferenceId is received, the processing is only done the first time.
-        The confirmation may be send multiple times, but always with the same deliveryOrderReceiveId. In this way the `Bestelomgeving leermmiddelen` can validate that the response is processed only once.
+        The confirmation may be send multiple times, but always with the same deliveryOrderReceiveId. In this way the `Bestelomgeving leermiddelen` can validate that the response is processed only once.
         
         Functional status codes and messages are described in the Documentation.
       properties:
@@ -126,7 +126,7 @@ components:
         - status
     
     DeliveryOrder:
-      title: DelliveryOrder
+      title: DeliveryOrder
       type: object
       x-tags:
         - DeliveryOrder
@@ -139,7 +139,7 @@ components:
         | school-all | School | All students from the School | Open |
         | school-studies | School | All students enrolled in the specified studies | Open |
         | school-subjects | School | All students enrolled in the specified subjects | Open |
-        | school-groups | School | All students rostered in the specfied groups | Open |
+        | school-groups | School | All students rostered in the specified groups | Open |
         | school-students | School | All specified students | Individual |
         | school-employees | School | All specified employees Individual |
         | school-activationcodes | School | All specified activaton codes | Individual |

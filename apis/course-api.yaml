@@ -39,7 +39,7 @@ components:
           description: 'Unique identifier for this Course. This identifier equals the identifier of the corresponding CourseStructure.'
           xml:
             attribute: true
-        tile:
+        title:
           type: string
           description: 'Title of the Course, to be presented in the `Onderwijsleeromgeving`.'
         description:
@@ -60,7 +60,7 @@ components:
             $ref: '#/components/schemas/Subject'
       required:
         - courseId
-        - tile
+        - title
         - lastPublishedVersion
         - studies
         - subjects
@@ -73,17 +73,17 @@ components:
         studyName:
           type: string
           description: |
-            Offical name of the study.
+            Official name of the study.
             - primary education: the `po-opleidingseenheden in RIO korte naam` name as specified in [Waardenlijst Opleidingseenheden po](https://www.edustandaard.nl/standaard_werkgroepen/beheergroep-waardenlijsten-rio/) is used.
             - secondary education: the `vo-opleidingseenheden in RIO korte naam` name as specified in [Waardenlijst Opleidingseenheden vo](https://www.edustandaard.nl/standaard_werkgroepen/beheergroep-waardenlijsten-rio/) is used.              
-            - vocational education: the `kwalificatienaam` as specfied in [Register kwalificatiestructuur SBB](https://kwalificatie-mijn.s-bb.nl) is used.
+            - vocational education: the `kwalificatienaam` as specified in [Register kwalificatiestructuur SBB](https://kwalificatie-mijn.s-bb.nl) is used.
         studyCode:
           type: string
           description: |
-            Offical code of the study.
+            Official code of the study.
             - primary education: the `erkendeopleidingscode` as specified in [Waardenlijst Opleidingseenheden po](https://www.edustandaard.nl/standaard_werkgroepen/beheergroep-waardenlijsten-rio/) is used.
             - secondary education: the `erkendeopleidingscode` as specified in [Waardenlijst Opleidingseenheden vo](https://www.edustandaard.nl/standaard_werkgroepen/beheergroep-waardenlijsten-rio/) is used.
-            - vocational education: the `crebocode` as specfied in [Register kwalificatiestructuur SBB](https://kwalificatie-mijn.s-bb.nl) is used.
+            - vocational education: the `crebocode` as specified in [Register kwalificatiestructuur SBB](https://kwalificatie-mijn.s-bb.nl) is used.
           minLength: 4
           maxLength: 5
           pattern: "^[0-9]*$"

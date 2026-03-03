@@ -14,7 +14,7 @@ info:
     A possible implementation for an `Administratiesysteem onderwijsdeelnemer` is to offer an `open data` option to the school.
     This option means that a reference component that is allowed to consume the Education API to request data without the consent mechanism.
 
-    The Education API has a scope of primary and secondary education. Vocational education is out of scope. For Vocational Education we advice to use the [Open Education API (OOAPI)](https://openonderwijsapi.nl/).
+    The Education API has a scope of primary and secondary education. Vocational education is out of scope. For Vocational Education we advise to use the [Open Education API (OOAPI)](https://openonderwijsapi.nl/).
   contact:
     name: Edu-V
     url: www.edu-v.org/afsprakenstelsel
@@ -122,19 +122,19 @@ components:
         studyName:
           type: string
           description: |
-            Offical name of the study.
+            Official name of the study.
             - primary education: the `po-opleidingseenheden in RIO korte naam` name as specified in [Waardenlijst Opleidingseenheden po](https://www.edustandaard.nl/standaard_werkgroepen/beheergroep-waardenlijsten-rio/) is used.
             - secondary education: the `vo-opleidingseenheden in RIO korte naam` name as specified in [Waardenlijst Opleidingseenheden vo](https://www.edustandaard.nl/standaard_werkgroepen/beheergroep-waardenlijsten-rio/) is used.              
         studyCode:
           type: string
           description: |
-            Offical code of the study.
+            Official code of the study.
             - primary education: the `opleidingseenheidcode` as specified in [Waardenlijst Opleidingseenheden po](https://www.edustandaard.nl/standaard_werkgroepen/beheergroep-waardenlijsten-rio/) is used.
             - secondary education: the `opleidingseenheidcode` as specified in [Waardenlijst Opleidingseenheden vo](https://www.edustandaard.nl/standaard_werkgroepen/beheergroep-waardenlijsten-rio/) is used.
         studyCharacteristics:
           type: array
           description: |
-            Offical characteristic of the study.
+            Official characteristic of the study.
             - primary education: the `po-opleidingskenmerken` name as specified in [Waardenlijst Opleidingseenheden po](https://www.edustandaard.nl/standaard_werkgroepen/beheergroep-waardenlijsten-rio/) is used.
             - secondary education: the `vo-opleidingskenmerken` name as specified in [Waardenlijst Opleidingseenheden vo](https://www.edustandaard.nl/standaard_werkgroepen/beheergroep-waardenlijsten-rio/) is used.              
           items:
@@ -174,7 +174,7 @@ components:
               - Basisschool: 0, 1, 2, 3, 4, 5, 6, 7 or 8
               - VMBO: 0, 1, 2, 3 or 4
               - HAVO: 0, 1, 2, 3, 4 or 5
-              - VWO: 0, 1, 2, 3, 4, 6 or 6
+              - VWO: 0, 1, 2, 3, 4, 5 or 6
         status:
           description: |
             The status field gives an indication to Consumers about the status of an object.
@@ -224,7 +224,7 @@ components:
         subjectCode:
           type: string
           description: |
-            Offical code of the subject.
+            Official code of the subject.
             - primary education: the `vakcode` as specified in [Waardenlijst Vakken po](https://www.edustandaard.nl/standaard_werkgroepen/beheergroep-waardenlijsten-rio/) is used.
             - secondary education: the `vakcode` as specified in [Waardenlijst Vakken vo](https://www.edustandaard.nl/standaard_werkgroepen/beheergroep-waardenlijsten-rio/) is used.
 

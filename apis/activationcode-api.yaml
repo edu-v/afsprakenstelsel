@@ -7,7 +7,7 @@ info:
     
     The `Bestelomgeving leermiddelen` is able to request or revoke an activation code from the `Licentieregistratie`.
     
-    Requests are send and received via asynchronous transactions. Therefore the `Licentieregistratie` need to implement endpoints te receive requests. Moreover the `Bestelomgeving leermiddelen` needs to implement confirmation endpoints to receive confirmations from the `Licentieregistratie` that requests have been processed.
+    Requests are send and received via asynchronous transactions. Therefore the `Licentieregistratie` need to implement endpoints to receive requests. Moreover the `Bestelomgeving leermiddelen` needs to implement confirmation endpoints to receive confirmations from the `Licentieregistratie` that requests have been processed.
   contact:
     name: Edu-V
     url: www.edu-v.org/afsprakenstelsel
@@ -35,7 +35,7 @@ components:
         requestReferenceId:
           type: string
           description: |
-            Unique requestReferenceId for this request. This referenceId is used by the Event Mediator of the `Bestelomgeving leermiddelen` to match the ActivationCodeConfirmation conformation message(s) send by the `Licentieregistratie`.
+            Unique requestReferenceId for this request. This referenceId is used by the Event Mediator of the `Bestelomgeving leermiddelen` to match the ActivationCodeConfirmation confirmation message(s) send by the `Licentieregistratie`.
             If a party receives another request with the same requestReferenceId value, the receiving party should not process the request again. It should send the confirmation again.
         productId:
           type: string
@@ -118,7 +118,7 @@ components:
         requestReferenceId:
           type: string
           description: |
-            Unique requestReferenceId for this request. This referenceId is used by the Event Mediator of the `Bestelomgeving leermiddelen` to match the ActivationCodeRevokeConfirmation conformation message(s) send by the `Licentieregistratie`.
+            Unique requestReferenceId for this request. This referenceId is used by the Event Mediator of the `Bestelomgeving leermiddelen` to match the ActivationCodeRevokeConfirmation confirmation message(s) send by the `Licentieregistratie`.
             If a party receives another request with the same requestReferenceId value, the receiving party should not process the request again. It should send the confirmation again.
         activationCode:
           type: string
@@ -137,7 +137,7 @@ components:
         - ActivationCode
       description: |
         The confirmation that is send back by the `Licentieregistratie` as an asynchronous reply to the request of the `Bestelomgeving leermiddelen`.
-        The `Licentieregistratie` will send a confirmation message back to the `Bestelomgeving leermiddelen` including a success parameter indicating if the revoke has ben processed successfully. In case the revoke was not processed, the `Licentieregistratie` replies with a functional status code and message. 
+        The `Licentieregistratie` will send a confirmation message back to the `Bestelomgeving leermiddelen` including a success parameter indicating if the revoke has been processed successfully. In case the revoke was not processed, the `Licentieregistratie` replies with a functional status code and message. 
         Confirmations are only handled once. If a confirmation with the similar requestReferenceId is received the processing is only done the first time. The confirmation may be send multiple times, but always with the same responseReferenceId. In this way the `Bestelomgeving leermiddelen` can validate that the response is processed only once.
         
         Functional status codes and messages are described in the Documentation.
@@ -240,7 +240,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/StatusResponse'
         '405':
-          description: Method Not Allowed - Licentiregistratie is provider of this endpoint
+          description: Method Not Allowed - Licentieregistratie is provider of this endpoint
       requestBody:
         content:
           application/json:

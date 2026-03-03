@@ -7,7 +7,7 @@ info:
     The Usage API is used to report InitialActivations of digital learning materials to the `Aanspraakmanager`.
     
     InitialActivation information is being send via the message-confirmation transaction pattern.
-    Therefore the consuming reference component `Aanspraakmanager` needs to implement endpoints te receive usage data.
+    Therefore the consuming reference component `Aanspraakmanager` needs to implement endpoints to receive usage data.
     
     The `Licentieregistratie` is the source of Usage information and provides GET endpoints to the `Aanspraakmanager` and `Bestelomgeving leermiddelen` for support and billing reasons.
     Moreover, the `Leermiddelendashboard` is able to request Usage information for a school or a student at a school.
