@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   title: Catalogue API
-  version: '1.0.1'
+  version: '2.0'
   description: |-
     The Catalogue API is implemented by the publisher or reseller of learning materials.
     
@@ -26,7 +26,7 @@ components:
         The API version number is communicated in the header.
         The major version is communicated in the URI.
         For more information see the [Edu-V versioning guidelines](https://edu-v.atlassian.net/wiki/spaces/AFSPRAKENS/pages/9437200/Versiebeheer).
-      default: 1.0.1
+      default: 2.0.0
     
     Product:
       title: Product
@@ -158,6 +158,24 @@ components:
                 type: string
                 format: date
                 description: 'The date (incl.) from which this price is valid, format: YYYY-MM-DD (according to RFC3339)'
+              priceType:
+                type: string
+                enum:
+                  - standard
+                  - tier
+                  - schoolSize
+                default: standard
+                description: 'The type of pricing for this product.'
+              schoolSizePricing:
+                type: array
+                description: 'Array of schoolSizePrice objects. Only applicable when priceType is `schoolSize`.'
+                items:
+                  $ref: '#/components/schemas/SchoolSizePrice'
+              tierPricing:
+                type: array
+                description: 'Array of tierPrice objects. Only applicable when priceType is `tier`.'
+                items:
+                  $ref: '#/components/schemas/TierPrice'
             required:
               - priceExcl
               - priceIncl
@@ -384,7 +402,7 @@ components:
         - subjects
         - shortDescription
         - copyrightType
-        - media
+        - media§
         - firstPublishedDate
         - dateCreated
         - dateLastModified
@@ -610,7 +628,36 @@ components:
       required:
         - subjectName
         - subjectPrefix
-  
+
+    SchoolSizePrice:
+      type: object
+      properties:
+        qty:
+          type: integer
+          description: 'Minimum number of students from which this price applies.'
+        priceExcl:
+          type: number
+          format: float
+          description: 'Price excluding VAT.'
+        priceIncl:
+          type: number
+          format: float
+          description: 'Price including VAT.'
+
+    TierPrice:
+      type: object
+      properties:
+        qty:
+          type: integer
+          description: 'Minimum number of copies from which this price applies.'
+        priceExcl:
+          type: number
+          format: float
+          description: 'Price excluding VAT.'
+        priceIncl:
+          type: number
+          format: float
+          description: 'Price including VAT.'
     Media:
       title: Media
       type: object
