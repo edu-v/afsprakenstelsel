@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   title: Catalogue API
-  version: '2.0'
+  version: '2.0.0'
   description: |-
     The Catalogue API is implemented by the publisher or reseller of learning materials.
     
@@ -403,7 +403,7 @@ components:
         - subjects
         - shortDescription
         - copyrightType
-        - media§
+        - media
         - firstPublishedDate
         - dateCreated
         - dateLastModified
