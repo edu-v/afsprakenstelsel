@@ -1,7 +1,20 @@
 openapi: 3.0.0
 info:
   title: Results API
-  version: '1.0.0'
+  version: '2.1.0'
+  description: |-
+    The Results API is implemented by the receiver of assessment or test scores/results, typically the `Administratiesysteem leerresultaten` and `Leermiddelendashboard`.
+    
+    The Results API is the destination of assessment or test scores and/or results and provides a POST endpoint to receive the latest state.
+    
+    One main entity is available to consumers of the Results API (e.g. `Digitaal toetssysteem` and `Gebruiksomgeving digitale leermiddelen`):
+    - **AssessmentScoresAndResults**: the full set of scores/results information for an individual or a group of students.   
+    
+    In this object **AssessmentScoresAndResults** several objects are defined and used, like **Assessment**, **ScoreScale** and **StudentScoresAndResults**.
+  contact:
+    name: Edu-V
+    url: www.edu-v.org/afsprakenstelsel
+    email: info@edu-v.org
 
 paths: 
   /results:
@@ -68,6 +81,9 @@ components:
         name:
           type: string
           description: 'Name of the assessment to be displayed to employees that register results in the gradebook.'
+        version:
+          type: string
+          description: 'Version of assessment.'
         subjects:
           type: array
           items:
@@ -213,23 +229,37 @@ components:
           $ref: '#/components/schemas/ResultType_enum'
         assessmentId:
           type: string
-          description: 'Reference to the assessment or assessment part of this result.'
+          description: 'Reference to the assessment of this result.'
+        assessmentPartId:
+          type: string
+          description: 'Reference to the assessment part of this result.'
       required:
         - resultValue
         - resultType
+        - assessmentId
 
     ResultType_enum:
       type: string
       description: 'Enumumeration for the type of results that defines allowed values for resultValue.' 
       enum:
+        - 'AE'
+        - 'AVI'
+        - 'CAE'
+        - 'CIV'
+        - 'CPercentiel'
         - 'DLE'
+        - 'EducationLevel'
+        - 'FunctioningLevel'
         - 'Grade0-10'
         - 'Grade0.0-10.0'
+        - 'IV'
+        - 'LA'
+        - 'LGH'
         - 'OVG'
         - 'PassOrFail'
-        - 'RnTR'
-        - 'RnERK'
         - 'Percentiel'
+        - 'RnERK'
+        - 'RnTR'
       example: OVG
 
     SchemaVersionType:
@@ -239,7 +269,7 @@ components:
         The API version number is communicated in the header.
         The major version is communicated in the URI.
         For more information see the [Edu-V versioning guidelines](https://edu-v.atlassian.net/wiki/spaces/AFSPRAKENS/pages/9437200/Versiebeheer).
-      default: 0.9.2
+      default: 2.0.0
       
     SchoolIdEntry:
       title: SchoolIdEntry
@@ -278,37 +308,6 @@ components:
           items:
             $ref: "#/components/schemas/SchoolIdEntry"
 
-    ScoreScale:
-      title: ScoreScale
-      type: object
-      x-tags:
-        - Result
-      description: 'Definition of score scales for conversion from score to result.'
-      properties:
-        id:
-          type: string
-          description: "Score scale identifier that is used for reference.'" 
-        name:
-          type: string
-          description: "Name of the score scale."
-        scoreScaleEntries:
-          type: object
-          description: 'Entry for LHS & RHS combination.'
-          properties:
-            LHS:
-              type: string
-              description: "Defines the score interval, e.g. '0-5' or '0.0-5.5'. The format is either a single value ('x') or a range ('x' - 'y'). In the case of a single value this is considered to be the inclusive lower value for the implied interval. When a range is specified (lower-to-upper) the values are inclusive for the specified interval." 
-            RHS:
-              type: string
-              description: "Defines the result label which is based on the scoreValue and LHS, e.g. 'Onvoldoende'."
-          required:
-            - LHS
-            - RHS
-      required:
-        - id
-        - name
-        - scoreScaleEntries
-
     ScoreEntry:
       title: ScoreEntry
       type: object
@@ -326,13 +325,52 @@ components:
           description: 'Maximum value of the achieved assessment score.'
         assessmentId:
           type: string
-          description: 'Reference to the assessment or assessment part of this score.'
-        scoreScaleId:
+          description: 'Reference to the assessment of this score.'
+        assessmentPartId:
           type: string
-          description: 'Reference to the score scale for comversion to result value.'
+          description: 'Reference to the assessment part of this score.'
+        scoreScaleIds:
+          type: array
+          description: 'References to the score scale for conversion to result value.'
+          items:
+            type: string
       required:
         - scoreValue
         - scoreType
+        - assessmentId
+
+    ScoreScale:
+      title: ScoreScale
+      type: object
+      x-tags:
+        - Result
+      description: 'Definition of score scales for conversion from score to result.'
+      properties:
+        id:
+          type: string
+          description: "Score scale identifier that is used for reference.'" 
+        name:
+          type: string
+          description: "Name of the score scale."
+        scoreScaleEntries:
+          type: array
+          items:
+            type: object
+            description: "Entry for LHS & RHS combination."
+            properties:
+              LHS:
+                type: string
+                description: "Defines the score interval, e.g. '0-5' or '0.0-5.5'. The format is either a single value ('x') or a range ('x' - 'y'). In the case of a single value this is considered to be the inclusive lower value for the implied interval. When a range is specified (lower-to-upper) the values are inclusive for the specified interval." 
+              RHS:
+                type: string
+                description: "Defines the result label which is based on the scoreValue and LHS, e.g. 'Onvoldoende'."
+            required:
+              - LHS
+              - RHS
+      required:
+        - id
+        - name
+        - scoreScaleEntries
 
     ScoreType_enum:
       type: string
@@ -458,6 +496,8 @@ components:
       required:
         - id
         - student
+        - dateCreated
+        - dateLastModified
 
   securitySchemes:
     OAuth2:
