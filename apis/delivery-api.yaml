@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   title: Delivery API
-  version: '1.0.0'
+  version: '2.0.0'
   description: |
     The Delivery API is implemented by the `Bestelomgeving leermiddelen` and the `Aanspraakmanager`.
     The Delivery API is used to share all the information required for the digital delivery of digital learning materials.
@@ -29,7 +29,7 @@ components:
         The API version number is communicated in the header.
         The major version is communicated in the URI.
         For more information see the [Edu-V versioning guidelines](https://edu-v.atlassian.net/wiki/spaces/AFSPRAKENS/pages/9437200/Versiebeheer).
-      default: 1.0.0
+      default: 2.0.0
     
     DeliveryOrderRequest:
       title: DeliveryOrderRequest
@@ -137,6 +137,7 @@ components:
         | DeliveryType | Buyer | Authorization rule | Authorization variant |
         |---|---|---|---|
         | school-all | School | All students from the School | Open |
+        | school-admin | School | Officials within the educational institution, such as administrative staff or coordinators. | Open |
         | school-studies | School | All students enrolled in the specified studies | Open |
         | school-subjects | School | All students enrolled in the specified subjects | Open |
         | school-groups | School | All students rostered in the specified groups | Open |
@@ -166,6 +167,7 @@ components:
             The delivery type specifies the variant of the authorization rule an `Aanspraakmanager` should apply to manage activation and licensing of the Product.
           enum:
             - school-all
+            - school-admin
             - school-studies
             - school-subjects
             - school-groups
@@ -302,6 +304,7 @@ components:
         - DeliveryOrder
       oneOf:
         - $ref: '#/components/schemas/SchoolAllSpecification'
+        - $ref: '#/components/schemas/SchoolAdminSpecification'
         - $ref: '#/components/schemas/SchoolStudiesSpecification'
         - $ref: '#/components/schemas/SchoolSubjectsSpecification'
         - $ref: '#/components/schemas/SchoolGroupsSpecification'
@@ -315,6 +318,26 @@ components:
       title: SchoolAllSpecification
       type: object
       description: 'The product is bought by a school organisation and all students from the school are allowed to activate and license the product.'
+      x-examples:
+        example-1:
+          school: {
+            organisationMasterIdentifier: '104A158'
+          }
+          totalQuantity: 100
+      properties:
+        school:
+          $ref: '#/components/schemas/SchoolReference'
+        totalQuantity:
+          type: integer
+          example: 100
+          description: 'Total quantity for this DeliveryOrder.'
+      required:
+        - school
+
+    SchoolAdminSpecification:
+      title: SchoolAdminSpecification
+      type: object
+      description: 'The product is purchased by a school organisation, and distribution will be carried out by officials within the educational institution, such as administrative staff or coordinators.'
       x-examples:
         example-1:
           school: {
