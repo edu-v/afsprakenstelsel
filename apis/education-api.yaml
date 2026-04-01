@@ -1,15 +1,15 @@
 openapi: 3.0.0
 info:
   title: Education API
-  version: '1.0.2'
+  version: '1.1.0'
   description: |-
     The Education API is implemented by the `Administratiesysteem onderwijsdeelnemer`.
-    
+
     The Education API has the following objects:
     - Organisation: school organisations
     - StudyOffering: the study units including the study year offered by a school
     - SubjectOffering: the subjects offered by a school
-    
+
     These objects could be considered open data from the school. As a data owner, the school authorizes the exchange of this information towards suppliers.
     A possible implementation for an `Administratiesysteem onderwijsdeelnemer` is to offer an `open data` option to the school.
     This option means that a reference component that is allowed to consume the Education API to request data without the consent mechanism.
@@ -21,7 +21,7 @@ info:
     email: info@edu-v.org
 components:
   schemas:
-  
+
     schemaVersion:
       type: string
       description: |
@@ -29,7 +29,7 @@ components:
         The API version number is communicated in the header.
         The major version is communicated in the URI.
         For more information see the [Edu-V versioning guidelines](https://edu-v.atlassian.net/wiki/spaces/AFSPRAKENS/pages/9437200/Versiebeheer).
-      default: 1.0.1
+      default: 1.1.0
 
     Organisation:
       title: Organisation
@@ -61,6 +61,7 @@ components:
                   - BP_ID # Basispoort gegenereerde identifier voor de school.
                   - DD_ID # Door de Centrale Registratie van Edu-iX gegenereerde DigiDeliveryId van de school.
                   - AS_ID # Door het Leerlingadministratiesysteem gegenereerde identifier van de school.
+                  - V_ID # VestigingsId – BRIN6-formaat identifier voor vestigingen, inclusief dummy vestigingen.
             required:
               - organisationId
               - organisationIdType
@@ -124,7 +125,7 @@ components:
           description: |
             Official name of the study.
             - primary education: the `po-opleidingseenheden in RIO korte naam` name as specified in [Waardenlijst Opleidingseenheden po](https://www.edustandaard.nl/standaard_werkgroepen/beheergroep-waardenlijsten-rio/) is used.
-            - secondary education: the `vo-opleidingseenheden in RIO korte naam` name as specified in [Waardenlijst Opleidingseenheden vo](https://www.edustandaard.nl/standaard_werkgroepen/beheergroep-waardenlijsten-rio/) is used.              
+            - secondary education: the `vo-opleidingseenheden in RIO korte naam` name as specified in [Waardenlijst Opleidingseenheden vo](https://www.edustandaard.nl/standaard_werkgroepen/beheergroep-waardenlijsten-rio/) is used.
         studyCode:
           type: string
           description: |
@@ -136,7 +137,7 @@ components:
           description: |
             Official characteristic of the study.
             - primary education: the `po-opleidingskenmerken` name as specified in [Waardenlijst Opleidingseenheden po](https://www.edustandaard.nl/standaard_werkgroepen/beheergroep-waardenlijsten-rio/) is used.
-            - secondary education: the `vo-opleidingskenmerken` name as specified in [Waardenlijst Opleidingseenheden vo](https://www.edustandaard.nl/standaard_werkgroepen/beheergroep-waardenlijsten-rio/) is used.              
+            - secondary education: the `vo-opleidingskenmerken` name as specified in [Waardenlijst Opleidingseenheden vo](https://www.edustandaard.nl/standaard_werkgroepen/beheergroep-waardenlijsten-rio/) is used.
           items:
             type: string
         studyLevel:
@@ -168,13 +169,13 @@ components:
         studyYear:
           type: integer
           description: |
-              The study year of this object.
-              
-              Example values are:
-              - Basisschool: 0, 1, 2, 3, 4, 5, 6, 7 or 8
-              - VMBO: 0, 1, 2, 3 or 4
-              - HAVO: 0, 1, 2, 3, 4 or 5
-              - VWO: 0, 1, 2, 3, 4, 5 or 6
+            The study year of this object.
+
+            Example values are:
+            - Basisschool: 0, 1, 2, 3, 4, 5, 6, 7 or 8
+            - VMBO: 0, 1, 2, 3 or 4
+            - HAVO: 0, 1, 2, 3, 4 or 5
+            - VWO: 0, 1, 2, 3, 4, 5 or 6
         status:
           description: |
             The status field gives an indication to Consumers about the status of an object.
@@ -289,6 +290,7 @@ components:
                   - BP_ID # Basispoort gegenereerde identifier voor de school.
                   - DD_ID # Door de Centrale Registratie van Edu-iX gegenereerde DigiDeliveryId van de school.
                   - AS_ID # Door het Leerlingadministratiesysteem gegenereerde identifier van de school.
+                  - V_ID # VestigingsId – BRIN6-formaat identifier voor vestigingen, inclusief dummy vestigingen.
             required:
               - organisationId
               - organisationIdType
@@ -377,7 +379,7 @@ components:
           description: 'See functional status messages within the Documentation.'
       required:
         - status
-  
+
   securitySchemes:
     OAuth2:
       type: oauth2
@@ -387,9 +389,9 @@ components:
           refreshUrl: https://api.example.com/oauth2/token
           scopes:
             eduv.education: 'a scope that gives access to all objects from the Education API.'
-            
+
 paths:
-  
+
   /organisations:
     parameters:
       - schema:
@@ -416,12 +418,19 @@ paths:
             - BP_ID
             - DD_ID
             - AS_ID
+            - V_ID
         name: orgIdType
         in: query
         required: false
         description: |
           The type of the organisationIdentifier.
           This parameter is used in combination with the orgId when the organisationMasterIdentifier is not available.
+          The following values are supported:
+          - `OIE_CODE`: OnderwijsInstellingserkenningcode
+          - `BP_ID`: Basispoort-generated identifier for the school
+          - `DD_ID`: DigiDeliveryId generated by the Central Registration of Edu-iX
+          - `AS_ID`: LAS-generated identifier (LAS-Key) for the school
+          - `V_ID`: VestigingsId – BRIN6-format identifier, including dummy locations
       - schema:
           type: string
         name: boardMasterId
@@ -535,12 +544,19 @@ paths:
             - BP_ID
             - DD_ID
             - AS_ID
+            - V_ID
         name: orgIdType
         in: query
         required: false
         description: |
           The type of the organisationIdentifier.
           This parameter is used in combination with the orgId when the organisationMasterIdentifier is not available.
+          The following values are supported:
+          - `OIE_CODE`: OnderwijsInstellingserkenningcode
+          - `BP_ID`: Basispoort-generated identifier for the school
+          - `DD_ID`: DigiDeliveryId generated by the Central Registration of Edu-iX
+          - `AS_ID`: LAS-generated identifier (LAS-Key) for the school
+          - `V_ID`: VestigingsId – BRIN6-format identifier, including dummy locations
     get:
       summary: 'Get StudyOffering'
       x-tags:
@@ -610,12 +626,37 @@ paths:
             - BP_ID
             - DD_ID
             - AS_ID
+            - V_ID
         name: orgIdType
         in: query
         required: false
         description: |
           The type of the organisationIdentifier.
           This parameter is used in combination with the orgId when the organisationMasterIdentifier is not available.
+          The following values are supported:
+          - `OIE_CODE`: OnderwijsInstellingserkenningcode
+          - `BP_ID`: Basispoort-generated identifier for the school
+          - `DD_ID`: DigiDeliveryId generated by the Central Registration of Edu-iX
+          - `AS_ID`: LAS-generated identifier (LAS-Key) for the school
+          - `V_ID`: VestigingsId – BRIN6-format identifier, including dummy locations
+      - schema:
+          type: boolean
+        name: filterByOrgId
+        in: query
+        required: false
+        description: |
+          Controls whether the response is filtered to only include StudyOfferings belonging to the
+          specific organisation identified by `orgId` and `orgIdType`, or whether all StudyOfferings
+          of the associated Onderwijsaanbieder are returned.
+          - `true`: Only StudyOfferings belonging to the specified secondary identifier are returned.
+          - `false`: All StudyOfferings of the associated Onderwijsaanbieder are returned (to the extent authorisations have been configured).
+          When omitted, a sector-specific default applies:
+          - **PO (primary education):** defaults to `true` – response is filtered to the specified identifier.
+          - **VO (secondary education):** defaults to `false` – response covers the full Onderwijsaanbieder scope.
+          This parameter is only relevant in combination with `orgId` and `orgIdType`.
+          When `orgMasterId` is used, this parameter must be absent or `false`.
+          It is the responsibility of the consuming party to verify whether the Source supports
+          filtering via this parameter before using it.
       - schema:
           type: string
         name: studyCode
@@ -705,12 +746,19 @@ paths:
             - BP_ID
             - DD_ID
             - AS_ID
+            - V_ID
         name: orgIdType
         in: query
         required: false
         description: |
           The type of the organisationIdentifier.
           This parameter is used in combination with the orgId when the organisationMasterIdentifier is not available.
+          The following values are supported:
+          - `OIE_CODE`: OnderwijsInstellingserkenningcode
+          - `BP_ID`: Basispoort-generated identifier for the school
+          - `DD_ID`: DigiDeliveryId generated by the Central Registration of Edu-iX
+          - `AS_ID`: LAS-generated identifier (LAS-Key) for the school
+          - `V_ID`: VestigingsId – BRIN6-format identifier, including dummy locations
     get:
       summary: 'Get SubjectOffering'
       x-tags:
@@ -780,12 +828,37 @@ paths:
             - BP_ID
             - DD_ID
             - AS_ID
+            - V_ID
         name: orgIdType
         in: query
         required: false
         description: |
           The type of the organisationIdentifier.
           This parameter is used in combination with the orgId when the organisationMasterIdentifier is not available.
+          The following values are supported:
+          - `OIE_CODE`: OnderwijsInstellingserkenningcode
+          - `BP_ID`: Basispoort-generated identifier for the school
+          - `DD_ID`: DigiDeliveryId generated by the Central Registration of Edu-iX
+          - `AS_ID`: LAS-generated identifier (LAS-Key) for the school
+          - `V_ID`: VestigingsId – BRIN6-format identifier, including dummy locations
+      - schema:
+          type: boolean
+        name: filterByOrgId
+        in: query
+        required: false
+        description: |
+          Controls whether the response is filtered to only include SubjectOfferings belonging to the
+          specific organisation identified by `orgId` and `orgIdType`, or whether all SubjectOfferings
+          of the associated Onderwijsaanbieder are returned.
+          - `true`: Only SubjectOfferings belonging to the specified secondary identifier are returned.
+          - `false`: All SubjectOfferings of the associated Onderwijsaanbieder are returned (to the extent authorisations have been configured).
+          When omitted, a sector-specific default applies:
+          - **PO (primary education):** defaults to `true` – response is filtered to the specified identifier.
+          - **VO (secondary education):** defaults to `false` – response covers the full Onderwijsaanbieder scope.
+          This parameter is only relevant in combination with `orgId` and `orgIdType`.
+          When `orgMasterId` is used, this parameter must be absent or `false`.
+          It is the responsibility of the consuming party to verify whether the Source supports
+          filtering via this parameter before using it.
       - schema:
           type: string
         name: subjectCode
