@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   title: Education API
-  version: '1.1.0'
+  version: '1.1.1'
   description: |-
     The Education API is implemented by the `Administratiesysteem onderwijsdeelnemer`.
 
@@ -29,7 +29,7 @@ components:
         The API version number is communicated in the header.
         The major version is communicated in the URI.
         For more information see the [Edu-V versioning guidelines](https://edu-v.atlassian.net/wiki/spaces/AFSPRAKENS/pages/9437200/Versiebeheer).
-      default: 1.1.0
+      default: 1.1.1
 
     Organisation:
       title: Organisation
@@ -129,9 +129,11 @@ components:
         studyCode:
           type: string
           description: |
-            Official code of the study.
-            - primary education: the `opleidingseenheidcode` as specified in [Waardenlijst Opleidingseenheden po](https://www.edustandaard.nl/standaard_werkgroepen/beheergroep-waardenlijsten-rio/) is used.
-            - secondary education: the `opleidingseenheidcode` as specified in [Waardenlijst Opleidingseenheden vo](https://www.edustandaard.nl/standaard_werkgroepen/beheergroep-waardenlijsten-rio/) is used.
+            Accepteert 4 cijfers (0011) of 4 cijfers, een 'O', en weer 4 cijfers (1000O0020).
+            Primair onderwijs (BO & SO): opleidingseenheid code (9 karakters) conform waardelijst RIO po https://www.edustandaard.nl/standaard_werkgroepen/beheergroep-waardenlijsten-rio/
+            Voortgezet onderwijs (VO & VSO): erkende opleidingscode (4 karakters) conform Regeling Codetabellen VO, VSO en MBO https://wetten.overheid.nl/BWBR0048579/2025-08-28/?g=2025-08-28&z=2025-08-28#BijlageIa
+          example: "1000O0020"
+          pattern: '^(\d{4}|\d{4}O\d{4})$'
         studyCharacteristics:
           type: array
           description: |
