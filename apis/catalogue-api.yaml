@@ -582,6 +582,74 @@ components:
         - dateCreated
         - dateLastModified
 
+    ProductPhysicalInfo:
+      title: ProductPhysicalInfo
+      type: object
+      x-tags:
+        - Product
+      description: 'Physical characteristics of a product for fulfillment parties, e.g. to determine the shipping box and for return checks. Only available for products of type `physical`. Combi products are not included; their physical parts are available as separate products via `containedProducts`.'
+      properties:
+        productId:
+          $ref: '#/components/schemas/ProductID'
+          description: 'The unique identifier for this product.'
+        numberOfPages:
+          type: integer
+          description: 'Exact number of pages.'
+          minimum: 1
+        dimensions:
+          type: object
+          description: 'Dimensions of the product in millimetres, aligned with ONIX Measure (codelist 48), see: https://ns.editeur.org/onix/en/48.'
+          properties:
+            height:
+              type: integer
+              description: 'Height in mm.'
+              minimum: 1
+            width:
+              type: integer
+              description: 'Width in mm.'
+              minimum: 1
+            thickness:
+              type: integer
+              description: 'Thickness in mm.'
+              minimum: 1
+          required:
+            - height
+            - width
+            - thickness
+        weight:
+          type: integer
+          description: 'Weight in grams.'
+          minimum: 1
+        productForm:
+          type: string
+          description: 'Product form (including binding) of the product. Values according to ONIX codelist 150 Product form, e.g. BB (hardback), BC (paperback / softback), BE (spiral bound), see: https://ns.editeur.org/onix/en/150.'
+          pattern: '^[A-Z0-9]{2}$'
+          example: 'BC'
+        productFormDetail:
+          type: array
+          description: 'Additional detail on the product form, e.g. the binding. Values according to ONIX codelist 175 Product form detail, e.g. B304 (sewn), B305 (adhesive bound), B310 (saddle-sewn), see: https://ns.editeur.org/onix/en/175.'
+          items:
+            type: string
+            pattern: '^[A-Z][0-9]{3}$'
+            example: 'B305'
+        dateCreated:
+          type: string
+          description: 'Indicates the date and time the object was first created. Format: Conform openapi in ZULU time zoals gespecificeerd in RFC 3339, section 5.6.'
+          format: date-time
+          example: "2017-07-21T17:32:28Z"
+        dateLastModified:
+          type: string
+          description: 'Indicates the date and time the object was last modified. Format: Conform openapi in ZULU time zoals gespecificeerd in RFC 3339, section 5.6.'
+          format: date-time
+          example: "2022-08-11T15:31:12Z"
+      required:
+        - productId
+        - dimensions
+        - weight
+        - productForm
+        - dateCreated
+        - dateLastModified
+
     CourseReference:
       title: CourseReference
       type: object
@@ -937,6 +1005,102 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ProductInfo'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+      security:
+        - OAuth2:
+            - eduv.catalogue
+
+  /products/physicalinfo:
+    parameters:
+      - schema:
+          type: string
+          format: date-time
+        in: query
+        name: since
+        required: false
+        description: |
+          Request all products modified after the specified timestamp. Format: Conform openapi in ZULU time as specified in RFC 3339, section 5.6.  
+          Clients are encouraged to use the since parameter above fetching the resource fully.  
+          **Maximum age of the timestamp is 7 days in the past.**
+        example: "2017-07-21T17:32:28Z"
+    get:
+      summary: Get All Products Physical Info for Fulfillment
+      operationId: get-all-products-physical-info
+      x-tags:
+        - Product
+      tags:
+        - Leveranciersspecifieke leermiddelencatalogus
+      description: Get the physical info of all products of type physical
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ProductPhysicalInfo'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+      security:
+        - OAuth2:
+            - eduv.catalogue
+
+  /products/physicalinfo/{id}:
+    parameters:
+      - schema:
+          type: string
+        name: id
+        in: path
+        required: true
+    get:
+      summary: Get Product Physical Info by ID for Fulfillment
+      operationId: get-product-physical-info-by-id
+      x-tags:
+        - Product
+      tags:
+        - Leveranciersspecifieke leermiddelencatalogus
+      description: Get the physical info of a specific product of type physical by id
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductPhysicalInfo'
         '400':
           description: Bad Request
           content:
