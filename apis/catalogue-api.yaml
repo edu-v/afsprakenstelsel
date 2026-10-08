@@ -399,6 +399,10 @@ components:
           type: string
           format: date
           description: 'Date the product will be or is published on the market, format: YYYY-MM-DD (according to RFC3339)'
+        availableFromDate:
+          type: string
+          format: date
+          description: 'Expected date from which the product is (again) available for delivery, e.g. after a temporary supply interruption or reprint. For a combi product this is the date from which all parts are available. This date is indicative and not related to a specific order, format: YYYY-MM-DD (according to RFC3339)'
         deprecationDate:
           type: string
           description: 'Date when a follow-up product is available on the market, format: YYYY-MM-DD (according to RFC3339)'
