@@ -148,6 +148,18 @@ components:
               priceIncl:
                 type: number
                 description: 'Price including VAT and rounded to 2 decimals'
+              vatRate:
+                type: string
+                description: |
+                  The VAT rate that applies to this price.
+
+                  - high: the high VAT rate applies.
+                  - low: the low VAT rate applies.
+                  - none: no VAT applies.
+                enum:
+                  - high
+                  - low
+                  - none
               priceCurrency:
                 type: string
                 description: 'The applicable currency according to ISO4217 currency codes, see: https://en.wikipedia.org/wiki/ISO_4217.'
