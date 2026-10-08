@@ -411,6 +411,11 @@ components:
           type: string
           description: 'Date after which the product is no longer available, format: YYYY-MM-DD (according to RFC3339). Mandatory field for the status: `no-longer-available` and `not-available-or-usable`.'
           format: date
+        isYearBound:
+          type: boolean
+          description: |
+            True if the product is intended for a specific school year and is replaced annually (e.g. exam trainers).
+            The applicable school year is derived from the life cycle fields (firstPublishedDate, deprecationDate, supportedUntilDate, endOfLifeDate).
         dateCreated:
           type: string
           description: 'Indicates the date and time the object was first created. Format: Conform openapi in ZULU time zoals gespecificeerd in RFC 3339, section 5.6.'
