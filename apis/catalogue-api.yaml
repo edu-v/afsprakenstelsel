@@ -679,21 +679,21 @@ components:
           type: string
           description: |
             Official name of the study.
-            - primary education: the `po-opleidingseenheden in RIO korte naam` name as specified in [Waardenlijst Opleidingseenheden po](https://www.edustandaard.nl/standaard_werkgroepen/beheergroep-waardenlijsten-rio/) is used.
-            - secondary education: the `vo-opleidingseenheden in RIO korte naam` name as specified in [Waardenlijst Opleidingseenheden vo](https://www.edustandaard.nl/standaard_werkgroepen/beheergroep-waardenlijsten-rio/) is used.
+            - primary education: the `po-opleidingseenheden in RIO korte naam` name as specified in [Waardenlijsten RIO-po, schooljaar 2026-2027](https://www.edustandaard.nl/standaard_werkgroepen/beheergroep-waardenlijsten-rio/) is used.
+            - secondary education: the `korte naam` as specified in [Waardenlijst Opleidingen en opleidingsgroepen vo, schooljaar 2026-2027, v1.01](https://www.edustandaard.nl/standaard_werkgroepen/beheergroep-waardenlijsten-rio/), tab `Opleidingseenheden (volledig)`, is used.
             - vocational education: the `kwalificatienaam` as specified in [Register kwalificatiestructuur SBB](https://kwalificatie-mijn.s-bb.nl) is used.
         studyCode:
           type: string
           description: |
             Official code of the study.
-            - primary education: the `opleidingseenheidcode` as specified in [Waardenlijst Opleidingseenheden po](https://www.edustandaard.nl/standaard_werkgroepen/beheergroep-waardenlijsten-rio/) is used.
-            - secondary education: the `opleidingseenheidcode` as specified in [Waardenlijst Opleidingseenheden vo](https://www.edustandaard.nl/standaard_werkgroepen/beheergroep-waardenlijsten-rio/) is used.
+            - primary education: the `opleidingseenheidcode` as specified in [Waardenlijsten RIO-po, schooljaar 2026-2027](https://www.edustandaard.nl/standaard_werkgroepen/beheergroep-waardenlijsten-rio/) is used.
+            - secondary education: the `opleidingseenheidcode` (O-code, format 9999O9999, e.g. 1002O2254) as specified in [Waardenlijst Opleidingen en opleidingsgroepen vo, schooljaar 2026-2027, v1.01](https://www.edustandaard.nl/standaard_werkgroepen/beheergroep-waardenlijsten-rio/), tab `Opleidingseenheden (volledig)`, column A, is used.
             - vocational education: the `crebocode` as specified in [Register kwalificatiestructuur SBB](https://kwalificatie-mijn.s-bb.nl) is used.
         studyLevels:
           type: array
           description: |
             Official levels of the study.
-            Primary and secondary education studyLevels are based on the `Niveau` as specified in [SLO curriculum](https://opendata.slo.nl/curriculum/2023/api/v1/niveau/)
+            Primary and secondary education studyLevels are based on the `Niveau` as specified in [SLO curriculum 2026](https://opendata.slo.nl/curriculum/2026/api/v1/niveau/)
             For Vocational Education Edu-V extended this list as documented on [Waardelijst onderwijsniveaus en leerjaren](https://edu-v.atlassian.net/wiki/spaces/AFSPRAKENS/pages/179470347/Waardelijst+onderwijsniveaus+en+leerjaren).
           items:
             type: object
@@ -731,15 +731,12 @@ components:
         subjectPrefix:
           type: string
           description: |
-            Prefix of the subject.
-            - primary education: the `vakleergebied prefix` from [SLO curriculum](https://opendata.slo.nl/curriculum/2023/api/v1/vakleergebied/)
-            - secondary education:the `vakleergebied prefix` from [SLO curriculum](https://opendata.slo.nl/curriculum/2023/api/v1/vakleergebied/)
+            Prefix of the subject, for primary and secondary education: the `Prefix` as specified in [Waardenlijst Vakken en leergebieden po en vo, schooljaar 2026-2027, v1.01](https://www.edustandaard.nl/standaard_werkgroepen/beheergroep-waardenlijsten-rio/), tab `Leermiddelenketen`, column C.
+            Some prefixes are used for more than one subject; a subject is always identified by subjectPrefix and subjectName.
         subjectName:
           type: string
           description: |
-            Name of the subject.
-            - primary education: the `vakleergebied name` from [SLO curriculum](https://opendata.slo.nl/curriculum/2023/api/v1/vakleergebied/)
-            - secondary education:the `vakleergebied name` from [SLO curriculum](https://opendata.slo.nl/curriculum/2023/api/v1/vakleergebied/)
+            Name of the subject, for primary and secondary education: the `Vaknaam` as specified in [Waardenlijst Vakken en leergebieden po en vo, schooljaar 2026-2027, v1.01](https://www.edustandaard.nl/standaard_werkgroepen/beheergroep-waardenlijsten-rio/), tab `Leermiddelenketen`, column B.
       required:
         - subjectName
         - subjectPrefix
