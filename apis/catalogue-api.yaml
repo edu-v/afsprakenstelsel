@@ -264,6 +264,9 @@ components:
               - school-activationcodes
               - customer-student
               - customer-activationcode
+        infoLink:
+          type: string
+          description: 'URL to the information about the product. Contains the same value as `infoLink` in ProductInfo for the same productId.'
         trialAccessUrl:
           type: string
           description: 'Optional trial / preview URL.'
@@ -502,7 +505,7 @@ components:
             $ref: '#/components/schemas/Subject'
         infoLink:
           type: string
-          description: 'URL to the information about the product.'
+          description: 'URL to the information about the product. Contains the same value as `infoLink` in Product for the same productId.'
         trialAccessUrl:
           type: string
           description: 'Optional trial / preview URL.'
@@ -512,6 +515,26 @@ components:
             The default Access Url used to access the product after selection or purchase.
             Mandatory field for combi and digital products.
             For sets of digital products and combi products a single Access URl is listed from which all underlying digital products can be activated.
+        specificAccessUrls:
+          type: array
+          description: |
+            list of fields where specific access links can be specified.
+          items:
+            type: object
+            properties:
+              accessUrl:
+                type: string
+                description: 'The URL of the access link.'
+              accessUrlType:
+                type: string
+                description: 'The type URL of the access link in accessUrl.'
+                enum:
+                  - OIDC
+                  - BP
+                  - ENTREE
+            required:
+              - accessUrl
+              - accessUrlType
         shortDescription:
           type: string
           description: 'Short description for display on search pages or other marketing blocks.'
