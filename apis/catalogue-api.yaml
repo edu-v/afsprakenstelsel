@@ -464,9 +464,8 @@ components:
           description: 'Name of the organisation supplying and providing the product: the `Leermiddelenaanbieder`.'
         type:
           type: string
-          description: 'Type of product. In case the product consists of both physical and digital products, the value combi is chosen.'
+          description: 'Type of product. In case the product consists of both physical and digital products, the value combi is chosen. Products of type physical are not included in ProductInfo.'
           enum:
-            - 'physical'
             - 'digital'
             - 'combi'
         status:
@@ -951,7 +950,7 @@ paths:
         - Product
       tags:
         - Leveranciersspecifieke leermiddelencatalogus
-      description: Get all products info
+      description: Get the product info of all products of type digital and combi. Products of type physical are not included.
       responses:
         '200':
           description: OK
@@ -997,7 +996,7 @@ paths:
         - Product
       tags:
         - Leveranciersspecifieke leermiddelencatalogus
-      description: Get a specific product info by id
+      description: Get the product info of a specific product of type digital or combi by id. For a product of type physical a 404 Not Found is returned.
       responses:
         '200':
           description: OK
