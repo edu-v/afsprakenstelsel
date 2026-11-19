@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <title>Education API | Edu-V</title>
+  <style>
+    body { font-family: Arial, sans-serif; font-size: 13px; margin: 40px; color: #222; background: white; max-width: 1100px; }
+    h1 { font-size: 20px; margin-bottom: 4px; color: #e07020; }
+    h2 { font-size: 15px; margin-top: 36px; margin-bottom: 6px; border-bottom: 2px solid #e07020; padding-bottom: 4px; color: #e07020; }
+    h3 { font-size: 13px; margin-top: 24px; margin-bottom: 4px; color: #444; }
+    .meta { color: #888; font-size: 11px; margin-bottom: 8px; }
+    .version-badge { display: inline-block; background: #e07020; color: white; border-radius: 4px; padding: 2px 10px; font-size: 11px; font-weight: bold; margin-bottom: 12px; }
+    .status-badge { display: inline-block; background: #e8f4ea; color: #1a7a4a; border: 1px solid #b0d8b8; border-radius: 3px; padding: 2px 9px; font-size: 11px; font-weight: bold; margin-left: 6px; }
+    .status-beta { background: #fef3e2; color: #b7691a; border-color: #f0c090; }
+    .status-candidate { background: #e8f0fe; color: #2176c7; border-color: #b0c8f0; }
+    .status-draft { background: #f0f0f0; color: #666; border-color: #ccc; }
+    .description { font-size: 12px; color: #444; line-height: 1.6; max-width: 820px; margin-bottom: 24px; }
+    .description p, .description ul { margin: 0 0 10px; } .description h4 { font-size: 12px; margin: 14px 0 4px; }
+    .description code, .schema-desc code, .toelichting code { font-family: monospace; background: #f2f2f2; padding: 0 3px; border-radius: 3px; }
+
+    /* Metadatatabel */
+    .meta-table { width: 100%; border-collapse: collapse; margin-bottom: 24px; font-size: 12px; }
+    .meta-table td { padding: 7px 12px; border: 1px solid #e0e0e0; vertical-align: top; }
+    .meta-table td:first-child { width: 150px; background: #f7f7f7; font-weight: bold; color: #555; }
+    .meta-tag { display: inline-block; background: #f0f0f0; border-radius: 3px; padding: 1px 7px; margin: 2px 2px 2px 0; font-size: 11px; }
+
+    /* Toelichting blok */
+    .toelichting { background-color: #f9f4ee; border-left: 3px solid #e07020; padding: 9px 13px; margin-bottom: 12px; font-size: 12px; line-height: 1.6; color: #555; }
+
+    /* Endpoints tabel */
+    .endpoints-table { width: 100%; border-collapse: collapse; margin-bottom: 32px; font-size: 12px; }
+    .endpoints-table th { background: #e07020; color: white; text-align: left; padding: 8px 12px; }
+    .endpoints-table td { padding: 7px 12px; border-bottom: 1px solid #eee; vertical-align: top; }
+    .endpoints-table tr:hover { background: #f9f9f9; }
+    .method { font-weight: bold; font-family: monospace; font-size: 11px; padding: 2px 6px; border-radius: 3px; }
+    .method-put { background: #fef3e2; color: #b7691a; }
+    .method-get { background: #e8f4ea; color: #1a7a4a; }
+    .method-post { background: #e8f0fe; color: #2176c7; }
+    .method-delete { background: #fde8e6; color: #c0392b; }
+    .path { font-family: monospace; font-size: 11px; color: #333; }
+
+    /* Schema veldentabel */
+    .schema-table { width: 100%; border-collapse: collapse; margin-bottom: 28px; font-size: 12px; }
+    .schema-table th { background: #f0f0f0; text-align: left; padding: 7px 10px; border-bottom: 2px solid #ccc; font-size: 11px; }
+    .schema-table td { padding: 6px 10px; border-bottom: 1px solid #eee; vertical-align: top; }
+    .schema-table tr:hover { background: #fafafa; }
+    .field-name { font-family: monospace; font-weight: bold; color: #e07020; font-size: 11px; }
+    .field-type { font-family: monospace; font-size: 10px; color: #666; }
+    .badge-v { background: #fde8e6; color: #c0392b; font-size: 10px; font-weight: bold; padding: 1px 5px; border-radius: 3px; }
+    .badge-o { background: #e8f0fe; color: #2176c7; font-size: 10px; padding: 1px 5px; border-radius: 3px; }
+    .enum-list { font-family: monospace; font-size: 10px; color: #666; margin-top: 3px; }
+    .enum-val { display: inline-block; background: #f0f0f0; padding: 1px 4px; border-radius: 2px; margin: 1px 2px 1px 0; }
+    .ref-link { font-family: monospace; font-size: 10px; color: #e07020; }
+    .schema-desc { font-size: 11px; color: #555; line-height: 1.4; }
+
+    /* Contact footer */
+    .footer { margin-top: 48px; font-size: 11px; color: #aaa; border-top: 1px solid #eee; padding-top: 12px; }
+  </style>
+</head>
+<body>
+
+<h1>Education API</h1>
+<div class="meta">Edu-V Afsprakenstelsel &nbsp;|&nbsp; Gegenereerd op 19 November 2026 &nbsp;|&nbsp; Bron: education-api.yaml</div>
+<div style="margin-bottom:20px;">
+  <span class="version-badge">v1.3.0-rc.1</span><span class="status-badge status-candidate">Release Candidate</span>
+</div>
+
+<table class="meta-table">
+<tr><td>Status</td><td><span class="status-badge status-candidate">Release Candidate</span></td></tr>
+<tr><td>Versie</td><td>1.3.0-rc.1</td></tr>
+<tr><td>Afkorting</td><td>EDU</td></tr>
+<tr><td>Beheer</td><td>Werkgroep Doorgifte Administratie</td></tr>
+<tr><td>Ingangsdatum</td><td>2027-01-14</td></tr>
+<tr><td>Gegevensdienst</td><td>Onderwijsaanbod</td></tr>
+<tr><td>Bron</td><td><span class="meta-tag">Administratiesysteem onderwijsdeelnemer</span></td></tr>
+<tr><td>Afnemers</td><td><span class="meta-tag">Selectieomgeving leermiddelen</span> <span class="meta-tag">Bestelomgeving leermiddelen</span> <span class="meta-tag">Aanspraakmanager</span> <span class="meta-tag">Leermiddelenportaal</span> <span class="meta-tag">Onderwijsleeromgeving</span> <span class="meta-tag">Leermiddelendashboard</span> <span class="meta-tag">Dienst met SSO</span> <span class="meta-tag">Authenticerende Dienst</span> <span class="meta-tag">Authenticerende Identity Provider</span> <span class="meta-tag">Delegerende Identity Provider</span></td></tr>
+</table>
+
+<h2>Beschrijving</h2>
+<div class="description"><p>The Education API is implemented by the <code>Administratiesysteem onderwijsdeelnemer</code>.</p><p>The Education API has the following objects:</p><ul><li>Organisation: school organisations</li><li>StudyOffering: the study units including the study year offered by a school</li><li>SubjectOffering: the subjects offered by a school</li></ul><p>These objects could be considered open data from the school. As a data owner, the school authorizes the exchange of this information towards suppliers.<br>A possible implementation for an <code>Administratiesysteem onderwijsdeelnemer</code> is to offer an <code>open data</code> option to the school.<br>This option means that a reference component that is allowed to consume the Education API to request data without the consent mechanism.</p><p>The Education API has a scope of primary and secondary education. Vocational education is out of scope. For Vocational Education we advise to use the <a href="https://openonderwijsapi.nl/" target="_blank">Open Education API (OOAPI)</a>.</p></div>
+<h2>Endpoints</h2>
+<table class="endpoints-table">
+  <thead><tr><th>Methode</th><th>Pad</th><th>Omschrijving</th><th>Tag</th><th>Foutcodes</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><span class="method method-get">GET</span></td>
+      <td><span class="path">/organisations</span></td>
+      <td>Get Organisations</td>
+      <td style="font-size:10px;color:#888;">Administratiesysteem onderwijsdeelnemer</td>
+      <td style="font-size:11px;">2001, 2011</td>
+    </tr>    <tr>
+      <td><span class="method method-get">GET</span></td>
+      <td><span class="path">/studyofferings/school/{id}</span></td>
+      <td>Get StudyOffering</td>
+      <td style="font-size:10px;color:#888;">Administratiesysteem onderwijsdeelnemer</td>
+      <td style="font-size:11px;">2001, 2003</td>
+    </tr>    <tr>
+      <td><span class="method method-get">GET</span></td>
+      <td><span class="path">/studyofferings/school</span></td>
+      <td>Get StudyOfferings for School</td>
+      <td style="font-size:10px;color:#888;">Administratiesysteem onderwijsdeelnemer</td>
+      <td style="font-size:11px;">2001, 2003, 2008</td>
+    </tr>    <tr>
+      <td><span class="method method-get">GET</span></td>
+      <td><span class="path">/subjectofferings/school/{id}</span></td>
+      <td>Get SubjectOffering</td>
+      <td style="font-size:10px;color:#888;">Administratiesysteem onderwijsdeelnemer</td>
+      <td style="font-size:11px;">2001, 2002</td>
+    </tr>    <tr>
+      <td><span class="method method-get">GET</span></td>
+      <td><span class="path">/subjectofferings/school</span></td>
+      <td>Get SubjectOfferings for School</td>
+      <td style="font-size:10px;color:#888;">Administratiesysteem onderwijsdeelnemer</td>
+      <td style="font-size:11px;">2001, 2002, 2003, 2008</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2>Schemas</h2>
+<h3>Organisation</h3>
+<div class="description"><p>The Organisation object with its identifiers, name, board and locations information.</p></div><div class="toelichting">Het object Organisation beschrijft een onderwijsaanbieder die als administratieve eenheid beschikbaar is in het Administratiesysteem onderwijsdeelnemer.</div>
+<div class="toelichting">Indien organisationMasterIdentifier gevuld: niet toegestaan: organisationIds; anders verplicht: organisationIds</div><table class="schema-table">
+  <thead><tr><th>Veld</th><th>Type</th><th>V/O</th><th>Omschrijving</th><th>Vullingsregel</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><span class="field-name">organisationMasterIdentifier</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">The primary identifier for a School. For Schools the <code>OnderwijsaanbiederId</code> is used. (exactly one of organisationMasterIdentifier or organisationIds must be present)</span></td>
+      <td><span class="schema-desc">De primaire identifier geldt als de werkingsregel in het object. De OnderwijsaanbiederId is de primaire identifier voor onderwijsaanbieders. In uitzonderingssituaties kan een secundaire identifier worden gebruikt.</span></td>
+    </tr>    <tr>
+      <td><span class="field-name">organisationIds</span></td>
+      <td><span class="ref-link">→ array[Organisation.organisationIds]</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">A secondary identifier for the School. This value is used whenever the primary identifier is not available. (exactly one of organisationMasterIdentifier or organisationIds must be present)</span></td>
+      <td><span class="schema-desc">Zodra een secundaire identifier voor een uitzonderingssituatie gehanteerd wordt dan moet naast het Id ook het Type gespecificeerd worden. Zie de pagina Identiteiten voor de toegestane secundaire identifiers.</span></td>
+    </tr>    <tr>
+      <td><span class="field-name">name</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">The name of the School.</span></td>
+      <td><span class="schema-desc"></span></td>
+    </tr>    <tr>
+      <td><span class="field-name">boards</span></td>
+      <td><span class="field-type">array[BoardReference]</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">The Boards this School belongs to.</span></td>
+      <td><span class="schema-desc"></span></td>
+    </tr>    <tr>
+      <td><span class="field-name">locations</span></td>
+      <td><span class="field-type">array[LocationReference]</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">A list of all school locations of this organisation.</span></td>
+      <td><span class="schema-desc"></span></td>
+    </tr>    <tr>
+      <td><span class="field-name">status</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">The status field gives an indication to Consumers about the status of an object. Consumers can delete objects that are flagged <code>tobedeleted</code>  as such if they wish.  The status attribute is based on the <a href="https://www.imsglobal.org/sites/default/files/spec/oneroster/v1p2/rostering-informationmodel/OneRosterv1p2RosteringService_InfoModelv1p0.html#Data_Base" target="_blank">Base Class from OneRoster</a>.</span><div class="enum-list">enum: <span class="enum-val">active</span> <span class="enum-val">tobedeleted</span></div></td>
+      <td><span class="schema-desc"></span></td>
+    </tr>    <tr>
+      <td><span class="field-name">dateCreated</span></td>
+      <td><span class="field-type">string (date-time)</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">Indicates the date and time the object was first created. Format: According to openapi in ZULU time as specified in RFC 3339, section 5.6.</span></td>
+      <td><span class="schema-desc"></span></td>
+    </tr>    <tr>
+      <td><span class="field-name">dateLastModified</span></td>
+      <td><span class="field-type">string (date-time)</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">Indicates the date and time the object was first created. Format: According to openapi in ZULU time as specified in RFC 3339, section 5.6.</span></td>
+      <td><span class="schema-desc"></span></td>
+    </tr>
+  </tbody>
+</table>
+<h3>Organisation.organisationIds</h3>
+
+<table class="schema-table">
+  <thead><tr><th>Veld</th><th>Type</th><th>V/O</th><th>Omschrijving</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><span class="field-name">organisationId</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc"></span></td>
+      
+    </tr>    <tr>
+      <td><span class="field-name">organisationIdType</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc"></span><div class="enum-list">enum: <span class="enum-val">OIE_CODE</span> <span class="enum-val">BP_ID</span> <span class="enum-val">DD_ID</span> <span class="enum-val">AS_ID</span> <span class="enum-val">V_ID</span></div></td>
+      
+    </tr>
+  </tbody>
+</table>
+
+<h3>StudyOffering</h3>
+<div class="description"><p>The StudyOffering object with its identifiers, name, and metadata information.</p></div><div class="toelichting">Het object StudyOffering beschrijft de opleidingen op basis van de opleidingseenheden in combinatie met het leerjaar aangeboden door de onderwijsaanbieder. In het object worden verwijzingen gemaakt naar de waardelijsten die onder beheer zijn van de werkgroep Waardelijsten RIO.</div>
+<table class="schema-table">
+  <thead><tr><th>Veld</th><th>Type</th><th>V/O</th><th>Omschrijving</th><th>Voorbeeld</th><th>Vullingsregel</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><span class="field-name">studyOfferingId</span></td>
+      <td><span class="field-type">string (uuid)</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">A unique identifier for this StudyOffering object. This is the GUID that Consumers will refer to when making API calls, or when needing to identify an object.</span></td>
+      <td><span class="schema-desc"></span></td><td><span class="schema-desc"></span></td>
+    </tr>    <tr>
+      <td><span class="field-name">studyOfferingName</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">The name given by the School for this StudyOffering.</span></td>
+      <td><span class="schema-desc">Gymnasium brugklas</span></td><td><span class="schema-desc"></span></td>
+    </tr>    <tr>
+      <td><span class="field-name">studyName</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">Official name of the study. - primary education: the <code>po-opleidingseenheden in RIO korte naam</code> name as specified in <a href="https://www.edustandaard.nl/standaard_werkgroepen/beheergroep-waardenlijsten-rio/" target="_blank">Waardenlijsten RIO-po, schooljaar 2026-2027</a> is used. - secondary education: the <code>korte naam</code> as specified in <a href="https://www.edustandaard.nl/standaard_werkgroepen/beheergroep-waardenlijsten-rio/" target="_blank">Waardenlijst Opleidingen en opleidingsgroepen vo, schooljaar 2026-2027, v1.01</a>, tab <code>Opleidingseenheden (volledig)</code>, is used.</span></td>
+      <td><span class="schema-desc">vwo-gymnasium-onderbouw</span></td><td><span class="schema-desc">Indien de AangebodenOpleiding erkend is dan is dit veld verplicht. Werkingsregel is om per sector de volgende waardelijsten te gebruiken: primair onderwijs: po-opleidingseenheden korte naam conform erkende opleiding in Waardenlijsten RIO-po, schooljaar 2026-2027; voortgezet onderwijs: korte naam conform Waardenlijst Opleidingen en opleidingsgroepen vo, schooljaar 2026-2027, v1.01, tabblad Opleidingseenheden (volledig).</span></td>
+    </tr>    <tr>
+      <td><span class="field-name">studyCode</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">Accepteert 4 cijfers (0011) of 4 cijfers, een &#x27;O&#x27;, en weer 4 cijfers (1000O0020). Primair onderwijs (BO &amp; SO): opleidingseenheid code (9 karakters) conform <a href="https://www.edustandaard.nl/standaard_werkgroepen/beheergroep-waardenlijsten-rio/" target="_blank">Waardenlijsten RIO-po, schooljaar 2026-2027</a> Voortgezet onderwijs (VO &amp; VSO): opleidingseenheidcode (O-code, 9 karakters, bv. 1002O2254) conform <a href="https://www.edustandaard.nl/standaard_werkgroepen/beheergroep-waardenlijsten-rio/" target="_blank">Waardenlijst Opleidingen en opleidingsgroepen vo, schooljaar 2026-2027, v1.01</a>, tabblad <code>Opleidingseenheden (volledig)</code>, kolom A</span><div class="enum-list">pattern: <span class="enum-val">^(\d{4}|\d{4}O\d{4})$</span></div></td>
+      <td><span class="schema-desc">1002O0222; 1000O0001</span></td><td><span class="schema-desc">Indien de AangebodenOpleiding erkend is dan is dit veld verplicht. Werkingsregel is om per sector de volgende waardelijsten te gebruiken: primair onderwijs (BO & SO): opleidingseenheidcode (9 karakters) conform Waardenlijsten RIO-po, schooljaar 2026-2027; voortgezet onderwijs (VO & VSO): opleidingseenheidcode (O-code, 9 karakters) conform Waardenlijst Opleidingen en opleidingsgroepen vo, schooljaar 2026-2027, v1.01, tabblad Opleidingseenheden (volledig), kolom A. De twee formaten zijn ondubbelzinnig te onderscheiden op basis van lengte en structuur. Een afnemer kan beide correct interpreteren zonder risico op verwisseling.</span></td>
+    </tr>    <tr>
+      <td><span class="field-name">studyCharacteristics</span></td>
+      <td><span class="field-type">array[string]</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">Official characteristic of the study. - primary education: the <code>po-opleidingskenmerken</code> name as specified in <a href="https://www.edustandaard.nl/standaard_werkgroepen/beheergroep-waardenlijsten-rio/" target="_blank">Waardenlijst Opleidingseenheden po</a> is used. - secondary education: the <code>vo-opleidingskenmerken</code> name as specified in <a href="https://www.edustandaard.nl/standaard_werkgroepen/beheergroep-waardenlijsten-rio/" target="_blank">Waardenlijst Opleidingseenheden vo</a> is used.</span></td>
+      <td><span class="schema-desc">VERRIJKT_PROGRAMMA_VWO, PILOT_TPO, CULTUURPROFIEL_PO, HBGO</span></td><td><span class="schema-desc">Werkingsregel is om per sector de volgende waardelijsten te gebruiken: primair onderwijs: po-opleidingskenmerken conform waardelijst RIO po; voortgezet onderwijs: vo-opleidingskenmerken conform waardelijst RIO vo.</span></td>
+    </tr>    <tr>
+      <td><span class="field-name">studyLevel</span></td>
+      <td><span class="ref-link">→ StudyOffering.studyLevel</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">Official level of the study. Primary and secondary education studyLevels are based on the <code>Niveau</code> as specified in <a href="https://opendata.slo.nl/curriculum/2026/api/v1/niveau/" target="_blank">SLO curriculum 2026</a></span></td>
+      <td><span class="schema-desc"></span></td><td><span class="schema-desc">Formaat conform het Niveau van SLO curriculum 2026. Voor meer informatie zie Waardelijst onderwijsniveaus en leerjaren. Het gespecialiseerd onderwijs kan optioneel gebruik maken van dit attribuut. Uit het studyLevel valt op te maken dat de opleiding van het niveau speciaal onderwijs of voortgezet speciaal onderwijs is.</span></td>
+    </tr>    <tr>
+      <td><span class="field-name">studyYear</span></td>
+      <td><span class="field-type">integer</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">The study year of this object.  Example values are: - Basisschool: 0, 1, 2, 3, 4, 5, 6, 7 or 8 - VMBO: 0, 1, 2, 3 or 4 - HAVO: 0, 1, 2, 3, 4 or 5 - VWO: 0, 1, 2, 3, 4, 5 or 6</span></td>
+      <td><span class="schema-desc"></span></td><td><span class="schema-desc">Dit attribuut specificeert het jaar van de opleiding. Bijvoorbeeld: basisonderwijs: 0, 1, 2, 3, 4, 5, 6, 7 of 8; VMBO: 1, 2, 3 of 4; HAVO: 1, 2, 3, 4 of 5; VWO: 1, 2, 3, 4, 5 of 6.</span></td>
+    </tr>    <tr>
+      <td><span class="field-name">status</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">The status field gives an indication to Consumers about the status of an object. Consumers can delete objects that are flagged <code>tobedeleted</code>  as such if they wish.  The status attribute is based on the <a href="https://www.imsglobal.org/sites/default/files/spec/oneroster/v1p2/rostering-informationmodel/OneRosterv1p2RosteringService_InfoModelv1p0.html#Data_Base" target="_blank">Base Class from OneRoster</a>.</span><div class="enum-list">enum: <span class="enum-val">active</span> <span class="enum-val">tobedeleted</span></div></td>
+      <td><span class="schema-desc"></span></td><td><span class="schema-desc"></span></td>
+    </tr>    <tr>
+      <td><span class="field-name">dateCreated</span></td>
+      <td><span class="field-type">string (date-time)</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">Indicates the date and time the object was first created. Format: According to openapi in ZULU time as specified in RFC 3339, section 5.6.</span></td>
+      <td><span class="schema-desc"></span></td><td><span class="schema-desc"></span></td>
+    </tr>    <tr>
+      <td><span class="field-name">dateLastModified</span></td>
+      <td><span class="field-type">string (date-time)</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">Indicates the date and time the object was last modified. Format: According to openapi in ZULU time as specified in RFC 3339, section 5.6.</span></td>
+      <td><span class="schema-desc"></span></td><td><span class="schema-desc"></span></td>
+    </tr>
+  </tbody>
+</table>
+<h3>StudyOffering.studyLevel</h3>
+<div class="description"><p>Official level of the study.<br>Primary and secondary education studyLevels are based on the <code>Niveau</code> as specified in <a href="https://opendata.slo.nl/curriculum/2026/api/v1/niveau/" target="_blank">SLO curriculum 2026</a></p></div>
+<table class="schema-table">
+  <thead><tr><th>Veld</th><th>Type</th><th>V/O</th><th>Omschrijving</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><span class="field-name">studyLevelId</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">The uuid of the level.</span><div class="enum-list">pattern: <span class="enum-val">^[a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{12}$</span></div></td>
+      
+    </tr>    <tr>
+      <td><span class="field-name">studyLevelPrefix</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">The prefix of the level</span><div class="enum-list">pattern: <span class="enum-val">^[0-9]*$</span></div><div class="enum-list">minLength: <span class="enum-val">4</span></div><div class="enum-list">maxLength: <span class="enum-val">4</span></div></td>
+      
+    </tr>    <tr>
+      <td><span class="field-name">studyLevelName</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">The name of the level.</span></td>
+      
+    </tr>
+  </tbody>
+</table>
+
+<h3>SubjectOffering</h3>
+<div class="description"><p>The SubjectOffering object with its identifiers, name, and metadata information.</p></div><div class="toelichting">Het object SubjectOffering beschrijft de vakken aangeboden door de onderwijsaanbieder. In het object worden verwijzingen gemaakt naar de waardelijsten die onder beheer zijn van de werkgroep Waardelijsten RIO.</div>
+<table class="schema-table">
+  <thead><tr><th>Veld</th><th>Type</th><th>V/O</th><th>Omschrijving</th><th>Vullingsregel</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><span class="field-name">subjectOfferingId</span></td>
+      <td><span class="field-type">string (uuid)</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">A unique identifier for this SubjectOffering object. This is the GUID that Consumers will refer to when making API calls, or when needing to identify an object.</span></td>
+      <td><span class="schema-desc"></span></td>
+    </tr>    <tr>
+      <td><span class="field-name">subjectOfferingName</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">The name given by the School to this SubjectOffering.</span></td>
+      <td><span class="schema-desc"></span></td>
+    </tr>    <tr>
+      <td><span class="field-name">subjectOfferingAbbr</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">Abbreviation of the SubjectOffering name.</span></td>
+      <td><span class="schema-desc"></span></td>
+    </tr>    <tr>
+      <td><span class="field-name">subjectCode</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">Official code of the subject. For primary and secondary education: the <code>Prefix</code> as specified in <a href="https://www.edustandaard.nl/standaard_werkgroepen/beheergroep-waardenlijsten-rio/" target="_blank">Waardenlijst Vakken en leergebieden po en vo, schooljaar 2026-2027, v1.01</a>, tab <code>Leermiddelenketen</code>, column C, is used. Note: a Prefix can belong to more than one subject, so the subjectCode does not always identify a single subject.</span></td>
+      <td><span class="schema-desc">Indien het vak onderdeel is van het curriculum uit een opleiding dan is dit veld verplicht. Werkingsregel is de Prefix conform Waardenlijst Vakken en leergebieden po en vo, schooljaar 2026-2027, v1.01, tabblad Leermiddelenketen, kolom C.</span></td>
+    </tr>    <tr>
+      <td><span class="field-name">studyOfferings</span></td>
+      <td><span class="field-type">array[string]</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc"></span></td>
+      <td><span class="schema-desc">Verwijzing naar studyOfferingId. Indien het vak onderdeel is van het curriculum uit een opleiding dan is dit veld verplicht.</span></td>
+    </tr>    <tr>
+      <td><span class="field-name">status</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">The status field gives an indication to Consumers about the status of an object. Consumers can delete objects that are flagged <code>tobedeleted</code>  as such if they wish.  The status attribute is based on the <a href="https://www.imsglobal.org/sites/default/files/spec/oneroster/v1p2/rostering-informationmodel/OneRosterv1p2RosteringService_InfoModelv1p0.html#Data_Base" target="_blank">Base Class from OneRoster</a>.</span><div class="enum-list">enum: <span class="enum-val">active</span> <span class="enum-val">tobedeleted</span></div></td>
+      <td><span class="schema-desc"></span></td>
+    </tr>    <tr>
+      <td><span class="field-name">dateCreated</span></td>
+      <td><span class="field-type">string (date-time)</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">Indicates the date and time the object was first created. Format: According to openapi in ZULU time as specified in RFC 3339, section 5.6.</span></td>
+      <td><span class="schema-desc"></span></td>
+    </tr>    <tr>
+      <td><span class="field-name">dateLastModified</span></td>
+      <td><span class="field-type">string (date-time)</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">Indicates the date and time the object was last modified. Format: According to openapi in ZULU time as specified in RFC 3339, section 5.6.</span></td>
+      <td><span class="schema-desc"></span></td>
+    </tr>
+  </tbody>
+</table>
+
+<h3>SchoolReference</h3>
+<div class="description"><p>A reference to a School organisation.</p></div>
+<div class="toelichting">Indien organisationMasterIdentifier gevuld: niet toegestaan: organisationIds; anders verplicht: organisationIds</div><table class="schema-table">
+  <thead><tr><th>Veld</th><th>Type</th><th>V/O</th><th>Omschrijving</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><span class="field-name">organisationMasterIdentifier</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">The primary identifier for a School. For Schools the <code>OnderwijsaanbiederId</code> is used. (exactly one of organisationMasterIdentifier or organisationIds must be present)</span></td>
+      
+    </tr>    <tr>
+      <td><span class="field-name">organisationIds</span></td>
+      <td><span class="ref-link">→ array[SchoolReference.organisationIds]</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">A secondary identifier for the School. This value is used whenever the primary identifier is not available. (exactly one of organisationMasterIdentifier or organisationIds must be present)</span></td>
+      
+    </tr>
+  </tbody>
+</table>
+<h3>SchoolReference.organisationIds</h3>
+
+<table class="schema-table">
+  <thead><tr><th>Veld</th><th>Type</th><th>V/O</th><th>Omschrijving</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><span class="field-name">organisationId</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc"></span></td>
+      
+    </tr>    <tr>
+      <td><span class="field-name">organisationIdType</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc"></span><div class="enum-list">enum: <span class="enum-val">OIE_CODE</span> <span class="enum-val">BP_ID</span> <span class="enum-val">DD_ID</span> <span class="enum-val">AS_ID</span> <span class="enum-val">V_ID</span></div></td>
+      
+    </tr>
+  </tbody>
+</table>
+
+<h3>BoardReference</h3>
+<div class="description"><p>A reference to a School Board organisation.</p></div>
+<div class="toelichting">Indien organisationMasterIdentifier gevuld: niet toegestaan: organisationIds; anders verplicht: organisationIds</div><table class="schema-table">
+  <thead><tr><th>Veld</th><th>Type</th><th>V/O</th><th>Omschrijving</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><span class="field-name">organisationMasterIdentifier</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">The primary identifier for a School Board. For boards the <code>OnderwijsbestuurId</code> is used. (exactly one of organisationMasterIdentifier or organisationIds must be present)</span></td>
+      
+    </tr>    <tr>
+      <td><span class="field-name">organisationIds</span></td>
+      <td><span class="ref-link">→ array[BoardReference.organisationIds]</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">A secondary identifier for the School Board. This value is used whenever the primary identifier is not available. (exactly one of organisationMasterIdentifier or organisationIds must be present)</span></td>
+      
+    </tr>    <tr>
+      <td><span class="field-name">name</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">The name of the School Board.</span></td>
+      
+    </tr>
+  </tbody>
+</table>
+<h3>BoardReference.organisationIds</h3>
+
+<table class="schema-table">
+  <thead><tr><th>Veld</th><th>Type</th><th>V/O</th><th>Omschrijving</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><span class="field-name">organisationId</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc"></span></td>
+      
+    </tr>    <tr>
+      <td><span class="field-name">organisationIdType</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc"></span><div class="enum-list">enum: <span class="enum-val">BGE_CODE</span></div></td>
+      
+    </tr>
+  </tbody>
+</table>
+
+<h3>LocationReference</h3>
+<div class="description"><p>A reference to a School location.</p></div>
+<div class="toelichting">Indien locationMasterIdentifier leeg: verplicht: locationIds</div><table class="schema-table">
+  <thead><tr><th>Veld</th><th>Type</th><th>V/O</th><th>Omschrijving</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><span class="field-name">locationMasterIdentifier</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">The primary identifier for the School location. For School locations the <code>Onderwijslocatiecode</code> is used. (either locationMasterIdentifier or locationIds is required)</span></td>
+      
+    </tr>    <tr>
+      <td><span class="field-name">locationIds</span></td>
+      <td><span class="ref-link">→ array[LocationReference.locationIds]</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">A secondary identifier for the School location. This value is used whenever the primary identifier is not available. (either locationMasterIdentifier or locationIds is required)</span></td>
+      
+    </tr>    <tr>
+      <td><span class="field-name">name</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">The name of the School location.</span></td>
+      
+    </tr>
+  </tbody>
+</table>
+<h3>LocationReference.locationIds</h3>
+
+<table class="schema-table">
+  <thead><tr><th>Veld</th><th>Type</th><th>V/O</th><th>Omschrijving</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><span class="field-name">locationId</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc"></span></td>
+      
+    </tr>    <tr>
+      <td><span class="field-name">locationIdType</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc"></span><div class="enum-list">enum: <span class="enum-val">VE_CODE</span></div></td>
+      
+    </tr>
+  </tbody>
+</table>
+
+<h3>StatusResponse</h3>
+<div class="description"><p>Functional status code and status message.</p></div>
+<table class="schema-table">
+  <thead><tr><th>Veld</th><th>Type</th><th>V/O</th><th>Omschrijving</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><span class="field-name">status</span></td>
+      <td><span class="field-type">integer</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">Functional status code, as defined in &quot;Status- en foutcodes 1.0.0&quot;. Codes are sent as integers without leading zeros (0011 = 11).  Algemeen (00xx) - applies to every API:   * <code>0000</code> - OK: Bevraging succesvol (HTTP 200).   * <code>0001</code> - Created: Bericht heeft geleid tot registratie van een nieuwe entiteit (HTTP 201).   * <code>0002</code> - Accepted: Bericht geaccepteerd (HTTP 202).   * <code>0011</code> - Schema incorrect: Schemavalidatie niet succesvol (HTTP 400).   * <code>0012</code> - schemaVersion not supported: De ontvanger kan de gehanteerde schemaVersion niet verwerken (HTTP 400).   * <code>0021</code> - scope required: Leverancier is niet geautoriseerd voor scope (HTTP 401).   * <code>0022</code> - consent required: Informatieobject van classificatie IV zonder geactiveerde gegevensdienst (HTTP 403).   * <code>0023</code> - school unknown: De client communiceert in de context van een Onderwijsorganisatie die niet bekend is bij de server (HTTP 400).   * <code>0099</code> - Overige reden: Vullingsregel: neem in statusMessage een beschrijving van de reden op.  Education API (20xx):   * <code>2001</code> - School unknown: De identifier van de onderwijsorganisatie is onbekend.   * <code>2002</code> - SubjectOffering unknown: De identifier van het SchoolVak is onbekend.   * <code>2003</code> - StudyOffering unknown: De aangeboden opleiding is onbekend.   * <code>2008</code> - SchoolPeriod unknown: De identifier van de schoolperiode is onbekend.   * <code>2011</code> - Board unknown: De identifier van de board is onbekend.</span></td>
+      
+    </tr>    <tr>
+      <td><span class="field-name">statusMessage</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">See functional status messages within the Documentation.</span></td>
+      
+    </tr>
+  </tbody>
+</table>
+
+
+<div class="footer">
+  Edu-V &nbsp;|&nbsp; <a href="https://www.edu-v.org/afsprakenstelsel" style="color:#aaa;">www.edu-v.org/afsprakenstelsel</a> &nbsp;|&nbsp; info@edu-v.org
+</div>
+
+</body>
+</html>

@@ -1,0 +1,1273 @@
+openapi: 3.1.1
+info:
+  title: Education API
+  version: 1.3.0-rc.1
+  description: 'The Education API is implemented by the `Administratiesysteem onderwijsdeelnemer`.
+
+
+    The Education API has the following objects:
+
+    - Organisation: school organisations
+
+    - StudyOffering: the study units including the study year offered by a school
+
+    - SubjectOffering: the subjects offered by a school
+
+
+    These objects could be considered open data from the school. As a data owner, the school authorizes
+    the exchange of this information towards suppliers.
+
+    A possible implementation for an `Administratiesysteem onderwijsdeelnemer` is to offer an `open data`
+    option to the school.
+
+    This option means that a reference component that is allowed to consume the Education API to request
+    data without the consent mechanism.
+
+
+    The Education API has a scope of primary and secondary education. Vocational education is out of scope.
+    For Vocational Education we advise to use the [Open Education API (OOAPI)](https://openonderwijsapi.nl/).'
+  contact:
+    name: Edu-V
+    url: www.edu-v.org/afsprakenstelsel
+    email: info@edu-v.org
+  x-afkorting: EDU
+  x-status: release-candidate
+  x-beheer: Werkgroep Doorgifte Administratie
+  x-ingangsdatum: '2027-01-14'
+  x-gegevensdienst: Onderwijsaanbod
+  x-bron:
+  - Administratiesysteem onderwijsdeelnemer
+  x-afnemers:
+  - Selectieomgeving leermiddelen
+  - Bestelomgeving leermiddelen
+  - Aanspraakmanager
+  - Leermiddelenportaal
+  - Onderwijsleeromgeving
+  - Leermiddelendashboard
+  - Dienst met SSO
+  - Authenticerende Dienst
+  - Authenticerende Identity Provider
+  - Delegerende Identity Provider
+components:
+  schemas:
+    schemaVersion:
+      description: 'Schema version of this API using semantic versioning 2.0.0.
+
+        The API version number is communicated in the header.
+
+        The major version is communicated in the URI.
+
+        For more information see the [Edu-V versioning guidelines](https://edu-v.atlassian.net/wiki/spaces/AFSPRAKENS/pages/9437200/Versiebeheer).
+
+        '
+      type: string
+      default: 1.3.0-rc.1
+    Organisation:
+      title: Organisation
+      description: The Organisation object with its identifiers, name, board and locations information.
+      type: object
+      x-tags:
+      - Organisation
+      x-toelichting: Het object Organisation beschrijft een onderwijsaanbieder die als administratieve
+        eenheid beschikbaar is in het Administratiesysteem onderwijsdeelnemer.
+      properties:
+        organisationMasterIdentifier:
+          type: string
+          description: 'The primary identifier for a School. For Schools the `OnderwijsaanbiederId` is
+            used.
+
+            (exactly one of organisationMasterIdentifier or organisationIds must be present)
+
+            '
+          example: 104A158
+          x-vullingsregel: De primaire identifier geldt als de werkingsregel in het object. De OnderwijsaanbiederId
+            is de primaire identifier voor onderwijsaanbieders. In uitzonderingssituaties kan een secundaire
+            identifier worden gebruikt.
+        organisationIds:
+          type: array
+          description: 'A secondary identifier for the School. This value is used whenever the primary
+            identifier is not available.
+
+            (exactly one of organisationMasterIdentifier or organisationIds must be present)
+
+            '
+          items:
+            type: object
+            properties:
+              organisationId:
+                type: string
+              organisationIdType:
+                type: string
+                enum:
+                - OIE_CODE
+                - BP_ID
+                - DD_ID
+                - AS_ID
+                - V_ID
+            required:
+            - organisationId
+            - organisationIdType
+          x-vullingsregel: Zodra een secundaire identifier voor een uitzonderingssituatie gehanteerd wordt
+            dan moet naast het Id ook het Type gespecificeerd worden. Zie de pagina Identiteiten voor
+            de toegestane secundaire identifiers.
+        name:
+          type: string
+          description: The name of the School.
+        boards:
+          type: array
+          description: The Boards this School belongs to.
+          items:
+            $ref: '#/components/schemas/BoardReference'
+        locations:
+          type: array
+          description: A list of all school locations of this organisation.
+          items:
+            $ref: '#/components/schemas/LocationReference'
+        status:
+          type: string
+          description: 'The status field gives an indication to Consumers about the status of an object.
+
+            Consumers can delete objects that are flagged `tobedeleted`  as such if they wish.
+
+
+            The status attribute is based on the [Base Class from OneRoster](https://www.imsglobal.org/sites/default/files/spec/oneroster/v1p2/rostering-informationmodel/OneRosterv1p2RosteringService_InfoModelv1p0.html#Data_Base).
+
+            '
+          enum:
+          - active
+          - tobedeleted
+        dateCreated:
+          type: string
+          description: 'Indicates the date and time the object was first created. Format: According to
+            openapi in ZULU time as specified in RFC 3339, section 5.6.'
+          format: date-time
+          example: '2017-07-21T17:32:28Z'
+        dateLastModified:
+          type: string
+          description: 'Indicates the date and time the object was first created. Format: According to
+            openapi in ZULU time as specified in RFC 3339, section 5.6.'
+          format: date-time
+          example: '2022-08-11T15:31:12Z'
+      required:
+      - name
+      - status
+      - dateCreated
+      - dateLastModified
+      if:
+        required:
+        - organisationMasterIdentifier
+      then:
+        not:
+          required: &id001
+          - organisationIds
+      else:
+        required: *id001
+    StudyOffering:
+      title: StudyOffering
+      description: The StudyOffering object with its identifiers, name, and metadata information.
+      type: object
+      x-tags:
+      - StudyOffering
+      x-toelichting: Het object StudyOffering beschrijft de opleidingen op basis van de opleidingseenheden
+        in combinatie met het leerjaar aangeboden door de onderwijsaanbieder. In het object worden verwijzingen
+        gemaakt naar de waardelijsten die onder beheer zijn van de werkgroep Waardelijsten RIO.
+      properties:
+        studyOfferingId:
+          type: string
+          description: 'A unique identifier for this StudyOffering object.
+
+            This is the GUID that Consumers will refer to when making API calls, or when needing to identify
+            an object.
+
+            '
+          format: uuid
+        studyOfferingName:
+          type: string
+          description: The name given by the School for this StudyOffering.
+          x-voorbeeld: Gymnasium brugklas
+        studyName:
+          type: string
+          description: 'Official name of the study.
+
+            - primary education: the `po-opleidingseenheden in RIO korte naam` name as specified in [Waardenlijsten
+            RIO-po, schooljaar 2026-2027](https://www.edustandaard.nl/standaard_werkgroepen/beheergroep-waardenlijsten-rio/)
+            is used.
+
+            - secondary education: the `korte naam` as specified in [Waardenlijst Opleidingen en opleidingsgroepen
+            vo, schooljaar 2026-2027, v1.01](https://www.edustandaard.nl/standaard_werkgroepen/beheergroep-waardenlijsten-rio/),
+            tab `Opleidingseenheden (volledig)`, is used.
+
+            '
+          x-voorbeeld: vwo-gymnasium-onderbouw
+          x-vullingsregel: 'Indien de AangebodenOpleiding erkend is dan is dit veld verplicht. Werkingsregel
+            is om per sector de volgende waardelijsten te gebruiken: primair onderwijs: po-opleidingseenheden
+            korte naam conform erkende opleiding in Waardenlijsten RIO-po, schooljaar 2026-2027; voortgezet
+            onderwijs: korte naam conform Waardenlijst Opleidingen en opleidingsgroepen vo, schooljaar
+            2026-2027, v1.01, tabblad Opleidingseenheden (volledig).'
+        studyCode:
+          type: string
+          description: 'Accepteert 4 cijfers (0011) of 4 cijfers, een ''O'', en weer 4 cijfers (1000O0020).
+
+            Primair onderwijs (BO & SO): opleidingseenheid code (9 karakters) conform [Waardenlijsten
+            RIO-po, schooljaar 2026-2027](https://www.edustandaard.nl/standaard_werkgroepen/beheergroep-waardenlijsten-rio/)
+
+            Voortgezet onderwijs (VO & VSO): opleidingseenheidcode (O-code, 9 karakters, bv. 1002O2254)
+            conform [Waardenlijst Opleidingen en opleidingsgroepen vo, schooljaar 2026-2027, v1.01](https://www.edustandaard.nl/standaard_werkgroepen/beheergroep-waardenlijsten-rio/),
+            tabblad `Opleidingseenheden (volledig)`, kolom A
+
+            '
+          pattern: ^(\d{4}|\d{4}O\d{4})$
+          example: 1000O0020
+          x-voorbeeld: 1002O0222; 1000O0001
+          x-vullingsregel: 'Indien de AangebodenOpleiding erkend is dan is dit veld verplicht. Werkingsregel
+            is om per sector de volgende waardelijsten te gebruiken: primair onderwijs (BO & SO): opleidingseenheidcode
+            (9 karakters) conform Waardenlijsten RIO-po, schooljaar 2026-2027; voortgezet onderwijs (VO
+            & VSO): opleidingseenheidcode (O-code, 9 karakters) conform Waardenlijst Opleidingen en opleidingsgroepen
+            vo, schooljaar 2026-2027, v1.01, tabblad Opleidingseenheden (volledig), kolom A. De twee formaten
+            zijn ondubbelzinnig te onderscheiden op basis van lengte en structuur. Een afnemer kan beide
+            correct interpreteren zonder risico op verwisseling.'
+        studyCharacteristics:
+          type: array
+          description: 'Official characteristic of the study.
+
+            - primary education: the `po-opleidingskenmerken` name as specified in [Waardenlijst Opleidingseenheden
+            po](https://www.edustandaard.nl/standaard_werkgroepen/beheergroep-waardenlijsten-rio/) is
+            used.
+
+            - secondary education: the `vo-opleidingskenmerken` name as specified in [Waardenlijst Opleidingseenheden
+            vo](https://www.edustandaard.nl/standaard_werkgroepen/beheergroep-waardenlijsten-rio/) is
+            used.
+
+            '
+          items:
+            type: string
+          x-voorbeeld: VERRIJKT_PROGRAMMA_VWO, PILOT_TPO, CULTUURPROFIEL_PO, HBGO
+          x-vullingsregel: 'Werkingsregel is om per sector de volgende waardelijsten te gebruiken: primair
+            onderwijs: po-opleidingskenmerken conform waardelijst RIO po; voortgezet onderwijs: vo-opleidingskenmerken
+            conform waardelijst RIO vo.'
+        studyLevel:
+          type: object
+          description: 'Official level of the study.
+
+            Primary and secondary education studyLevels are based on the `Niveau` as specified in [SLO
+            curriculum 2026](https://opendata.slo.nl/curriculum/2026/api/v1/niveau/)
+
+            '
+          properties:
+            studyLevelId:
+              type: string
+              description: The uuid of the level.
+              pattern: ^[a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{12}$
+              example: cb61531d-61eb-4412-a52f-ca065ca37e39/
+            studyLevelPrefix:
+              type: string
+              description: The prefix of the level
+              pattern: ^[0-9]*$
+              minLength: 4
+              maxLength: 4
+              example: 4205
+            studyLevelName:
+              type: string
+              description: The name of the level.
+              example: havo 5
+          required:
+          - studyLevelId
+          - studyLevelPrefix
+          - studyLevelName
+          x-vullingsregel: Formaat conform het Niveau van SLO curriculum 2026. Voor meer informatie zie
+            Waardelijst onderwijsniveaus en leerjaren. Het gespecialiseerd onderwijs kan optioneel gebruik
+            maken van dit attribuut. Uit het studyLevel valt op te maken dat de opleiding van het niveau
+            speciaal onderwijs of voortgezet speciaal onderwijs is.
+        studyYear:
+          type: integer
+          description: 'The study year of this object.
+
+
+            Example values are:
+
+            - Basisschool: 0, 1, 2, 3, 4, 5, 6, 7 or 8
+
+            - VMBO: 0, 1, 2, 3 or 4
+
+            - HAVO: 0, 1, 2, 3, 4 or 5
+
+            - VWO: 0, 1, 2, 3, 4, 5 or 6
+
+            '
+          x-vullingsregel: 'Dit attribuut specificeert het jaar van de opleiding. Bijvoorbeeld: basisonderwijs:
+            0, 1, 2, 3, 4, 5, 6, 7 of 8; VMBO: 1, 2, 3 of 4; HAVO: 1, 2, 3, 4 of 5; VWO: 1, 2, 3, 4, 5
+            of 6.'
+        status:
+          type: string
+          description: 'The status field gives an indication to Consumers about the status of an object.
+
+            Consumers can delete objects that are flagged `tobedeleted`  as such if they wish.
+
+
+            The status attribute is based on the [Base Class from OneRoster](https://www.imsglobal.org/sites/default/files/spec/oneroster/v1p2/rostering-informationmodel/OneRosterv1p2RosteringService_InfoModelv1p0.html#Data_Base).
+
+            '
+          enum:
+          - active
+          - tobedeleted
+        dateCreated:
+          type: string
+          description: 'Indicates the date and time the object was first created. Format: According to
+            openapi in ZULU time as specified in RFC 3339, section 5.6.'
+          format: date-time
+          example: '2017-07-21T17:32:28Z'
+        dateLastModified:
+          type: string
+          description: 'Indicates the date and time the object was last modified. Format: According to
+            openapi in ZULU time as specified in RFC 3339, section 5.6.'
+          format: date-time
+          example: '2022-08-11T15:31:12Z'
+      required:
+      - studyOfferingId
+      - studyOfferingName
+      - status
+      - dateCreated
+      - dateLastModified
+    SubjectOffering:
+      title: SubjectOffering
+      description: The SubjectOffering object with its identifiers, name, and metadata information.
+      type: object
+      x-tags:
+      - SubjectOffering
+      x-toelichting: Het object SubjectOffering beschrijft de vakken aangeboden door de onderwijsaanbieder.
+        In het object worden verwijzingen gemaakt naar de waardelijsten die onder beheer zijn van de werkgroep
+        Waardelijsten RIO.
+      properties:
+        subjectOfferingId:
+          type: string
+          description: 'A unique identifier for this SubjectOffering object.
+
+            This is the GUID that Consumers will refer to when making API calls, or when needing to identify
+            an object.
+
+            '
+          format: uuid
+        subjectOfferingName:
+          type: string
+          description: The name given by the School to this SubjectOffering.
+        subjectOfferingAbbr:
+          type: string
+          description: Abbreviation of the SubjectOffering name.
+        subjectCode:
+          type: string
+          description: 'Official code of the subject.
+
+            For primary and secondary education: the `Prefix` as specified in [Waardenlijst Vakken en
+            leergebieden po en vo, schooljaar 2026-2027, v1.01](https://www.edustandaard.nl/standaard_werkgroepen/beheergroep-waardenlijsten-rio/),
+            tab `Leermiddelenketen`, column C, is used.
+
+            Note: a Prefix can belong to more than one subject, so the subjectCode does not always identify a single subject.
+
+            '
+          x-vullingsregel: Indien het vak onderdeel is van het curriculum uit een opleiding dan is dit
+            veld verplicht. Werkingsregel is de Prefix conform Waardenlijst Vakken en leergebieden po
+            en vo, schooljaar 2026-2027, v1.01, tabblad Leermiddelenketen, kolom C.
+        studyOfferings:
+          type: array
+          items:
+            type: string
+            description: Reference to a studyOfferingId of the StudyOffering object where this SubjectOffering
+              is part of.
+          x-vullingsregel: Verwijzing naar studyOfferingId. Indien het vak onderdeel is van het curriculum
+            uit een opleiding dan is dit veld verplicht.
+        status:
+          type: string
+          description: 'The status field gives an indication to Consumers about the status of an object.
+
+            Consumers can delete objects that are flagged `tobedeleted`  as such if they wish.
+
+
+            The status attribute is based on the [Base Class from OneRoster](https://www.imsglobal.org/sites/default/files/spec/oneroster/v1p2/rostering-informationmodel/OneRosterv1p2RosteringService_InfoModelv1p0.html#Data_Base).
+
+            '
+          enum:
+          - active
+          - tobedeleted
+        dateCreated:
+          type: string
+          description: 'Indicates the date and time the object was first created. Format: According to
+            openapi in ZULU time as specified in RFC 3339, section 5.6.'
+          format: date-time
+          example: '2017-07-21T17:32:28Z'
+        dateLastModified:
+          type: string
+          description: 'Indicates the date and time the object was last modified. Format: According to
+            openapi in ZULU time as specified in RFC 3339, section 5.6.'
+          format: date-time
+          example: '2022-08-11T15:31:12Z'
+      required:
+      - subjectOfferingId
+      - subjectOfferingName
+      - status
+      - dateCreated
+      - dateLastModified
+    SchoolReference:
+      title: SchoolReference
+      description: A reference to a School organisation.
+      type: object
+      properties:
+        organisationMasterIdentifier:
+          type: string
+          description: 'The primary identifier for a School. For Schools the `OnderwijsaanbiederId` is
+            used.
+
+            (exactly one of organisationMasterIdentifier or organisationIds must be present)
+
+            '
+          example: 104A158
+        organisationIds:
+          type: array
+          description: 'A secondary identifier for the School. This value is used whenever the primary
+            identifier is not available.
+
+            (exactly one of organisationMasterIdentifier or organisationIds must be present)
+
+            '
+          items:
+            type: object
+            properties:
+              organisationId:
+                type: string
+              organisationIdType:
+                type: string
+                enum:
+                - OIE_CODE
+                - BP_ID
+                - DD_ID
+                - AS_ID
+                - V_ID
+            required:
+            - organisationId
+            - organisationIdType
+      if:
+        required:
+        - organisationMasterIdentifier
+      then:
+        not:
+          required: &id002
+          - organisationIds
+      else:
+        required: *id002
+    BoardReference:
+      title: BoardReference
+      description: A reference to a School Board organisation.
+      type: object
+      properties:
+        organisationMasterIdentifier:
+          type: string
+          description: 'The primary identifier for a School Board. For boards the `OnderwijsbestuurId`
+            is used.
+
+            (exactly one of organisationMasterIdentifier or organisationIds must be present)
+
+            '
+          example: 106B996
+        organisationIds:
+          type: array
+          description: 'A secondary identifier for the School Board. This value is used whenever the primary
+            identifier is not available.
+
+            (exactly one of organisationMasterIdentifier or organisationIds must be present)
+
+            '
+          items:
+            type: object
+            properties:
+              organisationId:
+                type: string
+              organisationIdType:
+                type: string
+                enum:
+                - BGE_CODE
+            required:
+            - organisationId
+            - organisationIdType
+        name:
+          type: string
+          description: The name of the School Board.
+          example: Stichting Flores Onderwijs
+      required:
+      - name
+      if:
+        required:
+        - organisationMasterIdentifier
+      then:
+        not:
+          required: &id003
+          - organisationIds
+      else:
+        required: *id003
+    LocationReference:
+      title: LocationReference
+      description: A reference to a School location.
+      type: object
+      x-tags:
+      - Organisation
+      properties:
+        locationMasterIdentifier:
+          type: string
+          description: 'The primary identifier for the School location. For School locations the `Onderwijslocatiecode`
+            is used.
+
+            (either locationMasterIdentifier or locationIds is required)
+
+            '
+          example: 112X995
+        locationIds:
+          type: array
+          description: 'A secondary identifier for the School location. This value is used whenever the
+            primary identifier is not available.
+
+            (either locationMasterIdentifier or locationIds is required)
+
+            '
+          items:
+            type: object
+            properties:
+              locationId:
+                type: string
+              locationIdType:
+                type: string
+                enum:
+                - VE_CODE
+            required:
+            - locationId
+            - locationIdType
+        name:
+          type: string
+          description: The name of the School location.
+      required:
+      - name
+      if:
+        not:
+          required:
+          - locationMasterIdentifier
+      then:
+        required:
+        - locationIds
+    StatusResponse:
+      title: StatusResponse
+      description: Functional status code and status message.
+      type: object
+      properties:
+        status:
+          type: integer
+          description: "Functional status code, as defined in \"Status- en foutcodes 1.0.0\".\nCodes are sent as integers without\
+            \ leading zeros (0011 = 11).\n\nAlgemeen (00xx) - applies to every\
+            \ API:\n  * `0000` - OK: Bevraging succesvol (HTTP 200).\n  * `0001` - Created: Bericht heeft\
+            \ geleid tot registratie van een nieuwe entiteit (HTTP 201).\n  * `0002` - Accepted: Bericht\
+            \ geaccepteerd (HTTP 202).\n  * `0011` - Schema incorrect: Schemavalidatie niet succesvol\
+            \ (HTTP 400).\n  * `0012` - schemaVersion not supported: De ontvanger kan de gehanteerde schemaVersion\
+            \ niet verwerken (HTTP 400).\n  * `0021` - scope required: Leverancier is niet geautoriseerd\
+            \ voor scope (HTTP 401).\n  * `0022` - consent required: Informatieobject van classificatie\
+            \ IV zonder geactiveerde gegevensdienst (HTTP 403).\n  * `0023` - school unknown: De client\
+            \ communiceert in de context van een Onderwijsorganisatie die niet bekend is bij de server\
+            \ (HTTP 400).\n  * `0099` - Overige reden: Vullingsregel: neem in statusMessage een beschrijving\
+            \ van de reden op.\n\nEducation API (20xx):\n  * `2001` - School unknown: De identifier van\
+            \ de onderwijsorganisatie is onbekend.\n  * `2002` - SubjectOffering unknown: De identifier\
+            \ van het SchoolVak is onbekend.\n  * `2003` - StudyOffering unknown: De aangeboden opleiding\
+            \ is onbekend.\n  * `2008` - SchoolPeriod unknown: De identifier van de schoolperiode is onbekend.\n\
+            \  * `2011` - Board unknown: De identifier van de board is onbekend."
+        statusMessage:
+          type: string
+          description: See functional status messages within the Documentation.
+      required:
+      - status
+  securitySchemes:
+    OAuth2:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.example.com/oauth2/token
+          refreshUrl: https://api.example.com/oauth2/token
+          scopes:
+            eduv.education: a scope that gives access to all objects from the Education API.
+  responses:
+    BadRequest:
+      description: Bad Request - schema validation failed, unsupported schemaVersion, or unknown school
+        (status 0011 / 0012 / 0023).
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/StatusResponse'
+    Unauthorized:
+      description: Unauthorized - the supplier is not authorised for the requested scope (status 0021).
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/StatusResponse'
+    Forbidden:
+      description: Forbidden - the information object is classification IV and the gegevensdienst has
+        not been activated (status 0022).
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/StatusResponse'
+    NotFound:
+      description: Not Found - the endpoint URL is not known.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/StatusResponse'
+    MethodNotAllowed:
+      description: Method Not Allowed - the request method is not permitted for this endpoint.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/StatusResponse'
+    ServerError:
+      description: Internal Server Error - general server-side error.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/StatusResponse'
+paths:
+  /organisations:
+    parameters:
+    - schema:
+        type: string
+      name: orgMasterId
+      in: query
+      required: false
+      description: 'The organisationMasterIdentifier of the school.
+
+        This parameter is used when the primary identifier for a school (being the `OnderwijsaanbiederId`)
+        is available.
+
+        '
+      x-vullingsregel: Gebruik óf orgMasterId, óf de combinatie orgId + orgIdType, nooit beide in hetzelfde
+        request (zie "Organisatie-identiteiten en filtergedrag").
+    - schema:
+        type: string
+      name: orgId
+      in: query
+      required: false
+      description: 'The organisationIdentifier (secondary identifier) of the school.
+
+        This parameter is used in combination with the orgIdType when the organisationMasterIdentifier
+        is not available.
+
+        '
+      x-vullingsregel: Gebruik óf orgMasterId, óf de combinatie orgId + orgIdType, nooit beide in hetzelfde
+        request (zie "Organisatie-identiteiten en filtergedrag").
+    - schema:
+        type: string
+        example: DD_ID
+        enum:
+        - OIE_CODE
+        - BP_ID
+        - DD_ID
+        - AS_ID
+        - V_ID
+      name: orgIdType
+      in: query
+      required: false
+      description: 'The type of the organisationIdentifier.
+
+        This parameter is used in combination with the orgId when the organisationMasterIdentifier is
+        not available.
+
+        The following values are supported:
+
+        - `OIE_CODE`: OnderwijsInstellingserkenningcode
+
+        - `BP_ID`: Basispoort-generated identifier for the school
+
+        - `DD_ID`: DigiDeliveryId generated by the Central Registration of Edu-iX
+
+        - `AS_ID`: LAS-generated identifier (LAS-Key) for the school
+
+        - `V_ID`: VestigingsId – BRIN6-format identifier, including dummy locations
+
+        '
+      x-vullingsregel: Gebruik óf orgMasterId, óf de combinatie orgId + orgIdType, nooit beide in hetzelfde
+        request (zie "Organisatie-identiteiten en filtergedrag").
+    - schema:
+        type: string
+      name: boardMasterId
+      in: query
+      required: false
+      description: 'The organisationMasterIdentifier of the Board.
+
+        This parameter is used when the primary identifier for a board (being the `OnderwijsbestuurId`)
+        is available.
+
+        '
+      x-vullingsregel: Gebruik óf boardMasterId, óf de combinatie boardId + boardIdType, nooit beide in
+        hetzelfde request (zie "Organisatie-identiteiten en filtergedrag").
+    - schema:
+        type: string
+      name: boardId
+      in: query
+      required: false
+      description: 'The boardIdentifier (secondary identifier) of a board.
+
+        This parameter is used in combination with the boardIdType when the organisationMasterIdentifier
+        of the Board is not available.
+
+        '
+      x-vullingsregel: Gebruik óf boardMasterId, óf de combinatie boardId + boardIdType, nooit beide in
+        hetzelfde request (zie "Organisatie-identiteiten en filtergedrag").
+    - schema:
+        type: string
+        example: DD_ID
+        enum:
+        - BGE_CODE
+      name: boardIdType
+      in: query
+      required: false
+      description: 'The type of the boardIdentifier.
+
+        This parameter is used in combination with the boardId when the organisationMasterIdentifier of
+        the Board is not available.
+
+        '
+      x-vullingsregel: Gebruik óf boardMasterId, óf de combinatie boardId + boardIdType, nooit beide in
+        hetzelfde request (zie "Organisatie-identiteiten en filtergedrag").
+    - schema:
+        type: string
+      name: name
+      in: query
+      required: false
+      description: 'The name of the school.
+
+        '
+    get:
+      x-eduv-error-codes:
+      - '2001'
+      - '2011'
+      summary: Get Organisations
+      x-tags:
+      - Organisation
+      tags:
+      - Administratiesysteem onderwijsdeelnemer
+      operationId: get-organisations-by-school-search
+      description: 'Request all registered Organisation objects based on the specified School.
+
+        This endpoint can be used to gather all relevant organisations within the `Administratiesysteem
+        onderwijsdeelnemer` for the specified school of board.
+
+        '
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Organisation'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '405':
+          $ref: '#/components/responses/MethodNotAllowed'
+        '500':
+          $ref: '#/components/responses/ServerError'
+      security:
+      - OAuth2:
+        - eduv.education
+  /studyofferings/school/{id}:
+    parameters:
+    - schema:
+        type: string
+      name: id
+      in: path
+      required: true
+      description: Reference to the studyOfferingId of the StudyOffering object.
+    - schema:
+        type: string
+      name: orgMasterId
+      in: query
+      required: false
+      description: 'The organisationMasterIdentifier of the school.
+
+        This parameter is used when the primary identifier for a school (being the `OnderwijsaanbiederId`)
+        is available.
+
+        '
+      x-vullingsregel: Gebruik óf orgMasterId, óf de combinatie orgId + orgIdType, nooit beide in hetzelfde
+        request (zie "Organisatie-identiteiten en filtergedrag").
+    - schema:
+        type: string
+      name: orgId
+      in: query
+      required: false
+      description: 'The organisationIdentifier (secondary identifier) of the school.
+
+        This parameter is used in combination with the orgIdType when the organisationMasterIdentifier
+        is not available.
+
+        '
+      x-vullingsregel: Gebruik óf orgMasterId, óf de combinatie orgId + orgIdType, nooit beide in hetzelfde
+        request (zie "Organisatie-identiteiten en filtergedrag").
+    - schema:
+        type: string
+        example: DD_ID
+        enum:
+        - OIE_CODE
+        - BP_ID
+        - DD_ID
+        - AS_ID
+        - V_ID
+      name: orgIdType
+      in: query
+      required: false
+      description: 'The type of the organisationIdentifier.
+
+        This parameter is used in combination with the orgId when the organisationMasterIdentifier is
+        not available.
+
+        The following values are supported:
+
+        - `OIE_CODE`: OnderwijsInstellingserkenningcode
+
+        - `BP_ID`: Basispoort-generated identifier for the school
+
+        - `DD_ID`: DigiDeliveryId generated by the Central Registration of Edu-iX
+
+        - `AS_ID`: LAS-generated identifier (LAS-Key) for the school
+
+        - `V_ID`: VestigingsId – BRIN6-format identifier, including dummy locations
+
+        '
+      x-vullingsregel: Gebruik óf orgMasterId, óf de combinatie orgId + orgIdType, nooit beide in hetzelfde
+        request (zie "Organisatie-identiteiten en filtergedrag").
+    get:
+      x-eduv-error-codes:
+      - '2001'
+      - '2003'
+      summary: Get StudyOffering
+      x-tags:
+      - StudyOffering
+      tags:
+      - Administratiesysteem onderwijsdeelnemer
+      operationId: get-studyofferings
+      description: Request StudyOffering object based on its studyOfferingId.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StudyOffering'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '405':
+          $ref: '#/components/responses/MethodNotAllowed'
+        '500':
+          $ref: '#/components/responses/ServerError'
+      security:
+      - OAuth2:
+        - eduv.education
+  /studyofferings/school:
+    parameters:
+    - schema:
+        type: string
+      name: orgMasterId
+      in: query
+      required: false
+      description: 'The organisationMasterIdentifier of the school.
+
+        This parameter is used when the primary identifier for a school (being the `OnderwijsaanbiederId`)
+        is available.
+
+        '
+      x-vullingsregel: Gebruik óf orgMasterId, óf de combinatie orgId + orgIdType, nooit beide in hetzelfde
+        request (zie "Organisatie-identiteiten en filtergedrag").
+    - schema:
+        type: string
+      name: orgId
+      in: query
+      required: false
+      description: 'The organisationIdentifier (secondary identifier) of the school.
+
+        This parameter is used in combination with the orgIdType when the organisationMasterIdentifier
+        is not available.
+
+        '
+      x-vullingsregel: Gebruik óf orgMasterId, óf de combinatie orgId + orgIdType, nooit beide in hetzelfde
+        request (zie "Organisatie-identiteiten en filtergedrag").
+    - schema:
+        type: string
+        example: DD_ID
+        enum:
+        - OIE_CODE
+        - BP_ID
+        - DD_ID
+        - AS_ID
+        - V_ID
+      name: orgIdType
+      in: query
+      required: false
+      description: 'The type of the organisationIdentifier.
+
+        This parameter is used in combination with the orgId when the organisationMasterIdentifier is
+        not available.
+
+        The following values are supported:
+
+        - `OIE_CODE`: OnderwijsInstellingserkenningcode
+
+        - `BP_ID`: Basispoort-generated identifier for the school
+
+        - `DD_ID`: DigiDeliveryId generated by the Central Registration of Edu-iX
+
+        - `AS_ID`: LAS-generated identifier (LAS-Key) for the school
+
+        - `V_ID`: VestigingsId – BRIN6-format identifier, including dummy locations
+
+        '
+      x-vullingsregel: Gebruik óf orgMasterId, óf de combinatie orgId + orgIdType, nooit beide in hetzelfde
+        request (zie "Organisatie-identiteiten en filtergedrag").
+    - schema:
+        type: boolean
+      name: filterByOrgId
+      in: query
+      required: false
+      description: 'Controls whether the response is filtered to only include StudyOfferings belonging
+        to the
+
+        specific organisation identified by `orgId` and `orgIdType`, or whether all StudyOfferings
+
+        of the associated Onderwijsaanbieder are returned.
+
+        - `true`: Only StudyOfferings belonging to the specified secondary identifier are returned.
+
+        - `false`: All StudyOfferings of the associated Onderwijsaanbieder are returned (to the extent
+        authorisations have been configured).
+
+        When omitted, a sector-specific default applies:
+
+        - **PO (primary education):** defaults to `true` – response is filtered to the specified identifier.
+
+        - **VO (secondary education):** defaults to `false` – response covers the full Onderwijsaanbieder
+        scope.
+
+        This parameter is only relevant in combination with `orgId` and `orgIdType`.
+
+        When `orgMasterId` is used, this parameter must be absent or `false`.
+
+        It is the responsibility of the consuming party to verify whether the Source supports
+
+        filtering via this parameter before using it.
+
+        '
+    - schema:
+        type: string
+      name: studyCode
+      in: query
+      required: false
+      description: Optional filter to request all StudyOffering objects of a specified studyCode.
+    - schema:
+        type: string
+      name: schoolPeriodId
+      in: query
+      required: false
+      description: Optional filter to request all StudyOffering objects within a specified SchoolPeriod
+        and its corresponding schoolPeriodId.
+    get:
+      x-eduv-error-codes:
+      - '2001'
+      - '2003'
+      - '2008'
+      summary: Get StudyOfferings for School
+      x-tags:
+      - StudyOffering
+      tags:
+      - Administratiesysteem onderwijsdeelnemer
+      operationId: get-studyofferings-for-school
+      description: Request StudyOffering objects for a specified School.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/StudyOffering'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '405':
+          $ref: '#/components/responses/MethodNotAllowed'
+        '500':
+          $ref: '#/components/responses/ServerError'
+      security:
+      - OAuth2:
+        - eduv.education
+  /subjectofferings/school/{id}:
+    parameters:
+    - schema:
+        type: string
+      name: id
+      in: path
+      required: true
+      description: Reference to the subjectOfferingId of the SubjectOffering object.
+    - schema:
+        type: string
+      name: orgMasterId
+      in: query
+      required: false
+      description: 'The organisationMasterIdentifier of the school.
+
+        This parameter is used when the primary identifier for a school (being the `OnderwijsaanbiederId`)
+        is available.
+
+        '
+      x-vullingsregel: Gebruik óf orgMasterId, óf de combinatie orgId + orgIdType, nooit beide in hetzelfde
+        request (zie "Organisatie-identiteiten en filtergedrag").
+    - schema:
+        type: string
+      name: orgId
+      in: query
+      required: false
+      description: 'The organisationIdentifier (secondary identifier) of the school.
+
+        This parameter is used in combination with the orgIdType when the organisationMasterIdentifier
+        is not available.
+
+        '
+      x-vullingsregel: Gebruik óf orgMasterId, óf de combinatie orgId + orgIdType, nooit beide in hetzelfde
+        request (zie "Organisatie-identiteiten en filtergedrag").
+    - schema:
+        type: string
+        example: DD_ID
+        enum:
+        - OIE_CODE
+        - BP_ID
+        - DD_ID
+        - AS_ID
+        - V_ID
+      name: orgIdType
+      in: query
+      required: false
+      description: 'The type of the organisationIdentifier.
+
+        This parameter is used in combination with the orgId when the organisationMasterIdentifier is
+        not available.
+
+        The following values are supported:
+
+        - `OIE_CODE`: OnderwijsInstellingserkenningcode
+
+        - `BP_ID`: Basispoort-generated identifier for the school
+
+        - `DD_ID`: DigiDeliveryId generated by the Central Registration of Edu-iX
+
+        - `AS_ID`: LAS-generated identifier (LAS-Key) for the school
+
+        - `V_ID`: VestigingsId – BRIN6-format identifier, including dummy locations
+
+        '
+      x-vullingsregel: Gebruik óf orgMasterId, óf de combinatie orgId + orgIdType, nooit beide in hetzelfde
+        request (zie "Organisatie-identiteiten en filtergedrag").
+    get:
+      x-eduv-error-codes:
+      - '2001'
+      - '2002'
+      summary: Get SubjectOffering
+      x-tags:
+      - SubjectOffering
+      tags:
+      - Administratiesysteem onderwijsdeelnemer
+      operationId: get-subjectoffering
+      description: Request SubjectOffering object based on its subjectOfferingId.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubjectOffering'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '405':
+          $ref: '#/components/responses/MethodNotAllowed'
+        '500':
+          $ref: '#/components/responses/ServerError'
+      security:
+      - OAuth2:
+        - eduv.education
+  /subjectofferings/school:
+    parameters:
+    - schema:
+        type: string
+      name: orgMasterId
+      in: query
+      required: false
+      description: 'The organisationMasterIdentifier of the school.
+
+        This parameter is used when the primary identifier for a school (being the `OnderwijsaanbiederId`)
+        is available.
+
+        '
+      x-vullingsregel: Gebruik óf orgMasterId, óf de combinatie orgId + orgIdType, nooit beide in hetzelfde
+        request (zie "Organisatie-identiteiten en filtergedrag").
+    - schema:
+        type: string
+      name: orgId
+      in: query
+      required: false
+      description: 'The organisationIdentifier (secondary identifier) of the school.
+
+        This parameter is used in combination with the orgIdType when the organisationMasterIdentifier
+        is not available.
+
+        '
+      x-vullingsregel: Gebruik óf orgMasterId, óf de combinatie orgId + orgIdType, nooit beide in hetzelfde
+        request (zie "Organisatie-identiteiten en filtergedrag").
+    - schema:
+        type: string
+        example: DD_ID
+        enum:
+        - OIE_CODE
+        - BP_ID
+        - DD_ID
+        - AS_ID
+        - V_ID
+      name: orgIdType
+      in: query
+      required: false
+      description: 'The type of the organisationIdentifier.
+
+        This parameter is used in combination with the orgId when the organisationMasterIdentifier is
+        not available.
+
+        The following values are supported:
+
+        - `OIE_CODE`: OnderwijsInstellingserkenningcode
+
+        - `BP_ID`: Basispoort-generated identifier for the school
+
+        - `DD_ID`: DigiDeliveryId generated by the Central Registration of Edu-iX
+
+        - `AS_ID`: LAS-generated identifier (LAS-Key) for the school
+
+        - `V_ID`: VestigingsId – BRIN6-format identifier, including dummy locations
+
+        '
+      x-vullingsregel: Gebruik óf orgMasterId, óf de combinatie orgId + orgIdType, nooit beide in hetzelfde
+        request (zie "Organisatie-identiteiten en filtergedrag").
+    - schema:
+        type: boolean
+      name: filterByOrgId
+      in: query
+      required: false
+      description: 'Controls whether the response is filtered to only include SubjectOfferings belonging
+        to the
+
+        specific organisation identified by `orgId` and `orgIdType`, or whether all SubjectOfferings
+
+        of the associated Onderwijsaanbieder are returned.
+
+        - `true`: Only SubjectOfferings belonging to the specified secondary identifier are returned.
+
+        - `false`: All SubjectOfferings of the associated Onderwijsaanbieder are returned (to the extent
+        authorisations have been configured).
+
+        When omitted, a sector-specific default applies:
+
+        - **PO (primary education):** defaults to `true` – response is filtered to the specified identifier.
+
+        - **VO (secondary education):** defaults to `false` – response covers the full Onderwijsaanbieder
+        scope.
+
+        This parameter is only relevant in combination with `orgId` and `orgIdType`.
+
+        When `orgMasterId` is used, this parameter must be absent or `false`.
+
+        It is the responsibility of the consuming party to verify whether the Source supports
+
+        filtering via this parameter before using it.
+
+        '
+    - schema:
+        type: string
+      name: subjectCode
+      in: query
+      required: false
+      description: Optional filter to request all SubjectOffering objects of a specified subjectCode.
+    - schema:
+        type: string
+      name: studyOfferingId
+      in: query
+      required: false
+      description: Optional filter to request all SubjectOffering objects offered within a Study and its
+        corresponding studyOfferingId.
+    - schema:
+        type: string
+      name: schoolPeriodId
+      in: query
+      required: false
+      description: Optional filter to request all SubjectOffering objects within a specified SchoolPeriod
+        and its corresponding schoolPeriodId.
+    get:
+      x-eduv-error-codes:
+      - '2001'
+      - '2002'
+      - '2003'
+      - '2008'
+      summary: Get SubjectOfferings for School
+      x-tags:
+      - SubjectOffering
+      tags:
+      - Administratiesysteem onderwijsdeelnemer
+      operationId: get-subjectofferings-for-school
+      description: Request SubjectOffering objects for a specified School.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SubjectOffering'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '405':
+          $ref: '#/components/responses/MethodNotAllowed'
+        '500':
+          $ref: '#/components/responses/ServerError'
+      security:
+      - OAuth2:
+        - eduv.education
+x-tags:
+- name: Organisation
+- name: StudyOffering
+- name: SubjectOffering
