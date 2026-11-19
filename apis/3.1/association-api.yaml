@@ -1,0 +1,1879 @@
+openapi: 3.1.1
+info:
+  title: Association API
+  version: 1.2.0-rc.1
+  description: 'The Association API is implemented by the `Administratiesysteem onderwijsdeelnemer`.
+
+
+    The Association API has the following objects:
+
+    - SchoolPeriod: the school period in which this school is organized.
+
+    - Enrollment: an enrollment of a student into a StudyYear or subject.
+
+    - Assignment: an assignment of an employee to a Group or a student.
+
+    - Group: a class or lesson-group of students and the employees that are assigned to it.
+
+
+    These objects could be considered open data from the school. As a data owner, the school authorizes
+    the exchange of this information towards suppliers.
+
+    All consuming reference components require consent to request data from the Association API.
+
+    The Notifications API can be used by consuming reference components to receive notifications about
+    new, modified, or deleted entities within the Association API.
+
+
+    The Association API has a scope of primary and secondary education. Vocational education is out of
+    scope. For Vocational Education we advise to use the [Open Education API (OOAPI)](https://openonderwijsapi.nl/).'
+  contact:
+    name: Edu-V
+    url: www.edu-v.org/afsprakenstelsel
+    email: info@edu-v.org
+  x-afkorting: ASC
+  x-status: release-candidate
+  x-beheer: Werkgroep Doorgifte Administratie
+  x-ingangsdatum: '2027-01-14'
+  x-gegevensdienst: Onderwijsinrichting
+  x-bron:
+  - Administratiesysteem onderwijsdeelnemer
+  x-afnemers:
+  - Bestelomgeving leermiddelen
+  - Aanspraakmanager
+  - Identitietsbeheervoorziening
+components:
+  schemas:
+    SchoolPeriod:
+      title: SchoolPeriod
+      description: The SchoolPeriod object with its title startDate and endDate.
+      type: object
+      x-tags:
+      - SchoolPeriod
+      x-toelichting: Het object SchoolPeriod beschrijft de periodes waarin onderwijs wordt gegeven binnen
+        de onderwijsaanbieder. De velden uit het object zijn gebaseerd op een AcademicSession zoals ook
+        beschreven in de internationale 1EdTech standaard OneRoster.
+      properties:
+        schoolPeriodId:
+          type: string
+          description: 'A unique identifier for this SchoolPeriod object.
+
+            For a full schoolyear this identifier has the format "beginyear-endyear", for example "2024-2025".
+            Otherwise this identifier is a UUID.
+
+            This is the UUID that Consumers will refer to when making API calls, or when needing to identify
+            an object.
+
+            '
+          format: string
+          x-voorbeeld: 2021-2022
+          x-vullingsregel: '"startschooljaar-eindschooljaar" als het een schooljaar betreft en anders
+            moet het veld worden gevuld met een UUID.'
+        title:
+          type: string
+          description: The name of the SchoolPeriod.
+          example: 2024-2025
+          x-voorbeeld: 2021-2022 / 2022H1
+        type:
+          type: string
+          description: 'The type of SchoolPeriod. An enumerated value is used:
+
+            - gradingPeriod: Denotes a period over which some grade/result is to be awarded.
+
+            - schoolYear: Denotes the school year.
+
+            - semester: Denotes a semester period. Typically there are two semesters per schoolYear.
+
+            - term: Denotes a term period. Typically there are three terms per schoolYear.
+
+
+            ENUM values are corresponding the OneRoster [AcademicSession SessionType](https://www.imsglobal.org/sites/default/files/spec/oneroster/v1p2/rostering-informationmodel/OneRosterv1p2RosteringService_InfoModelv1p0.html#Union_SessionTypeEnumExt).
+
+            '
+          enum:
+          - gradingPeriod
+          - schoolYear
+          - semester
+          - term
+          x-vullingsregel: De waardelijst is overgenomen vanuit OneRoster voor SessionType van een AcademicSession.
+        superSchoolPeriod:
+          type: string
+          description: The link to a hierarchically higher Schoolperiod object. For example for a semester
+            this is the schoolYear.
+          x-vullingsregel: De superSchoolPeriod van een semester is bijvoorbeeld het schoolYear.
+        subSchoolPeriods:
+          type: array
+          description: The link to hierarchically lower Schoolperiod objects. For example for a schoolYear
+            these are its semesters.
+          items:
+            type: string
+            description: The link to a child Schoolperiod object. For example for a schoolYear this is
+              the semester.
+          x-vullingsregel: De subSchoolPeriods van een schoolYear zijn bijvoorbeeld de semesters.
+        startDate:
+          type: string
+          description: 'The start date for the SchoolPeriod (inclusive). Format: YYYY-MM-DD (according
+            to RFC3339).'
+          format: date
+          example: '2024-08-31'
+          x-voorbeeld: '2022-08-01'
+        endDate:
+          type: string
+          description: 'The end date for the SchoolPeriod (exclusive). Format: YYYY-MM-DD (according to
+            RFC3339).'
+          format: date
+          example: '2025-07-31'
+          x-voorbeeld: '2023-07-31'
+        status:
+          type: string
+          description: 'The status field gives an indication to Consumers about the status of an object.
+
+            Consumers can delete objects that are flagged `tobedeleted`  as such if they wish.
+
+
+            The status attribute is based on the [Base Class from OneRoster](https://www.imsglobal.org/sites/default/files/spec/oneroster/v1p2/rostering-informationmodel/OneRosterv1p2RosteringService_InfoModelv1p0.html#Data_Base).
+
+            '
+          enum:
+          - active
+          - tobedeleted
+          x-vullingsregel: De status is een verplicht veld en geeft aan of het object al dan niet verwijderd
+            kan worden.
+        dateCreated:
+          type: string
+          description: 'Indicates the date and time the object was first created. Format: According to
+            openapi in ZULU time as specified in RFC 3339, section 5.6.'
+          format: date-time
+          example: '2017-07-21T17:32:28Z'
+        dateLastModified:
+          type: string
+          description: 'Indicates the date and time the object was last modified. Format: According to
+            openapi in ZULU time as specified in RFC 3339, section 5.6.'
+          format: date-time
+          example: '2022-08-11T15:31:12Z'
+      required:
+      - schoolPeriodId
+      - title
+      - startDate
+      - endDate
+      - status
+      - dateCreated
+      - dateLastModified
+    Enrollment:
+      title: Enrollment
+      description: The Enrollment object for a student into a StudyYear or SubjectOffering for a SchoolPeriod.
+      type: object
+      x-tags:
+      - Enrollment
+      x-toelichting: Het object Enrollment beschrijft de inschrijving van een onderwijsdeelnemer op een
+        AangebodenOpleiding of een AangebodenVak voor een schoolperiode op een onderwijsaanbieder.
+      properties:
+        enrollmentId:
+          type: string
+          description: 'A unique identifier for this Enrollment object.
+
+            This is the GUID that Consumers will refer to when making API calls, or when needing to identify
+            an object.
+
+            '
+          format: uuid
+        student:
+          $ref: '#/components/schemas/UserReference'
+          description: The Student to which this enrollment object belongs.
+        enrollmentType:
+          type: string
+          description: 'The type of enrollment, being one of:
+
+            - study: an enrollment into a StudyOffering offered by the School.
+
+            - subject: an enrollment into a SubjectOffering offered by the School.
+
+            '
+          enum:
+          - study
+          - subject
+        study:
+          type: string
+          description: A reference to the studyOfferingId of the StudyOffering in case this enrollment
+            is of the enrollmentType `study`.
+          format: uuid
+          x-vullingsregel: Verwijzing naar studyOfferingId. Verplicht indien het enrollmentType study
+            betreft.
+        studyPublicId:
+          type: string
+          description: A reference to the public id of the StudyOffering in RIO in case this enrollment
+            is of the enrollmentType `study`
+          format: uuid
+          x-vullingsregel: Verwijzing naar id in RIO.
+        studyYear:
+          type: integer
+          description: "The study year of this object in case the enrollment is of the enrollmentType\
+            \ 'study'\n\nExample values are:\n  - Basisschool: 0, 1, 2, 3, 4, 5, 6, 7 or 8\n  - VMBO:\
+            \ 1, 2, 3 or 4\n  - HAVO: 1, 2, 3, 4 or 5\n  - VWO: 1, 2, 3, 4, 5 or 6\n"
+          x-vullingsregel: Verplicht indien het enrollmentType study betreft.
+        location:
+          $ref: '#/components/schemas/LocationReference'
+          description: The Location to which this enrollment object belongs.
+        subject:
+          type: string
+          description: A reference to the subjectOfferingId of the SubjectOffering in case this enrollment
+            is of the enrollmentType `subject`.
+          format: uuid
+          x-vullingsregel: Verwijzing naar subjectOfferingId. Verplicht indien het enrollmentType subject
+            betreft.
+        schoolPeriod:
+          type: string
+          description: A reference to the schoolPeriodId of the SchoolPeriod where this enrollment is
+            part of.
+          format: string
+          x-vullingsregel: Verwijzing naar schoolPeriodId. Waarde mag niet gewijzigd worden.
+        beginDate:
+          type: string
+          description: 'The start date on which the enrollment becomes active (inclusive). Format: YYYY-MM-DD
+            (according to RFC3339).'
+          format: date
+          example: '2022-07-31'
+          x-voorbeeld: '2022-08-01'
+          x-vullingsregel: De begindatum van de inschrijving kan afwijken van de startdatum van de schoolperiode.
+        endDate:
+          type: string
+          description: 'The end date on which the enrollment becomes inactive (exclusive). Format: YYYY-MM-DD
+            (according to RFC3339).'
+          format: date
+          example: '2024-08-31'
+          x-voorbeeld: '2023-07-31'
+          x-vullingsregel: De einddatum is een verplicht veld indien de inschrijving eerder afloopt dan
+            de schoolperiode.
+        status:
+          type: string
+          description: 'The status field gives an indication to Consumers about the status of an object.
+
+            Consumers can delete objects that are flagged `tobedeleted`  as such if they wish.
+
+
+            The status attribute is based on the [Base Class from OneRoster](https://www.imsglobal.org/sites/default/files/spec/oneroster/v1p2/rostering-informationmodel/OneRosterv1p2RosteringService_InfoModelv1p0.html#Data_Base).
+
+            '
+          enum:
+          - active
+          - tobedeleted
+          x-vullingsregel: De status is een verplicht veld en geeft aan of het object al dan niet verwijderd
+            kan worden.
+        dateCreated:
+          type: string
+          description: 'Indicates the date and time the object was first created. Format: According to
+            openapi in ZULU time as specified in RFC 3339, section 5.6.'
+          format: date-time
+          example: '2017-07-21T17:32:28Z'
+        dateLastModified:
+          type: string
+          description: 'Indicates the date and time the object was last modified. Format: According to
+            openapi in ZULU time as specified in RFC 3339, section 5.6.'
+          format: date-time
+          example: '2022-08-11T15:31:12Z'
+      required:
+      - enrollmentId
+      - student
+      - enrollmentType
+      - schoolPeriod
+      - beginDate
+      - status
+      - dateCreated
+      - dateLastModified
+      allOf:
+      - if:
+          properties:
+            enrollmentType:
+              const: study
+        then:
+          required:
+          - study
+          - studyYear
+      - if:
+          properties:
+            enrollmentType:
+              const: subject
+        then:
+          required:
+          - subject
+    Assignment:
+      title: Assignment
+      description: The Assignment object for an employee to a Group or Student for a SchoolPeriod.
+      type: object
+      x-tags:
+      - Assignment
+      x-toelichting: Het object Assignment beschrijft de toewijzing van een onderwijsmedewerker aan een
+        groep of individu voor een schoolperiode op een onderwijsaanbieder.
+      properties:
+        assignmentId:
+          type: string
+          description: 'A unique identifier for this Assignment object.
+
+            This is the identifier that Consumers will refer to when making API calls, or when needing
+            to identify an object.
+
+            '
+          example: 1ad4d41c-921a-4767-adc0-12bbf912f9dd
+        employee:
+          $ref: '#/components/schemas/UserReference'
+          description: The Employee to which this assignment object belongs.
+        assignmentType:
+          type: string
+          description: 'The type of assignment, being one of:
+
+            - class-teacher: an assignment to a class.
+
+            - teacher: an assignment to a lesson group for a subject.
+
+            - coach: an assignment to an individual student.
+
+            '
+          enum:
+          - class-teacher
+          - teacher
+          - coach
+        group:
+          type: string
+          description: A reference to the groupId of the Group in case this assignment is of the assignmentType
+            `class-teacher` or `teacher`  and the student is assigned to a Group for a single subject  .
+          x-vullingsregel: Verwijzing naar groupId. Verplicht indien het assignmentType class-teacher
+            of teacher betreft.
+        subject:
+          type: string
+          description: A reference to the subjectOfferingId of the SubjectOffering in case this assignment
+            is of the assignmentType `teacher`.
+          x-vullingsregel: Verwijzing naar subjectOfferingId. Dit is een verplicht veld indien het assignmentType
+            teacher betreft én de onderwijsmedewerker voor een enkel AangebodenVak toegewezen is aan de
+            groep.
+        student:
+          $ref: '#/components/schemas/UserReference'
+          description: A reference to a Student in case this assignment is of the assignmentType `coach`.
+          x-vullingsregel: Verplicht indien het assignmentType coach betreft.
+        schoolPeriod:
+          type: string
+          description: A reference to the schoolPeriodId of the SchoolPeriod where this assignment is
+            part of.
+          x-vullingsregel: Verwijzing naar schoolPeriodId. Waarde mag niet gewijzigd worden.
+        beginDate:
+          type: string
+          description: 'The start date on which the assignment becomes active (inclusive). Format: YYYY-MM-DD
+            (according to RFC3339).'
+          format: date
+          example: '2022-07-31'
+          x-voorbeeld: '2022-08-01'
+          x-vullingsregel: De begindatum van de toewijzing kan afwijken van de startdatum van de schoolperiode.
+        endDate:
+          type: string
+          description: 'The end date on which the assignment becomes inactive (exclusive). Format: YYYY-MM-DD
+            (according to RFC3339).'
+          format: date
+          example: '2024-08-31'
+          x-voorbeeld: '2023-07-31'
+          x-vullingsregel: De einddatum is een verplicht veld indien de toewijzing eerder afloopt dan
+            de schoolperiode.
+        status:
+          type: string
+          description: 'The status field gives an indication to Consumers about the status of an object.
+
+            Consumers can delete objects that are flagged `tobedeleted`  as such if they wish.
+
+
+            The status attribute is based on the [Base Class from OneRoster](https://www.imsglobal.org/sites/default/files/spec/oneroster/v1p2/rostering-informationmodel/OneRosterv1p2RosteringService_InfoModelv1p0.html#Data_Base).
+
+            '
+          enum:
+          - active
+          - tobedeleted
+          x-vullingsregel: De status is een verplicht veld en geeft aan of het object al dan niet verwijderd
+            kan worden.
+        dateCreated:
+          type: string
+          description: 'Indicates the date and time the object was first created. Format: According to
+            openapi in ZULU time as specified in RFC 3339, section 5.6.'
+          format: date-time
+          example: '2017-07-21T17:32:28Z'
+        dateLastModified:
+          type: string
+          description: 'Indicates the date and time the object was last modified. Format: According to
+            openapi in ZULU time as specified in RFC 3339, section 5.6.'
+          format: date-time
+          example: '2022-08-11T15:31:12Z'
+      required:
+      - assignmentId
+      - employee
+      - assignmentType
+      - schoolPeriod
+      - beginDate
+      - status
+      - dateCreated
+      - dateLastModified
+      allOf:
+      - if:
+          properties:
+            assignmentType:
+              enum:
+              - class-teacher
+              - teacher
+        then:
+          required:
+          - group
+      - if:
+          properties:
+            assignmentType:
+              const: coach
+        then:
+          required:
+          - student
+    Group:
+      title: Group
+      description: The Group object in which Students follow their education and Employees are assigned
+        to within a SchoolPeriod.
+      type: object
+      x-tags:
+      - Group
+      x-toelichting: In het Group object worden de stamgroepen en lesgroepen van een onderwijsaanbieder
+        in een bepaalde schoolperiode uitgewisseld. De werkingsregel is dat de onderwijsmedewerker die
+        middels een toewijzing gekoppeld is aan de Group ook daadwerkelijk alle voortgang en resultaten
+        van de onderwijsdeelnemers in het vak mag inzien.
+      properties:
+        groupId:
+          type: string
+          description: 'A unique identifier for this Group object.
+
+            This is the GUID that Consumers will refer to when making API calls, or when needing to identify
+            an object.
+
+            '
+          format: string
+          example: 3EFDC9BE-9127-4008-8809-8A24165315AF
+          x-vullingsregel: Waarde mag niet gewijzigd worden.
+        groupName:
+          type: string
+          description: The name of this Group.
+          x-voorbeeld: A4bBiol
+        groupType:
+          type: string
+          description: 'The type of group, being one of:
+
+            - class: a `stamgroep` where students are rostered into for their StudyOffering(s)
+
+            - lesson-group: a `lesgroep` where students are rostered into to follow a SubjectOffering.
+
+            '
+          enum:
+          - class
+          - lesson-group
+        students:
+          type: array
+          description: The Students which are member of this group.
+          items:
+            $ref: '#/components/schemas/UserReference'
+          x-vullingsregel: 'Onderwijsdeelnemers worden aan het Group object toegevoegd conform de volgende
+            regels: als de requestdatum na de begindatum van de groep zit, alle onderwijsdeelnemers die
+            op de datum van de requestdatum daadwerkelijk lid zijn van de groep (dus niet de onderwijsdeelnemers
+            die in de toekomst lid worden van de groep); als de requestdatum voor de begindatum van de
+            groep zit, voor alle onderwijsdeelnemers die vanaf de begindatum in de groep zitten (dit is
+            vooral handig om de groepen voor het volgende schooljaar uit te wisselen).'
+        assignments:
+          type: array
+          description: The Assignments of Employees that are assigned to this group.
+          items:
+            type: string
+            description: A reference to the assignmentId of the Assignment for this group.
+          x-vullingsregel: Verwijzing naar assignmentId.
+        schoolPeriod:
+          type: string
+          description: A reference to the schoolPeriodId of the SchoolPeriod where this group is part
+            of.
+          x-vullingsregel: Verwijzing naar schoolPeriodId. Waarde mag niet gewijzigd worden.
+        beginDate:
+          type: string
+          description: 'The start date on which the group becomes active (inclusive). Format: YYYY-MM-DD
+            (according to RFC3339).'
+          format: date
+          example: '2022-07-31'
+          x-voorbeeld: '2022-08-01'
+          x-vullingsregel: De begindatum van de groep kan afwijken van de startdatum van de schoolperiode.
+        endDate:
+          type: string
+          description: 'The end date on which the group becomes inactive (exclusive). Format: YYYY-MM-DD
+            (according to RFC3339).'
+          format: date
+          example: '2024-08-31'
+          x-voorbeeld: '2023-07-31'
+          x-vullingsregel: De einddatum is een verplicht veld indien de groep eerder afloopt dan de schoolperiode.
+        status:
+          type: string
+          description: 'The status field gives an indication to Consumers about the status of an object.
+
+            Consumers can delete objects that are flagged `tobedeleted`  as such if they wish.
+
+
+            The status attribute is based on the [Base Class from OneRoster](https://www.imsglobal.org/sites/default/files/spec/oneroster/v1p2/rostering-informationmodel/OneRosterv1p2RosteringService_InfoModelv1p0.html#Data_Base).
+
+            '
+          enum:
+          - active
+          - tobedeleted
+          x-vullingsregel: De status is een verplicht veld en geeft aan of het object al dan niet verwijderd
+            kan worden.
+        dateCreated:
+          type: string
+          description: 'Indicates the date and time the object was first created. Format: According to
+            openapi in ZULU time as specified in RFC 3339, section 5.6.'
+          format: date-time
+          example: '2017-07-21T17:32:28Z'
+        dateLastModified:
+          type: string
+          description: 'Indicates the date and time the object was last modified. Format:  According to
+            openapi in ZULU time as specified in RFC 3339, section 5.6.'
+          format: date-time
+          example: '2022-08-11T15:31:12Z'
+      required:
+      - groupId
+      - groupName
+      - groupType
+      - students
+      - assignments
+      - schoolPeriod
+      - beginDate
+      - status
+      - dateCreated
+      - dateLastModified
+    UserReference:
+      title: UserReference
+      type: object
+      properties:
+        userMasterIdentifier:
+          type: string
+          description: 'The primary identifier for a User.
+
+            For Students the ECK iD is used.
+
+            For Employees this value is empty. There is no primary identifier for Employees.
+
+            (either userMasterIdentifier or userIds is required)
+
+            '
+        userIds:
+          type: array
+          description: 'A secondary identifier for a User. This value is used whenever the primary identifier
+            is not available.
+
+            For Employees this value is mandatory.
+
+            (either userMasterIdentifier or userIds is required)
+
+            '
+          items:
+            type: object
+            properties:
+              userId:
+                type: string
+              userIdType:
+                type: string
+                enum:
+                - NEPPI
+                - BPI
+                - eduID
+                - NEPRI
+                - ASI
+                - eckId
+            required:
+            - userId
+            - userIdType
+      if:
+        not:
+          required:
+          - userMasterIdentifier
+      then:
+        required:
+        - userIds
+    SchoolReference:
+      title: SchoolReference
+      description: A reference to a School organisation.
+      type: object
+      properties:
+        organisationMasterIdentifier:
+          type: string
+          description: 'The primary identifier for a School. For Schools the `OnderwijsaanbiederId` is
+            used.
+
+            (exactly one of organisationMasterIdentifier or organisationIds must be present)
+
+            '
+          example: 104A158
+        organisationIds:
+          type: array
+          description: 'A secondary identifier for the School. This value is used whenever the primary
+            identifier is not available.
+
+            (exactly one of organisationMasterIdentifier or organisationIds must be present)
+
+            '
+          items:
+            type: object
+            properties:
+              organisationId:
+                type: string
+              organisationIdType:
+                type: string
+                enum:
+                - OIE_CODE
+                - BP_ID
+                - DD_ID
+                - AS_ID
+                - V_ID
+            required:
+            - organisationId
+            - organisationIdType
+      if:
+        required:
+        - organisationMasterIdentifier
+      then:
+        not:
+          required: &id001
+          - organisationIds
+      else:
+        required: *id001
+    LocationReference:
+      title: LocationReference
+      description: A reference to a Location of a School.
+      type: object
+      x-toelichting: Een referentie naar een locatie bevat de primaire identifier (eerste voorkeur) en
+        indien deze niet beschikbaar is door een uitzonderingssituatie een secundaire identifier.
+      properties:
+        locationMasterIdentifier:
+          type: string
+          description: 'The primary identifier for a Location. For Locations the `Onderwijslocatie` aka
+            `OL_CODE` is used.
+
+            (either locationMasterIdentifier or locationIds is required)
+
+            '
+          example: 112X995
+          x-vullingsregel: De werkingsregel is dat de primaire identifier wordt gehanteerd in de berichten.
+            De primaire identifier voor locatie is de onderwijslocatie (OL_CODE). In geval van een uitzonderingssituatie
+            kan gebruik gemaakt worden van een secundaire identifier.
+        locationIds:
+          type: array
+          description: 'A secondary identifier for the Location. For Locations the `Vestigingserkenning`
+            aka `VE_CODE` is used.
+
+            This value is used whenever the primary identifier is not available.
+
+            (either locationMasterIdentifier or locationIds is required)
+
+            '
+          items:
+            type: object
+            properties:
+              locationId:
+                type: string
+              locationIdType:
+                type: string
+                enum:
+                - VE_CODE
+            required:
+            - locationId
+            - locationIdType
+          x-voorbeeld: '[{"locationId": "string", "locationIdType": "VE_CODE"}]'
+          x-vullingsregel: Zodra een secundaire identifier voor een uitzonderingssituatie gehanteerd wordt,
+            wordt naast het Id ook het Type gespecificeerd. De secundaire identifier voor locatie is de
+            vestigingserkenning (VE_CODE).
+        name:
+          type: string
+          description: A name for the Location.
+      required:
+      - name
+      if:
+        not:
+          required:
+          - locationMasterIdentifier
+      then:
+        required:
+        - locationIds
+    StatusResponse:
+      title: StatusResponse
+      description: Functional status code and status message.
+      type: object
+      properties:
+        status:
+          type: integer
+          description: "Functional status code, as defined in \"Status- en foutcodes 1.0.0\".\nCodes are sent as integers without\
+            \ leading zeros (0011 = 11).\n\nAlgemeen (00xx) - applies to every\
+            \ API:\n  * `0000` - OK: Bevraging succesvol (HTTP 200).\n  * `0001` - Created: Bericht heeft\
+            \ geleid tot registratie van een nieuwe entiteit (HTTP 201).\n  * `0002` - Accepted: Bericht\
+            \ geaccepteerd (HTTP 202).\n  * `0011` - Schema incorrect: Schemavalidatie niet succesvol\
+            \ (HTTP 400).\n  * `0012` - schemaVersion not supported: De ontvanger kan de gehanteerde schemaVersion\
+            \ niet verwerken (HTTP 400).\n  * `0021` - scope required: Leverancier is niet geautoriseerd\
+            \ voor scope (HTTP 401).\n  * `0022` - consent required: Informatieobject van classificatie\
+            \ IV zonder geactiveerde gegevensdienst (HTTP 403).\n  * `0023` - school unknown: De client\
+            \ communiceert in de context van een Onderwijsorganisatie die niet bekend is bij de server\
+            \ (HTTP 400).\n  * `0099` - Overige reden: Vullingsregel: neem in statusMessage een beschrijving\
+            \ van de reden op.\n\nAssociation API (20xx):\n  * `2001` - School unknown: De identifier\
+            \ van de onderwijsorganisatie is onbekend.\n  * `2002` - SubjectOffering unknown: De identifier\
+            \ van het SchoolVak is onbekend.\n  * `2003` - StudyOffering unknown: De aangeboden opleiding\
+            \ is onbekend.\n  * `2004` - Student unknown: De identifier van de onderwijsdeelnemer is onbekend.\n\
+            \  * `2005` - Employee unknown: De identifier van de onderwijsmedewerker is onbekend.\n  *\
+            \ `2006` - Assignment unknown: De identifier van de toewijzing is onbekend.\n  * `2007` -\
+            \ Group unknown: De identifier van de groep is onbekend.\n  * `2008` - SchoolPeriod unknown:\
+            \ De identifier van de schoolperiode is onbekend.\n  * `2009` - Enrollment unknown: De identifier\
+            \ van de inschrijving is onbekend.\n"
+        statusMessage:
+          type: string
+          description: See functional status messages within the Documentation.
+      required:
+      - status
+  securitySchemes:
+    OAuth2:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.example.com/oauth2/token
+          refreshUrl: https://api.example.com/oauth2/token
+          scopes:
+            eduv.association: a scope that gives access to all objects from the Association API.
+  responses:
+    BadRequest:
+      description: Bad Request - schema validation failed, unsupported schemaVersion, or unknown school
+        (status 0011 / 0012 / 0023).
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/StatusResponse'
+    Unauthorized:
+      description: Unauthorized - the supplier is not authorised for the requested scope (status 0021).
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/StatusResponse'
+    Forbidden:
+      description: Forbidden - the information object is classification IV and the gegevensdienst has
+        not been activated (status 0022).
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/StatusResponse'
+    NotFound:
+      description: Not Found - the endpoint URL is not known.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/StatusResponse'
+    MethodNotAllowed:
+      description: Method Not Allowed - the request method is not permitted for this endpoint.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/StatusResponse'
+    ServerError:
+      description: Internal Server Error - general server-side error.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/StatusResponse'
+paths:
+  /schoolperiods/school/{id}:
+    parameters:
+    - schema:
+        type: string
+      name: id
+      in: path
+      required: true
+      description: Reference to the schoolPeriodId of the SchoolPeriod object.
+    - schema:
+        type: string
+      name: orgMasterId
+      in: query
+      required: false
+      description: 'The organisationMasterIdentifier of the school.
+
+        This parameter is used when the primary identifier for a school (being the `OnderwijsaanbiederId`)
+        is available.
+
+        '
+      x-vullingsregel: Gebruik óf orgMasterId, óf de combinatie orgId + orgIdType, nooit beide in hetzelfde
+        request (zie "Organisatie-identiteiten en filtergedrag").
+    - schema:
+        type: string
+      name: orgId
+      in: query
+      required: false
+      description: 'The organisationIdentifier (secondary identifier) of the school.
+
+        This parameter is used in combination with the orgIdType when the organisationMasterIdentifier
+        is not available.
+
+        '
+      x-vullingsregel: Gebruik óf orgMasterId, óf de combinatie orgId + orgIdType, nooit beide in hetzelfde
+        request (zie "Organisatie-identiteiten en filtergedrag").
+    - schema:
+        type: string
+        example: DD_ID
+        enum:
+        - OIE_CODE
+        - BP_ID
+        - DD_ID
+        - AS_ID
+        - V_ID
+      name: orgIdType
+      in: query
+      required: false
+      description: 'The type of the organisationIdentifier.
+
+        This parameter is used in combination with the orgId when the organisationMasterIdentifier is
+        not available.
+
+        The following values are supported:
+
+        - `OIE_CODE`: OnderwijsInstellingserkenningcode
+
+        - `BP_ID`: Basispoort-generated identifier for the school
+
+        - `DD_ID`: DigiDeliveryId generated by the Central Registration of Edu-iX
+
+        - `AS_ID`: LAS-generated identifier (LAS-Key) for the school
+
+        - `V_ID`: VestigingsId – BRIN6-format identifier, including dummy locations
+
+        '
+      x-vullingsregel: Gebruik óf orgMasterId, óf de combinatie orgId + orgIdType, nooit beide in hetzelfde
+        request (zie "Organisatie-identiteiten en filtergedrag").
+    get:
+      x-eduv-error-codes:
+      - '2001'
+      - '2008'
+      summary: Get SchoolPeriod
+      x-tags:
+      - SchoolPeriod
+      tags:
+      - Administratiesysteem onderwijsdeelnemer
+      operationId: get-school-period
+      description: Request a SchoolPeriod object based on its schoolPeriodId.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SchoolPeriod'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      security:
+      - OAuth2:
+        - eduv.association
+  /schoolperiods/school:
+    parameters:
+    - schema:
+        type: string
+      name: orgMasterId
+      in: query
+      required: false
+      description: 'The organisationMasterIdentifier of the school.
+
+        This parameter is used when the primary identifier for a school (being the `OnderwijsaanbiederId`)
+        is available.
+
+        '
+      x-vullingsregel: Gebruik óf orgMasterId, óf de combinatie orgId + orgIdType, nooit beide in hetzelfde
+        request (zie "Organisatie-identiteiten en filtergedrag").
+    - schema:
+        type: string
+      name: orgId
+      in: query
+      required: false
+      description: 'The organisationIdentifier (secondary identifier) of the school.
+
+        This parameter is used in combination with the orgIdType when the organisationMasterIdentifier
+        is not available.
+
+        '
+      x-vullingsregel: Gebruik óf orgMasterId, óf de combinatie orgId + orgIdType, nooit beide in hetzelfde
+        request (zie "Organisatie-identiteiten en filtergedrag").
+    - schema:
+        type: string
+        example: DD_ID
+        enum:
+        - OIE_CODE
+        - BP_ID
+        - DD_ID
+        - AS_ID
+        - V_ID
+      name: orgIdType
+      in: query
+      required: false
+      description: 'The type of the organisationIdentifier.
+
+        This parameter is used in combination with the orgId when the organisationMasterIdentifier is
+        not available.
+
+        The following values are supported:
+
+        - `OIE_CODE`: OnderwijsInstellingserkenningcode
+
+        - `BP_ID`: Basispoort-generated identifier for the school
+
+        - `DD_ID`: DigiDeliveryId generated by the Central Registration of Edu-iX
+
+        - `AS_ID`: LAS-generated identifier (LAS-Key) for the school
+
+        - `V_ID`: VestigingsId – BRIN6-format identifier, including dummy locations
+
+        '
+      x-vullingsregel: Gebruik óf orgMasterId, óf de combinatie orgId + orgIdType, nooit beide in hetzelfde
+        request (zie "Organisatie-identiteiten en filtergedrag").
+    - schema:
+        type: boolean
+      name: filterByOrgId
+      in: query
+      required: false
+      description: 'Controls whether the response is filtered to only include SchoolPeriods belonging
+        to the
+
+        specific organisation identified by `orgId` and `orgIdType`, or whether all SchoolPeriods
+
+        of the associated Onderwijsaanbieder are returned.
+
+        - `true`: Only SchoolPeriods belonging to the specified secondary identifier are returned.
+
+        - `false`: All SchoolPeriods of the associated Onderwijsaanbieder are returned (to the extent
+        authorisations have been configured).
+
+        When omitted, a sector-specific default applies:
+
+        - **PO (primary education):** defaults to `true` – response is filtered to the specified identifier.
+
+        - **VO (secondary education):** defaults to `false` – response covers the full Onderwijsaanbieder
+        scope.
+
+        This parameter is only relevant in combination with `orgId` and `orgIdType`.
+
+        When `orgMasterId` is used, this parameter must be absent or `false`.
+
+        It is the responsibility of the consuming party to verify whether the Source supports
+
+        filtering via this parameter before using it.
+
+        '
+    get:
+      x-eduv-error-codes:
+      - '2001'
+      summary: Get SchoolPeriods for School
+      x-tags:
+      - SchoolPeriod
+      tags:
+      - Administratiesysteem onderwijsdeelnemer
+      operationId: get-school-periods-for-school
+      description: Request SchoolPeriod objects for a specified School.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SchoolPeriod'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      security:
+      - OAuth2:
+        - eduv.association
+  /enrollments/school/{id}:
+    parameters:
+    - schema:
+        type: string
+      name: id
+      in: path
+      required: true
+      description: Reference to the enrollmentId of the Enrollment object.
+    - schema:
+        type: string
+      name: orgMasterId
+      in: query
+      required: false
+      description: 'The organisationMasterIdentifier of the school.
+
+        This parameter is used when the primary identifier for a school (being the `OnderwijsaanbiederId`)
+        is available.
+
+        '
+      x-vullingsregel: Gebruik óf orgMasterId, óf de combinatie orgId + orgIdType, nooit beide in hetzelfde
+        request (zie "Organisatie-identiteiten en filtergedrag").
+    - schema:
+        type: string
+      name: orgId
+      in: query
+      required: false
+      description: 'The organisationIdentifier (secondary identifier) of the school.
+
+        This parameter is used in combination with the orgIdType when the organisationMasterIdentifier
+        is not available.
+
+        '
+      x-vullingsregel: Gebruik óf orgMasterId, óf de combinatie orgId + orgIdType, nooit beide in hetzelfde
+        request (zie "Organisatie-identiteiten en filtergedrag").
+    - schema:
+        type: string
+        example: DD_ID
+        enum:
+        - OIE_CODE
+        - BP_ID
+        - DD_ID
+        - AS_ID
+        - V_ID
+      name: orgIdType
+      in: query
+      required: false
+      description: 'The type of the organisationIdentifier.
+
+        This parameter is used in combination with the orgId when the organisationMasterIdentifier is
+        not available.
+
+        The following values are supported:
+
+        - `OIE_CODE`: OnderwijsInstellingserkenningcode
+
+        - `BP_ID`: Basispoort-generated identifier for the school
+
+        - `DD_ID`: DigiDeliveryId generated by the Central Registration of Edu-iX
+
+        - `AS_ID`: LAS-generated identifier (LAS-Key) for the school
+
+        - `V_ID`: VestigingsId – BRIN6-format identifier, including dummy locations
+
+        '
+      x-vullingsregel: Gebruik óf orgMasterId, óf de combinatie orgId + orgIdType, nooit beide in hetzelfde
+        request (zie "Organisatie-identiteiten en filtergedrag").
+    get:
+      x-eduv-error-codes:
+      - '2001'
+      - '2009'
+      summary: Get Enrollment
+      x-tags:
+      - Enrollment
+      tags:
+      - Administratiesysteem onderwijsdeelnemer
+      operationId: get-enrollment
+      description: Request Enrollment object based on its enrollmentId.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Enrollment'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      security:
+      - OAuth2:
+        - eduv.association
+  /enrollments/school:
+    parameters:
+    - schema:
+        type: string
+      name: orgMasterId
+      in: query
+      required: false
+      description: 'The organisationMasterIdentifier of the school.
+
+        This parameter is used when the primary identifier for a school (being the `OnderwijsaanbiederId`)
+        is available.
+
+        '
+      x-vullingsregel: Gebruik óf orgMasterId, óf de combinatie orgId + orgIdType, nooit beide in hetzelfde
+        request (zie "Organisatie-identiteiten en filtergedrag").
+    - schema:
+        type: string
+      name: orgId
+      in: query
+      required: false
+      description: 'The organisationIdentifier (secondary identifier) of the school.
+
+        This parameter is used in combination with the orgIdType when the organisationMasterIdentifier
+        is not available.
+
+        '
+      x-vullingsregel: Gebruik óf orgMasterId, óf de combinatie orgId + orgIdType, nooit beide in hetzelfde
+        request (zie "Organisatie-identiteiten en filtergedrag").
+    - schema:
+        type: string
+        example: DD_ID
+        enum:
+        - OIE_CODE
+        - BP_ID
+        - DD_ID
+        - AS_ID
+        - V_ID
+      name: orgIdType
+      in: query
+      required: false
+      description: 'The type of the organisationIdentifier.
+
+        This parameter is used in combination with the orgId when the organisationMasterIdentifier is
+        not available.
+
+        The following values are supported:
+
+        - `OIE_CODE`: OnderwijsInstellingserkenningcode
+
+        - `BP_ID`: Basispoort-generated identifier for the school
+
+        - `DD_ID`: DigiDeliveryId generated by the Central Registration of Edu-iX
+
+        - `AS_ID`: LAS-generated identifier (LAS-Key) for the school
+
+        - `V_ID`: VestigingsId – BRIN6-format identifier, including dummy locations
+
+        '
+      x-vullingsregel: Gebruik óf orgMasterId, óf de combinatie orgId + orgIdType, nooit beide in hetzelfde
+        request (zie "Organisatie-identiteiten en filtergedrag").
+    - schema:
+        type: boolean
+      name: filterByOrgId
+      in: query
+      required: false
+      description: 'Controls whether the response is filtered to only include Enrollments belonging to
+        the
+
+        specific organisation identified by `orgId` and `orgIdType`, or whether all Enrollments
+
+        of the associated Onderwijsaanbieder are returned.
+
+        - `true`: Only Enrollments belonging to the specified secondary identifier are returned.
+
+        - `false`: All Enrollments of the associated Onderwijsaanbieder are returned (to the extent authorisations
+        have been configured).
+
+        When omitted, a sector-specific default applies:
+
+        - **PO (primary education):** defaults to `true` – response is filtered to the specified identifier.
+
+        - **VO (secondary education):** defaults to `false` – response covers the full Onderwijsaanbieder
+        scope.
+
+        This parameter is only relevant in combination with `orgId` and `orgIdType`.
+
+        When `orgMasterId` is used, this parameter must be absent or `false`.
+
+        It is the responsibility of the consuming party to verify whether the Source supports
+
+        filtering via this parameter before using it.
+
+        '
+    - schema:
+        type: string
+        enum:
+        - study
+        - subject
+      name: enrollmentType
+      in: query
+      required: false
+      description: Optional filter to request all Enrollment objects for a specified enrollmentType.
+    - schema:
+        type: string
+      name: schoolPeriodId
+      in: query
+      required: false
+      description: Optional filter to request all Enrollment objects within a specified SchoolPeriod and
+        its corresponding schoolPeriodId.
+    - schema:
+        type: string
+      name: studyOfferingId
+      in: query
+      required: false
+      description: Optional filter to request all Enrollment objects into a StudyOffering and its corresponding
+        studyOfferingId.
+    - schema:
+        type: string
+      name: subjectOfferingId
+      in: query
+      required: false
+      description: Optional filter to request all Enrollment objects into a SubjectOffering and its corresponding
+        subjectOfferingId.
+    get:
+      x-eduv-error-codes:
+      - '2001'
+      - '2002'
+      - '2003'
+      - '2008'
+      summary: Get Enrollments for School
+      x-tags:
+      - Enrollment
+      tags:
+      - Administratiesysteem onderwijsdeelnemer
+      operationId: get-enrollments-for-school
+      description: Request Enrollment objects for a specified School.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Enrollment'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      security:
+      - OAuth2:
+        - eduv.association
+  /enrollments/school/student:
+    parameters:
+    - schema:
+        type: string
+        enum:
+        - study
+        - subject
+      name: enrollmentType
+      in: query
+      required: false
+      description: Optional filter to request all Enrollment objects for a specified enrollmentType.
+    - schema:
+        type: string
+      name: schoolPeriodId
+      in: query
+      required: false
+      description: Optional filter to request all Enrollment objects within a specified SchoolPeriod and
+        its corresponding schoolPeriodId.
+    - schema:
+        type: string
+      name: studyOfferingId
+      in: query
+      required: false
+      description: Optional filter to request all Enrollment objects into a StudyOffering and its corresponding
+        studyOfferingId.
+    - schema:
+        type: string
+      name: subjectOfferingId
+      in: query
+      required: false
+      description: Optional filter to request all Enrollment objects into a SubjectOffering and its corresponding
+        subjectOfferingId.
+    post:
+      x-eduv-error-codes:
+      - '2001'
+      - '2002'
+      - '2003'
+      - '2004'
+      - '2008'
+      summary: Get Enrollments for Student at School
+      x-tags:
+      - Enrollment
+      tags:
+      - Administratiesysteem onderwijsdeelnemer
+      operationId: get-enrollments-for-student-at-school
+      description: Request Enrollment objects for a specified Student at a School.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                school:
+                  $ref: '#/components/schemas/SchoolReference'
+                student:
+                  $ref: '#/components/schemas/UserReference'
+              required:
+              - school
+              - student
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Enrollment'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      security:
+      - OAuth2:
+        - eduv.association
+  /assignments/school/{id}:
+    parameters:
+    - schema:
+        type: string
+      name: id
+      in: path
+      required: true
+      description: Reference to the assignmentId of the Assignment object.
+    - schema:
+        type: string
+      name: orgMasterId
+      in: query
+      required: false
+      description: 'The organisationMasterIdentifier of the school.
+
+        This parameter is used when the primary identifier for a school (being the `OnderwijsaanbiederId`)
+        is available.
+
+        '
+      x-vullingsregel: Gebruik óf orgMasterId, óf de combinatie orgId + orgIdType, nooit beide in hetzelfde
+        request (zie "Organisatie-identiteiten en filtergedrag").
+    - schema:
+        type: string
+      name: orgId
+      in: query
+      required: false
+      description: 'The organisationIdentifier (secondary identifier) of the school.
+
+        This parameter is used in combination with the orgIdType when the organisationMasterIdentifier
+        is not available.
+
+        '
+      x-vullingsregel: Gebruik óf orgMasterId, óf de combinatie orgId + orgIdType, nooit beide in hetzelfde
+        request (zie "Organisatie-identiteiten en filtergedrag").
+    - schema:
+        type: string
+        example: DD_ID
+        enum:
+        - OIE_CODE
+        - BP_ID
+        - DD_ID
+        - AS_ID
+        - V_ID
+      name: orgIdType
+      in: query
+      required: false
+      description: 'The type of the organisationIdentifier.
+
+        This parameter is used in combination with the orgId when the organisationMasterIdentifier is
+        not available.
+
+        The following values are supported:
+
+        - `OIE_CODE`: OnderwijsInstellingserkenningcode
+
+        - `BP_ID`: Basispoort-generated identifier for the school
+
+        - `DD_ID`: DigiDeliveryId generated by the Central Registration of Edu-iX
+
+        - `AS_ID`: LAS-generated identifier (LAS-Key) for the school
+
+        - `V_ID`: VestigingsId – BRIN6-format identifier, including dummy locations
+
+        '
+      x-vullingsregel: Gebruik óf orgMasterId, óf de combinatie orgId + orgIdType, nooit beide in hetzelfde
+        request (zie "Organisatie-identiteiten en filtergedrag").
+    get:
+      x-eduv-error-codes:
+      - '2001'
+      - '2006'
+      summary: Get Assignment
+      x-tags:
+      - Assignment
+      tags:
+      - Administratiesysteem onderwijsdeelnemer
+      operationId: get-assignment
+      description: Request Assignment object based on its assignmentId.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Assignment'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      security:
+      - OAuth2:
+        - eduv.association
+  /assignments/school:
+    parameters:
+    - schema:
+        type: string
+      name: orgMasterId
+      in: query
+      required: false
+      description: 'The organisationMasterIdentifier of the school.
+
+        This parameter is used when the primary identifier for a school (being the `OnderwijsaanbiederId`)
+        is available.
+
+        '
+      x-vullingsregel: Gebruik óf orgMasterId, óf de combinatie orgId + orgIdType, nooit beide in hetzelfde
+        request (zie "Organisatie-identiteiten en filtergedrag").
+    - schema:
+        type: string
+      name: orgId
+      in: query
+      required: false
+      description: 'The organisationIdentifier (secondary identifier) of the school.
+
+        This parameter is used in combination with the orgIdType when the organisationMasterIdentifier
+        is not available.
+
+        '
+      x-vullingsregel: Gebruik óf orgMasterId, óf de combinatie orgId + orgIdType, nooit beide in hetzelfde
+        request (zie "Organisatie-identiteiten en filtergedrag").
+    - schema:
+        type: string
+        example: DD_ID
+        enum:
+        - OIE_CODE
+        - BP_ID
+        - DD_ID
+        - AS_ID
+        - V_ID
+      name: orgIdType
+      in: query
+      required: false
+      description: 'The type of the organisationIdentifier.
+
+        This parameter is used in combination with the orgId when the organisationMasterIdentifier is
+        not available.
+
+        The following values are supported:
+
+        - `OIE_CODE`: OnderwijsInstellingserkenningcode
+
+        - `BP_ID`: Basispoort-generated identifier for the school
+
+        - `DD_ID`: DigiDeliveryId generated by the Central Registration of Edu-iX
+
+        - `AS_ID`: LAS-generated identifier (LAS-Key) for the school
+
+        - `V_ID`: VestigingsId – BRIN6-format identifier, including dummy locations
+
+        '
+      x-vullingsregel: Gebruik óf orgMasterId, óf de combinatie orgId + orgIdType, nooit beide in hetzelfde
+        request (zie "Organisatie-identiteiten en filtergedrag").
+    - schema:
+        type: boolean
+      name: filterByOrgId
+      in: query
+      required: false
+      description: 'Controls whether the response is filtered to only include Assignments belonging to
+        the
+
+        specific organisation identified by `orgId` and `orgIdType`, or whether all Assignments
+
+        of the associated Onderwijsaanbieder are returned.
+
+        - `true`: Only Assignments belonging to the specified secondary identifier are returned.
+
+        - `false`: All Assignments of the associated Onderwijsaanbieder are returned (to the extent authorisations
+        have been configured).
+
+        When omitted, a sector-specific default applies:
+
+        - **PO (primary education):** defaults to `true` – response is filtered to the specified identifier.
+
+        - **VO (secondary education):** defaults to `false` – response covers the full Onderwijsaanbieder
+        scope.
+
+        This parameter is only relevant in combination with `orgId` and `orgIdType`.
+
+        When `orgMasterId` is used, this parameter must be absent or `false`.
+
+        It is the responsibility of the consuming party to verify whether the Source supports
+
+        filtering via this parameter before using it.
+
+        '
+    - schema:
+        type: string
+        enum:
+        - class-teacher
+        - teacher
+        - coach
+      name: assignmentType
+      in: query
+      required: false
+      description: Optional filter to request all Assignment objects for a specified assignmentType.
+    - schema:
+        type: string
+      name: schoolPeriodId
+      in: query
+      required: false
+      description: Optional filter to request all Assignment objects within a specified SchoolPeriod and
+        its corresponding schoolPeriodId.
+    get:
+      x-eduv-error-codes:
+      - '2001'
+      - '2008'
+      summary: Get Assignments for School
+      x-tags:
+      - Assignment
+      tags:
+      - Administratiesysteem onderwijsdeelnemer
+      operationId: get-assignments-for-school
+      description: Request Assignment objects for a specified School.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Assignment'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      security:
+      - OAuth2:
+        - eduv.association
+  /assignments/school/employee:
+    parameters:
+    - schema:
+        type: string
+        enum:
+        - class-teacher
+        - teacher
+        - coach
+      name: assignmentType
+      in: query
+      required: false
+      description: Optional filter to request all Assignment objects for a specified assignmentType.
+    - schema:
+        type: string
+      name: schoolPeriodId
+      in: query
+      required: false
+      description: Optional filter to request all Assignment objects within a specified SchoolPeriod and
+        its corresponding schoolPeriodId.
+    post:
+      x-eduv-error-codes:
+      - '2001'
+      - '2005'
+      - '2008'
+      summary: Get Assignments for Employee at School
+      x-tags:
+      - Assignment
+      tags:
+      - Administratiesysteem onderwijsdeelnemer
+      operationId: get-assignments-for-employee-at-school
+      description: Request Assignment objects for a specified Employee at a School.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                school:
+                  $ref: '#/components/schemas/SchoolReference'
+                employee:
+                  $ref: '#/components/schemas/UserReference'
+              required:
+              - school
+              - employee
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Assignment'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      security:
+      - OAuth2:
+        - eduv.association
+  /groups/school/{id}:
+    parameters:
+    - schema:
+        type: string
+      name: id
+      in: path
+      required: true
+      description: Reference to the groupId of the Group object.
+    - schema:
+        type: string
+      name: orgMasterId
+      in: query
+      required: false
+      description: 'The organisationMasterIdentifier of the school.
+
+        This parameter is used when the primary identifier for a school (being the `OnderwijsaanbiederId`)
+        is available.
+
+        '
+      x-vullingsregel: Gebruik óf orgMasterId, óf de combinatie orgId + orgIdType, nooit beide in hetzelfde
+        request (zie "Organisatie-identiteiten en filtergedrag").
+    - schema:
+        type: string
+      name: orgId
+      in: query
+      required: false
+      description: 'The organisationIdentifier (secondary identifier) of the school.
+
+        This parameter is used in combination with the orgIdType when the organisationMasterIdentifier
+        is not available.
+
+        '
+      x-vullingsregel: Gebruik óf orgMasterId, óf de combinatie orgId + orgIdType, nooit beide in hetzelfde
+        request (zie "Organisatie-identiteiten en filtergedrag").
+    - schema:
+        type: string
+        example: DD_ID
+        enum:
+        - OIE_CODE
+        - BP_ID
+        - DD_ID
+        - AS_ID
+        - V_ID
+      name: orgIdType
+      in: query
+      required: false
+      description: 'The type of the organisationIdentifier.
+
+        This parameter is used in combination with the orgId when the organisationMasterIdentifier is
+        not available.
+
+        The following values are supported:
+
+        - `OIE_CODE`: OnderwijsInstellingserkenningcode
+
+        - `BP_ID`: Basispoort-generated identifier for the school
+
+        - `DD_ID`: DigiDeliveryId generated by the Central Registration of Edu-iX
+
+        - `AS_ID`: LAS-generated identifier (LAS-Key) for the school
+
+        - `V_ID`: VestigingsId – BRIN6-format identifier, including dummy locations
+
+        '
+      x-vullingsregel: Gebruik óf orgMasterId, óf de combinatie orgId + orgIdType, nooit beide in hetzelfde
+        request (zie "Organisatie-identiteiten en filtergedrag").
+    get:
+      x-eduv-error-codes:
+      - '2001'
+      - '2007'
+      summary: Get Group
+      x-tags:
+      - Group
+      tags:
+      - Administratiesysteem onderwijsdeelnemer
+      operationId: get-group
+      description: Request Group object based on its groupId.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Group'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      security:
+      - OAuth2:
+        - eduv.association
+  /groups/school:
+    parameters:
+    - schema:
+        type: string
+      name: orgMasterId
+      in: query
+      required: false
+      description: 'The organisationMasterIdentifier of the school.
+
+        This parameter is used when the primary identifier for a school (being the `OnderwijsaanbiederId`)
+        is available.
+
+        '
+      x-vullingsregel: Gebruik óf orgMasterId, óf de combinatie orgId + orgIdType, nooit beide in hetzelfde
+        request (zie "Organisatie-identiteiten en filtergedrag").
+    - schema:
+        type: string
+      name: orgId
+      in: query
+      required: false
+      description: 'The organisationIdentifier (secondary identifier) of the school.
+
+        This parameter is used in combination with the orgIdType when the organisationMasterIdentifier
+        is not available.
+
+        '
+      x-vullingsregel: Gebruik óf orgMasterId, óf de combinatie orgId + orgIdType, nooit beide in hetzelfde
+        request (zie "Organisatie-identiteiten en filtergedrag").
+    - schema:
+        type: string
+        example: DD_ID
+        enum:
+        - OIE_CODE
+        - BP_ID
+        - DD_ID
+        - AS_ID
+        - V_ID
+      name: orgIdType
+      in: query
+      required: false
+      description: 'The type of the organisationIdentifier.
+
+        This parameter is used in combination with the orgId when the organisationMasterIdentifier is
+        not available.
+
+        The following values are supported:
+
+        - `OIE_CODE`: OnderwijsInstellingserkenningcode
+
+        - `BP_ID`: Basispoort-generated identifier for the school
+
+        - `DD_ID`: DigiDeliveryId generated by the Central Registration of Edu-iX
+
+        - `AS_ID`: LAS-generated identifier (LAS-Key) for the school
+
+        - `V_ID`: VestigingsId – BRIN6-format identifier, including dummy locations
+
+        '
+      x-vullingsregel: Gebruik óf orgMasterId, óf de combinatie orgId + orgIdType, nooit beide in hetzelfde
+        request (zie "Organisatie-identiteiten en filtergedrag").
+    - schema:
+        type: boolean
+      name: filterByOrgId
+      in: query
+      required: false
+      description: 'Controls whether the response is filtered to only include Groups belonging to the
+
+        specific organisation identified by `orgId` and `orgIdType`, or whether all Groups
+
+        of the associated Onderwijsaanbieder are returned.
+
+        - `true`: Only Groups belonging to the specified secondary identifier are returned.
+
+        - `false`: All Groups of the associated Onderwijsaanbieder are returned (to the extent authorisations
+        have been configured).
+
+        When omitted, a sector-specific default applies:
+
+        - **PO (primary education):** defaults to `true` – response is filtered to the specified identifier.
+
+        - **VO (secondary education):** defaults to `false` – response covers the full Onderwijsaanbieder
+        scope.
+
+        This parameter is only relevant in combination with `orgId` and `orgIdType`.
+
+        When `orgMasterId` is used, this parameter must be absent or `false`.
+
+        It is the responsibility of the consuming party to verify whether the Source supports
+
+        filtering via this parameter before using it.
+
+        '
+    - schema:
+        type: string
+        enum:
+        - class
+        - lesson-group
+      name: groupType
+      in: query
+      required: false
+      description: Optional filter to request all Group objects for a specified groupType.
+    - schema:
+        type: string
+      name: schoolPeriodId
+      in: query
+      required: false
+      description: Optional filter to request all Group objects within a specified SchoolPeriod and its
+        corresponding schoolPeriodId.
+    - schema:
+        type: string
+      name: studyOfferingId
+      in: query
+      required: false
+      description: Optional filter to request all Group objects for a StudyOffering and its corresponding
+        studyOfferingId.
+    - schema:
+        type: string
+      name: subjectOfferingId
+      in: query
+      required: false
+      description: Optional filter to request all Group objects for a SubjectOffering and its corresponding
+        subjectOfferingId.
+    get:
+      x-eduv-error-codes:
+      - '2001'
+      - '2002'
+      - '2003'
+      - '2008'
+      summary: Get Groups for School
+      x-tags:
+      - Group
+      tags:
+      - Administratiesysteem onderwijsdeelnemer
+      operationId: get-groups-for-school
+      description: Request Group objects for a specified School.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Group'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      security:
+      - OAuth2:
+        - eduv.association
+x-tags:
+- name: StudyPeriod
+- name: Enrollment
+- name: Association
+- name: Group

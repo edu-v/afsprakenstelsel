@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <title>Association API | Edu-V</title>
+  <style>
+    body { font-family: Arial, sans-serif; font-size: 13px; margin: 40px; color: #222; background: white; max-width: 1100px; }
+    h1 { font-size: 20px; margin-bottom: 4px; color: #555; }
+    h2 { font-size: 15px; margin-top: 36px; margin-bottom: 6px; border-bottom: 2px solid #555; padding-bottom: 4px; color: #555; }
+    h3 { font-size: 13px; margin-top: 24px; margin-bottom: 4px; color: #444; }
+    .meta { color: #888; font-size: 11px; margin-bottom: 8px; }
+    .version-badge { display: inline-block; background: #555; color: white; border-radius: 4px; padding: 2px 10px; font-size: 11px; font-weight: bold; margin-bottom: 12px; }
+    .status-badge { display: inline-block; background: #e8f4ea; color: #1a7a4a; border: 1px solid #b0d8b8; border-radius: 3px; padding: 2px 9px; font-size: 11px; font-weight: bold; margin-left: 6px; }
+    .status-beta { background: #fef3e2; color: #b7691a; border-color: #f0c090; }
+    .status-candidate { background: #e8f0fe; color: #2176c7; border-color: #b0c8f0; }
+    .status-draft { background: #f0f0f0; color: #666; border-color: #ccc; }
+    .description { font-size: 12px; color: #444; line-height: 1.6; max-width: 820px; margin-bottom: 24px; }
+    .description p, .description ul { margin: 0 0 10px; } .description h4 { font-size: 12px; margin: 14px 0 4px; }
+    .description code, .schema-desc code, .toelichting code { font-family: monospace; background: #f2f2f2; padding: 0 3px; border-radius: 3px; }
+
+    /* Metadatatabel */
+    .meta-table { width: 100%; border-collapse: collapse; margin-bottom: 24px; font-size: 12px; }
+    .meta-table td { padding: 7px 12px; border: 1px solid #e0e0e0; vertical-align: top; }
+    .meta-table td:first-child { width: 150px; background: #f7f7f7; font-weight: bold; color: #555; }
+    .meta-tag { display: inline-block; background: #f0f0f0; border-radius: 3px; padding: 1px 7px; margin: 2px 2px 2px 0; font-size: 11px; }
+
+    /* Toelichting blok */
+    .toelichting { background-color: #f9f4ee; border-left: 3px solid #555; padding: 9px 13px; margin-bottom: 12px; font-size: 12px; line-height: 1.6; color: #555; }
+
+    /* Endpoints tabel */
+    .endpoints-table { width: 100%; border-collapse: collapse; margin-bottom: 32px; font-size: 12px; }
+    .endpoints-table th { background: #555; color: white; text-align: left; padding: 8px 12px; }
+    .endpoints-table td { padding: 7px 12px; border-bottom: 1px solid #eee; vertical-align: top; }
+    .endpoints-table tr:hover { background: #f9f9f9; }
+    .method { font-weight: bold; font-family: monospace; font-size: 11px; padding: 2px 6px; border-radius: 3px; }
+    .method-put { background: #fef3e2; color: #b7691a; }
+    .method-get { background: #e8f4ea; color: #1a7a4a; }
+    .method-post { background: #e8f0fe; color: #2176c7; }
+    .method-delete { background: #fde8e6; color: #c0392b; }
+    .path { font-family: monospace; font-size: 11px; color: #333; }
+
+    /* Schema veldentabel */
+    .schema-table { width: 100%; border-collapse: collapse; margin-bottom: 28px; font-size: 12px; }
+    .schema-table th { background: #f0f0f0; text-align: left; padding: 7px 10px; border-bottom: 2px solid #ccc; font-size: 11px; }
+    .schema-table td { padding: 6px 10px; border-bottom: 1px solid #eee; vertical-align: top; }
+    .schema-table tr:hover { background: #fafafa; }
+    .field-name { font-family: monospace; font-weight: bold; color: #555; font-size: 11px; }
+    .field-type { font-family: monospace; font-size: 10px; color: #666; }
+    .badge-v { background: #fde8e6; color: #c0392b; font-size: 10px; font-weight: bold; padding: 1px 5px; border-radius: 3px; }
+    .badge-o { background: #e8f0fe; color: #2176c7; font-size: 10px; padding: 1px 5px; border-radius: 3px; }
+    .enum-list { font-family: monospace; font-size: 10px; color: #666; margin-top: 3px; }
+    .enum-val { display: inline-block; background: #f0f0f0; padding: 1px 4px; border-radius: 2px; margin: 1px 2px 1px 0; }
+    .ref-link { font-family: monospace; font-size: 10px; color: #555; }
+    .schema-desc { font-size: 11px; color: #555; line-height: 1.4; }
+
+    /* Contact footer */
+    .footer { margin-top: 48px; font-size: 11px; color: #aaa; border-top: 1px solid #eee; padding-top: 12px; }
+  </style>
+</head>
+<body>
+
+<h1>Association API</h1>
+<div class="meta">Edu-V Afsprakenstelsel &nbsp;|&nbsp; Gegenereerd op 19 November 2026 &nbsp;|&nbsp; Bron: association-api.yaml</div>
+<div style="margin-bottom:20px;">
+  <span class="version-badge">v1.2.0-rc.1</span><span class="status-badge status-candidate">Release Candidate</span>
+</div>
+
+<table class="meta-table">
+<tr><td>Status</td><td><span class="status-badge status-candidate">Release Candidate</span></td></tr>
+<tr><td>Versie</td><td>1.2.0-rc.1</td></tr>
+<tr><td>Afkorting</td><td>ASC</td></tr>
+<tr><td>Beheer</td><td>Werkgroep Doorgifte Administratie</td></tr>
+<tr><td>Ingangsdatum</td><td>2027-01-14</td></tr>
+<tr><td>Gegevensdienst</td><td>Onderwijsinrichting</td></tr>
+<tr><td>Bron</td><td><span class="meta-tag">Administratiesysteem onderwijsdeelnemer</span></td></tr>
+<tr><td>Afnemers</td><td><span class="meta-tag">Bestelomgeving leermiddelen</span> <span class="meta-tag">Aanspraakmanager</span> <span class="meta-tag">Identitietsbeheervoorziening</span></td></tr>
+</table>
+
+<h2>Beschrijving</h2>
+<div class="description"><p>The Association API is implemented by the <code>Administratiesysteem onderwijsdeelnemer</code>.</p><p>The Association API has the following objects:</p><ul><li>SchoolPeriod: the school period in which this school is organized.</li><li>Enrollment: an enrollment of a student into a StudyYear or subject.</li><li>Assignment: an assignment of an employee to a Group or a student.</li><li>Group: a class or lesson-group of students and the employees that are assigned to it.</li></ul><p>These objects could be considered open data from the school. As a data owner, the school authorizes the exchange of this information towards suppliers.<br>All consuming reference components require consent to request data from the Association API.<br>The Notifications API can be used by consuming reference components to receive notifications about new, modified, or deleted entities within the Association API.</p><p>The Association API has a scope of primary and secondary education. Vocational education is out of scope. For Vocational Education we advise to use the <a href="https://openonderwijsapi.nl/" target="_blank">Open Education API (OOAPI)</a>.</p></div>
+<h2>Endpoints</h2>
+<table class="endpoints-table">
+  <thead><tr><th>Methode</th><th>Pad</th><th>Omschrijving</th><th>Tag</th><th>Foutcodes</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><span class="method method-get">GET</span></td>
+      <td><span class="path">/schoolperiods/school/{id}</span></td>
+      <td>Get SchoolPeriod</td>
+      <td style="font-size:10px;color:#888;">Administratiesysteem onderwijsdeelnemer</td>
+      <td style="font-size:11px;">2001, 2008</td>
+    </tr>    <tr>
+      <td><span class="method method-get">GET</span></td>
+      <td><span class="path">/schoolperiods/school</span></td>
+      <td>Get SchoolPeriods for School</td>
+      <td style="font-size:10px;color:#888;">Administratiesysteem onderwijsdeelnemer</td>
+      <td style="font-size:11px;">2001</td>
+    </tr>    <tr>
+      <td><span class="method method-get">GET</span></td>
+      <td><span class="path">/enrollments/school/{id}</span></td>
+      <td>Get Enrollment</td>
+      <td style="font-size:10px;color:#888;">Administratiesysteem onderwijsdeelnemer</td>
+      <td style="font-size:11px;">2001, 2009</td>
+    </tr>    <tr>
+      <td><span class="method method-get">GET</span></td>
+      <td><span class="path">/enrollments/school</span></td>
+      <td>Get Enrollments for School</td>
+      <td style="font-size:10px;color:#888;">Administratiesysteem onderwijsdeelnemer</td>
+      <td style="font-size:11px;">2001, 2002, 2003, 2008</td>
+    </tr>    <tr>
+      <td><span class="method method-post">POST</span></td>
+      <td><span class="path">/enrollments/school/student</span></td>
+      <td>Get Enrollments for Student at School</td>
+      <td style="font-size:10px;color:#888;">Administratiesysteem onderwijsdeelnemer</td>
+      <td style="font-size:11px;">2001, 2002, 2003, 2004, 2008</td>
+    </tr>    <tr>
+      <td><span class="method method-get">GET</span></td>
+      <td><span class="path">/assignments/school/{id}</span></td>
+      <td>Get Assignment</td>
+      <td style="font-size:10px;color:#888;">Administratiesysteem onderwijsdeelnemer</td>
+      <td style="font-size:11px;">2001, 2006</td>
+    </tr>    <tr>
+      <td><span class="method method-get">GET</span></td>
+      <td><span class="path">/assignments/school</span></td>
+      <td>Get Assignments for School</td>
+      <td style="font-size:10px;color:#888;">Administratiesysteem onderwijsdeelnemer</td>
+      <td style="font-size:11px;">2001, 2008</td>
+    </tr>    <tr>
+      <td><span class="method method-post">POST</span></td>
+      <td><span class="path">/assignments/school/employee</span></td>
+      <td>Get Assignments for Employee at School</td>
+      <td style="font-size:10px;color:#888;">Administratiesysteem onderwijsdeelnemer</td>
+      <td style="font-size:11px;">2001, 2005, 2008</td>
+    </tr>    <tr>
+      <td><span class="method method-get">GET</span></td>
+      <td><span class="path">/groups/school/{id}</span></td>
+      <td>Get Group</td>
+      <td style="font-size:10px;color:#888;">Administratiesysteem onderwijsdeelnemer</td>
+      <td style="font-size:11px;">2001, 2007</td>
+    </tr>    <tr>
+      <td><span class="method method-get">GET</span></td>
+      <td><span class="path">/groups/school</span></td>
+      <td>Get Groups for School</td>
+      <td style="font-size:10px;color:#888;">Administratiesysteem onderwijsdeelnemer</td>
+      <td style="font-size:11px;">2001, 2002, 2003, 2008</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2>Schemas</h2>
+<h3>SchoolPeriod</h3>
+<div class="description"><p>The SchoolPeriod object with its title startDate and endDate.</p></div><div class="toelichting">Het object SchoolPeriod beschrijft de periodes waarin onderwijs wordt gegeven binnen de onderwijsaanbieder. De velden uit het object zijn gebaseerd op een AcademicSession zoals ook beschreven in de internationale 1EdTech standaard OneRoster.</div>
+<table class="schema-table">
+  <thead><tr><th>Veld</th><th>Type</th><th>V/O</th><th>Omschrijving</th><th>Voorbeeld</th><th>Vullingsregel</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><span class="field-name">schoolPeriodId</span></td>
+      <td><span class="field-type">string (string)</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">A unique identifier for this SchoolPeriod object. For a full schoolyear this identifier has the format &quot;beginyear-endyear&quot;, for example &quot;2024-2025&quot;. Otherwise this identifier is a UUID. This is the UUID that Consumers will refer to when making API calls, or when needing to identify an object.</span></td>
+      <td><span class="schema-desc">2021-2022</span></td><td><span class="schema-desc">"startschooljaar-eindschooljaar" als het een schooljaar betreft en anders moet het veld worden gevuld met een UUID.</span></td>
+    </tr>    <tr>
+      <td><span class="field-name">title</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">The name of the SchoolPeriod.</span></td>
+      <td><span class="schema-desc">2021-2022 / 2022H1</span></td><td><span class="schema-desc"></span></td>
+    </tr>    <tr>
+      <td><span class="field-name">type</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">The type of SchoolPeriod. An enumerated value is used: - gradingPeriod: Denotes a period over which some grade/result is to be awarded. - schoolYear: Denotes the school year. - semester: Denotes a semester period. Typically there are two semesters per schoolYear. - term: Denotes a term period. Typically there are three terms per schoolYear.  ENUM values are corresponding the OneRoster <a href="https://www.imsglobal.org/sites/default/files/spec/oneroster/v1p2/rostering-informationmodel/OneRosterv1p2RosteringService_InfoModelv1p0.html#Union_SessionTypeEnumExt" target="_blank">AcademicSession SessionType</a>.</span><div class="enum-list">enum: <span class="enum-val">gradingPeriod</span> <span class="enum-val">schoolYear</span> <span class="enum-val">semester</span> <span class="enum-val">term</span></div></td>
+      <td><span class="schema-desc"></span></td><td><span class="schema-desc">De waardelijst is overgenomen vanuit OneRoster voor SessionType van een AcademicSession.</span></td>
+    </tr>    <tr>
+      <td><span class="field-name">superSchoolPeriod</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">The link to a hierarchically higher Schoolperiod object. For example for a semester this is the schoolYear.</span></td>
+      <td><span class="schema-desc"></span></td><td><span class="schema-desc">De superSchoolPeriod van een semester is bijvoorbeeld het schoolYear.</span></td>
+    </tr>    <tr>
+      <td><span class="field-name">subSchoolPeriods</span></td>
+      <td><span class="field-type">array[string]</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">The link to hierarchically lower Schoolperiod objects. For example for a schoolYear these are its semesters.</span></td>
+      <td><span class="schema-desc"></span></td><td><span class="schema-desc">De subSchoolPeriods van een schoolYear zijn bijvoorbeeld de semesters.</span></td>
+    </tr>    <tr>
+      <td><span class="field-name">startDate</span></td>
+      <td><span class="field-type">string (date)</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">The start date for the SchoolPeriod (inclusive). Format: YYYY-MM-DD (according to RFC3339).</span></td>
+      <td><span class="schema-desc">2022-08-01</span></td><td><span class="schema-desc"></span></td>
+    </tr>    <tr>
+      <td><span class="field-name">endDate</span></td>
+      <td><span class="field-type">string (date)</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">The end date for the SchoolPeriod (exclusive). Format: YYYY-MM-DD (according to RFC3339).</span></td>
+      <td><span class="schema-desc">2023-07-31</span></td><td><span class="schema-desc"></span></td>
+    </tr>    <tr>
+      <td><span class="field-name">status</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">The status field gives an indication to Consumers about the status of an object. Consumers can delete objects that are flagged <code>tobedeleted</code>  as such if they wish.  The status attribute is based on the <a href="https://www.imsglobal.org/sites/default/files/spec/oneroster/v1p2/rostering-informationmodel/OneRosterv1p2RosteringService_InfoModelv1p0.html#Data_Base" target="_blank">Base Class from OneRoster</a>.</span><div class="enum-list">enum: <span class="enum-val">active</span> <span class="enum-val">tobedeleted</span></div></td>
+      <td><span class="schema-desc"></span></td><td><span class="schema-desc">De status is een verplicht veld en geeft aan of het object al dan niet verwijderd kan worden.</span></td>
+    </tr>    <tr>
+      <td><span class="field-name">dateCreated</span></td>
+      <td><span class="field-type">string (date-time)</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">Indicates the date and time the object was first created. Format: According to openapi in ZULU time as specified in RFC 3339, section 5.6.</span></td>
+      <td><span class="schema-desc"></span></td><td><span class="schema-desc"></span></td>
+    </tr>    <tr>
+      <td><span class="field-name">dateLastModified</span></td>
+      <td><span class="field-type">string (date-time)</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">Indicates the date and time the object was last modified. Format: According to openapi in ZULU time as specified in RFC 3339, section 5.6.</span></td>
+      <td><span class="schema-desc"></span></td><td><span class="schema-desc"></span></td>
+    </tr>
+  </tbody>
+</table>
+
+<h3>Enrollment</h3>
+<div class="description"><p>The Enrollment object for a student into a StudyYear or SubjectOffering for a SchoolPeriod.</p></div><div class="toelichting">Het object Enrollment beschrijft de inschrijving van een onderwijsdeelnemer op een AangebodenOpleiding of een AangebodenVak voor een schoolperiode op een onderwijsaanbieder.</div>
+<div class="toelichting">Indien enrollmentType = study: verplicht: study, studyYear</div><div class="toelichting">Indien enrollmentType = subject: verplicht: subject</div><table class="schema-table">
+  <thead><tr><th>Veld</th><th>Type</th><th>V/O</th><th>Omschrijving</th><th>Voorbeeld</th><th>Vullingsregel</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><span class="field-name">enrollmentId</span></td>
+      <td><span class="field-type">string (uuid)</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">A unique identifier for this Enrollment object. This is the GUID that Consumers will refer to when making API calls, or when needing to identify an object.</span></td>
+      <td><span class="schema-desc"></span></td><td><span class="schema-desc"></span></td>
+    </tr>    <tr>
+      <td><span class="field-name">student</span></td>
+      <td><span class="ref-link">→ UserReference</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">The Student to which this enrollment object belongs.</span></td>
+      <td><span class="schema-desc"></span></td><td><span class="schema-desc"></span></td>
+    </tr>    <tr>
+      <td><span class="field-name">enrollmentType</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">The type of enrollment, being one of: - study: an enrollment into a StudyOffering offered by the School. - subject: an enrollment into a SubjectOffering offered by the School.</span><div class="enum-list">enum: <span class="enum-val">study</span> <span class="enum-val">subject</span></div></td>
+      <td><span class="schema-desc"></span></td><td><span class="schema-desc"></span></td>
+    </tr>    <tr>
+      <td><span class="field-name">study</span></td>
+      <td><span class="field-type">string (uuid)</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">A reference to the studyOfferingId of the StudyOffering in case this enrollment is of the enrollmentType <code>study</code>.</span></td>
+      <td><span class="schema-desc"></span></td><td><span class="schema-desc">Verwijzing naar studyOfferingId. Verplicht indien het enrollmentType study betreft.</span></td>
+    </tr>    <tr>
+      <td><span class="field-name">studyPublicId</span></td>
+      <td><span class="field-type">string (uuid)</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">A reference to the public id of the StudyOffering in RIO in case this enrollment is of the enrollmentType <code>study</code></span></td>
+      <td><span class="schema-desc"></span></td><td><span class="schema-desc">Verwijzing naar id in RIO.</span></td>
+    </tr>    <tr>
+      <td><span class="field-name">studyYear</span></td>
+      <td><span class="field-type">integer</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">The study year of this object in case the enrollment is of the enrollmentType &#x27;study&#x27;  Example values are:   - Basisschool: 0, 1, 2, 3, 4, 5, 6, 7 or 8   - VMBO: 1, 2, 3 or 4   - HAVO: 1, 2, 3, 4 or 5   - VWO: 1, 2, 3, 4, 5 or 6</span></td>
+      <td><span class="schema-desc"></span></td><td><span class="schema-desc">Verplicht indien het enrollmentType study betreft.</span></td>
+    </tr>    <tr>
+      <td><span class="field-name">location</span></td>
+      <td><span class="ref-link">→ LocationReference</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">The Location to which this enrollment object belongs.</span></td>
+      <td><span class="schema-desc"></span></td><td><span class="schema-desc"></span></td>
+    </tr>    <tr>
+      <td><span class="field-name">subject</span></td>
+      <td><span class="field-type">string (uuid)</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">A reference to the subjectOfferingId of the SubjectOffering in case this enrollment is of the enrollmentType <code>subject</code>.</span></td>
+      <td><span class="schema-desc"></span></td><td><span class="schema-desc">Verwijzing naar subjectOfferingId. Verplicht indien het enrollmentType subject betreft.</span></td>
+    </tr>    <tr>
+      <td><span class="field-name">schoolPeriod</span></td>
+      <td><span class="field-type">string (string)</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">A reference to the schoolPeriodId of the SchoolPeriod where this enrollment is part of.</span></td>
+      <td><span class="schema-desc"></span></td><td><span class="schema-desc">Verwijzing naar schoolPeriodId. Waarde mag niet gewijzigd worden.</span></td>
+    </tr>    <tr>
+      <td><span class="field-name">beginDate</span></td>
+      <td><span class="field-type">string (date)</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">The start date on which the enrollment becomes active (inclusive). Format: YYYY-MM-DD (according to RFC3339).</span></td>
+      <td><span class="schema-desc">2022-08-01</span></td><td><span class="schema-desc">De begindatum van de inschrijving kan afwijken van de startdatum van de schoolperiode.</span></td>
+    </tr>    <tr>
+      <td><span class="field-name">endDate</span></td>
+      <td><span class="field-type">string (date)</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">The end date on which the enrollment becomes inactive (exclusive). Format: YYYY-MM-DD (according to RFC3339).</span></td>
+      <td><span class="schema-desc">2023-07-31</span></td><td><span class="schema-desc">De einddatum is een verplicht veld indien de inschrijving eerder afloopt dan de schoolperiode.</span></td>
+    </tr>    <tr>
+      <td><span class="field-name">status</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">The status field gives an indication to Consumers about the status of an object. Consumers can delete objects that are flagged <code>tobedeleted</code>  as such if they wish.  The status attribute is based on the <a href="https://www.imsglobal.org/sites/default/files/spec/oneroster/v1p2/rostering-informationmodel/OneRosterv1p2RosteringService_InfoModelv1p0.html#Data_Base" target="_blank">Base Class from OneRoster</a>.</span><div class="enum-list">enum: <span class="enum-val">active</span> <span class="enum-val">tobedeleted</span></div></td>
+      <td><span class="schema-desc"></span></td><td><span class="schema-desc">De status is een verplicht veld en geeft aan of het object al dan niet verwijderd kan worden.</span></td>
+    </tr>    <tr>
+      <td><span class="field-name">dateCreated</span></td>
+      <td><span class="field-type">string (date-time)</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">Indicates the date and time the object was first created. Format: According to openapi in ZULU time as specified in RFC 3339, section 5.6.</span></td>
+      <td><span class="schema-desc"></span></td><td><span class="schema-desc"></span></td>
+    </tr>    <tr>
+      <td><span class="field-name">dateLastModified</span></td>
+      <td><span class="field-type">string (date-time)</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">Indicates the date and time the object was last modified. Format: According to openapi in ZULU time as specified in RFC 3339, section 5.6.</span></td>
+      <td><span class="schema-desc"></span></td><td><span class="schema-desc"></span></td>
+    </tr>
+  </tbody>
+</table>
+
+<h3>Assignment</h3>
+<div class="description"><p>The Assignment object for an employee to a Group or Student for a SchoolPeriod.</p></div><div class="toelichting">Het object Assignment beschrijft de toewijzing van een onderwijsmedewerker aan een groep of individu voor een schoolperiode op een onderwijsaanbieder.</div>
+<div class="toelichting">Indien assignmentType is class-teacher of teacher: verplicht: group</div><div class="toelichting">Indien assignmentType = coach: verplicht: student</div><table class="schema-table">
+  <thead><tr><th>Veld</th><th>Type</th><th>V/O</th><th>Omschrijving</th><th>Voorbeeld</th><th>Vullingsregel</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><span class="field-name">assignmentId</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">A unique identifier for this Assignment object. This is the identifier that Consumers will refer to when making API calls, or when needing to identify an object.</span></td>
+      <td><span class="schema-desc"></span></td><td><span class="schema-desc"></span></td>
+    </tr>    <tr>
+      <td><span class="field-name">employee</span></td>
+      <td><span class="ref-link">→ UserReference</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">The Employee to which this assignment object belongs.</span></td>
+      <td><span class="schema-desc"></span></td><td><span class="schema-desc"></span></td>
+    </tr>    <tr>
+      <td><span class="field-name">assignmentType</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">The type of assignment, being one of: - class-teacher: an assignment to a class. - teacher: an assignment to a lesson group for a subject. - coach: an assignment to an individual student.</span><div class="enum-list">enum: <span class="enum-val">class-teacher</span> <span class="enum-val">teacher</span> <span class="enum-val">coach</span></div></td>
+      <td><span class="schema-desc"></span></td><td><span class="schema-desc"></span></td>
+    </tr>    <tr>
+      <td><span class="field-name">group</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">A reference to the groupId of the Group in case this assignment is of the assignmentType <code>class-teacher</code> or <code>teacher</code>  and the student is assigned to a Group for a single subject  .</span></td>
+      <td><span class="schema-desc"></span></td><td><span class="schema-desc">Verwijzing naar groupId. Verplicht indien het assignmentType class-teacher of teacher betreft.</span></td>
+    </tr>    <tr>
+      <td><span class="field-name">subject</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">A reference to the subjectOfferingId of the SubjectOffering in case this assignment is of the assignmentType <code>teacher</code>.</span></td>
+      <td><span class="schema-desc"></span></td><td><span class="schema-desc">Verwijzing naar subjectOfferingId. Dit is een verplicht veld indien het assignmentType teacher betreft én de onderwijsmedewerker voor een enkel AangebodenVak toegewezen is aan de groep.</span></td>
+    </tr>    <tr>
+      <td><span class="field-name">student</span></td>
+      <td><span class="ref-link">→ UserReference</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">A reference to a Student in case this assignment is of the assignmentType <code>coach</code>.</span></td>
+      <td><span class="schema-desc"></span></td><td><span class="schema-desc">Verplicht indien het assignmentType coach betreft.</span></td>
+    </tr>    <tr>
+      <td><span class="field-name">schoolPeriod</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">A reference to the schoolPeriodId of the SchoolPeriod where this assignment is part of.</span></td>
+      <td><span class="schema-desc"></span></td><td><span class="schema-desc">Verwijzing naar schoolPeriodId. Waarde mag niet gewijzigd worden.</span></td>
+    </tr>    <tr>
+      <td><span class="field-name">beginDate</span></td>
+      <td><span class="field-type">string (date)</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">The start date on which the assignment becomes active (inclusive). Format: YYYY-MM-DD (according to RFC3339).</span></td>
+      <td><span class="schema-desc">2022-08-01</span></td><td><span class="schema-desc">De begindatum van de toewijzing kan afwijken van de startdatum van de schoolperiode.</span></td>
+    </tr>    <tr>
+      <td><span class="field-name">endDate</span></td>
+      <td><span class="field-type">string (date)</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">The end date on which the assignment becomes inactive (exclusive). Format: YYYY-MM-DD (according to RFC3339).</span></td>
+      <td><span class="schema-desc">2023-07-31</span></td><td><span class="schema-desc">De einddatum is een verplicht veld indien de toewijzing eerder afloopt dan de schoolperiode.</span></td>
+    </tr>    <tr>
+      <td><span class="field-name">status</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">The status field gives an indication to Consumers about the status of an object. Consumers can delete objects that are flagged <code>tobedeleted</code>  as such if they wish.  The status attribute is based on the <a href="https://www.imsglobal.org/sites/default/files/spec/oneroster/v1p2/rostering-informationmodel/OneRosterv1p2RosteringService_InfoModelv1p0.html#Data_Base" target="_blank">Base Class from OneRoster</a>.</span><div class="enum-list">enum: <span class="enum-val">active</span> <span class="enum-val">tobedeleted</span></div></td>
+      <td><span class="schema-desc"></span></td><td><span class="schema-desc">De status is een verplicht veld en geeft aan of het object al dan niet verwijderd kan worden.</span></td>
+    </tr>    <tr>
+      <td><span class="field-name">dateCreated</span></td>
+      <td><span class="field-type">string (date-time)</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">Indicates the date and time the object was first created. Format: According to openapi in ZULU time as specified in RFC 3339, section 5.6.</span></td>
+      <td><span class="schema-desc"></span></td><td><span class="schema-desc"></span></td>
+    </tr>    <tr>
+      <td><span class="field-name">dateLastModified</span></td>
+      <td><span class="field-type">string (date-time)</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">Indicates the date and time the object was last modified. Format: According to openapi in ZULU time as specified in RFC 3339, section 5.6.</span></td>
+      <td><span class="schema-desc"></span></td><td><span class="schema-desc"></span></td>
+    </tr>
+  </tbody>
+</table>
+
+<h3>Group</h3>
+<div class="description"><p>The Group object in which Students follow their education and Employees are assigned to within a SchoolPeriod.</p></div><div class="toelichting">In het Group object worden de stamgroepen en lesgroepen van een onderwijsaanbieder in een bepaalde schoolperiode uitgewisseld. De werkingsregel is dat de onderwijsmedewerker die middels een toewijzing gekoppeld is aan de Group ook daadwerkelijk alle voortgang en resultaten van de onderwijsdeelnemers in het vak mag inzien.</div>
+<table class="schema-table">
+  <thead><tr><th>Veld</th><th>Type</th><th>V/O</th><th>Omschrijving</th><th>Voorbeeld</th><th>Vullingsregel</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><span class="field-name">groupId</span></td>
+      <td><span class="field-type">string (string)</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">A unique identifier for this Group object. This is the GUID that Consumers will refer to when making API calls, or when needing to identify an object.</span></td>
+      <td><span class="schema-desc"></span></td><td><span class="schema-desc">Waarde mag niet gewijzigd worden.</span></td>
+    </tr>    <tr>
+      <td><span class="field-name">groupName</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">The name of this Group.</span></td>
+      <td><span class="schema-desc">A4bBiol</span></td><td><span class="schema-desc"></span></td>
+    </tr>    <tr>
+      <td><span class="field-name">groupType</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">The type of group, being one of: - class: a <code>stamgroep</code> where students are rostered into for their StudyOffering(s) - lesson-group: a <code>lesgroep</code> where students are rostered into to follow a SubjectOffering.</span><div class="enum-list">enum: <span class="enum-val">class</span> <span class="enum-val">lesson-group</span></div></td>
+      <td><span class="schema-desc"></span></td><td><span class="schema-desc"></span></td>
+    </tr>    <tr>
+      <td><span class="field-name">students</span></td>
+      <td><span class="field-type">array[UserReference]</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">The Students which are member of this group.</span></td>
+      <td><span class="schema-desc"></span></td><td><span class="schema-desc">Onderwijsdeelnemers worden aan het Group object toegevoegd conform de volgende regels: als de requestdatum na de begindatum van de groep zit, alle onderwijsdeelnemers die op de datum van de requestdatum daadwerkelijk lid zijn van de groep (dus niet de onderwijsdeelnemers die in de toekomst lid worden van de groep); als de requestdatum voor de begindatum van de groep zit, voor alle onderwijsdeelnemers die vanaf de begindatum in de groep zitten (dit is vooral handig om de groepen voor het volgende schooljaar uit te wisselen).</span></td>
+    </tr>    <tr>
+      <td><span class="field-name">assignments</span></td>
+      <td><span class="field-type">array[string]</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">The Assignments of Employees that are assigned to this group.</span></td>
+      <td><span class="schema-desc"></span></td><td><span class="schema-desc">Verwijzing naar assignmentId.</span></td>
+    </tr>    <tr>
+      <td><span class="field-name">schoolPeriod</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">A reference to the schoolPeriodId of the SchoolPeriod where this group is part of.</span></td>
+      <td><span class="schema-desc"></span></td><td><span class="schema-desc">Verwijzing naar schoolPeriodId. Waarde mag niet gewijzigd worden.</span></td>
+    </tr>    <tr>
+      <td><span class="field-name">beginDate</span></td>
+      <td><span class="field-type">string (date)</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">The start date on which the group becomes active (inclusive). Format: YYYY-MM-DD (according to RFC3339).</span></td>
+      <td><span class="schema-desc">2022-08-01</span></td><td><span class="schema-desc">De begindatum van de groep kan afwijken van de startdatum van de schoolperiode.</span></td>
+    </tr>    <tr>
+      <td><span class="field-name">endDate</span></td>
+      <td><span class="field-type">string (date)</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">The end date on which the group becomes inactive (exclusive). Format: YYYY-MM-DD (according to RFC3339).</span></td>
+      <td><span class="schema-desc">2023-07-31</span></td><td><span class="schema-desc">De einddatum is een verplicht veld indien de groep eerder afloopt dan de schoolperiode.</span></td>
+    </tr>    <tr>
+      <td><span class="field-name">status</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">The status field gives an indication to Consumers about the status of an object. Consumers can delete objects that are flagged <code>tobedeleted</code>  as such if they wish.  The status attribute is based on the <a href="https://www.imsglobal.org/sites/default/files/spec/oneroster/v1p2/rostering-informationmodel/OneRosterv1p2RosteringService_InfoModelv1p0.html#Data_Base" target="_blank">Base Class from OneRoster</a>.</span><div class="enum-list">enum: <span class="enum-val">active</span> <span class="enum-val">tobedeleted</span></div></td>
+      <td><span class="schema-desc"></span></td><td><span class="schema-desc">De status is een verplicht veld en geeft aan of het object al dan niet verwijderd kan worden.</span></td>
+    </tr>    <tr>
+      <td><span class="field-name">dateCreated</span></td>
+      <td><span class="field-type">string (date-time)</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">Indicates the date and time the object was first created. Format: According to openapi in ZULU time as specified in RFC 3339, section 5.6.</span></td>
+      <td><span class="schema-desc"></span></td><td><span class="schema-desc"></span></td>
+    </tr>    <tr>
+      <td><span class="field-name">dateLastModified</span></td>
+      <td><span class="field-type">string (date-time)</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">Indicates the date and time the object was last modified. Format:  According to openapi in ZULU time as specified in RFC 3339, section 5.6.</span></td>
+      <td><span class="schema-desc"></span></td><td><span class="schema-desc"></span></td>
+    </tr>
+  </tbody>
+</table>
+
+<h3>UserReference</h3>
+
+<div class="toelichting">Indien userMasterIdentifier leeg: verplicht: userIds</div><table class="schema-table">
+  <thead><tr><th>Veld</th><th>Type</th><th>V/O</th><th>Omschrijving</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><span class="field-name">userMasterIdentifier</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">The primary identifier for a User. For Students the ECK iD is used. For Employees this value is empty. There is no primary identifier for Employees. (either userMasterIdentifier or userIds is required)</span></td>
+      
+    </tr>    <tr>
+      <td><span class="field-name">userIds</span></td>
+      <td><span class="ref-link">→ array[UserReference.userIds]</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">A secondary identifier for a User. This value is used whenever the primary identifier is not available. For Employees this value is mandatory. (either userMasterIdentifier or userIds is required)</span></td>
+      
+    </tr>
+  </tbody>
+</table>
+<h3>UserReference.userIds</h3>
+
+<table class="schema-table">
+  <thead><tr><th>Veld</th><th>Type</th><th>V/O</th><th>Omschrijving</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><span class="field-name">userId</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc"></span></td>
+      
+    </tr>    <tr>
+      <td><span class="field-name">userIdType</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc"></span><div class="enum-list">enum: <span class="enum-val">NEPPI</span> <span class="enum-val">BPI</span> <span class="enum-val">eduID</span> <span class="enum-val">NEPRI</span> <span class="enum-val">ASI</span> <span class="enum-val">eckId</span></div></td>
+      
+    </tr>
+  </tbody>
+</table>
+
+<h3>SchoolReference</h3>
+<div class="description"><p>A reference to a School organisation.</p></div>
+<div class="toelichting">Indien organisationMasterIdentifier gevuld: niet toegestaan: organisationIds; anders verplicht: organisationIds</div><table class="schema-table">
+  <thead><tr><th>Veld</th><th>Type</th><th>V/O</th><th>Omschrijving</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><span class="field-name">organisationMasterIdentifier</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">The primary identifier for a School. For Schools the <code>OnderwijsaanbiederId</code> is used. (exactly one of organisationMasterIdentifier or organisationIds must be present)</span></td>
+      
+    </tr>    <tr>
+      <td><span class="field-name">organisationIds</span></td>
+      <td><span class="ref-link">→ array[SchoolReference.organisationIds]</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">A secondary identifier for the School. This value is used whenever the primary identifier is not available. (exactly one of organisationMasterIdentifier or organisationIds must be present)</span></td>
+      
+    </tr>
+  </tbody>
+</table>
+<h3>SchoolReference.organisationIds</h3>
+
+<table class="schema-table">
+  <thead><tr><th>Veld</th><th>Type</th><th>V/O</th><th>Omschrijving</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><span class="field-name">organisationId</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc"></span></td>
+      
+    </tr>    <tr>
+      <td><span class="field-name">organisationIdType</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc"></span><div class="enum-list">enum: <span class="enum-val">OIE_CODE</span> <span class="enum-val">BP_ID</span> <span class="enum-val">DD_ID</span> <span class="enum-val">AS_ID</span> <span class="enum-val">V_ID</span></div></td>
+      
+    </tr>
+  </tbody>
+</table>
+
+<h3>LocationReference</h3>
+<div class="description"><p>A reference to a Location of a School.</p></div><div class="toelichting">Een referentie naar een locatie bevat de primaire identifier (eerste voorkeur) en indien deze niet beschikbaar is door een uitzonderingssituatie een secundaire identifier.</div>
+<div class="toelichting">Indien locationMasterIdentifier leeg: verplicht: locationIds</div><table class="schema-table">
+  <thead><tr><th>Veld</th><th>Type</th><th>V/O</th><th>Omschrijving</th><th>Voorbeeld</th><th>Vullingsregel</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><span class="field-name">locationMasterIdentifier</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">The primary identifier for a Location. For Locations the <code>Onderwijslocatie</code> aka <code>OL_CODE</code> is used. (either locationMasterIdentifier or locationIds is required)</span></td>
+      <td><span class="schema-desc"></span></td><td><span class="schema-desc">De werkingsregel is dat de primaire identifier wordt gehanteerd in de berichten. De primaire identifier voor locatie is de onderwijslocatie (OL_CODE). In geval van een uitzonderingssituatie kan gebruik gemaakt worden van een secundaire identifier.</span></td>
+    </tr>    <tr>
+      <td><span class="field-name">locationIds</span></td>
+      <td><span class="ref-link">→ array[LocationReference.locationIds]</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">A secondary identifier for the Location. For Locations the <code>Vestigingserkenning</code> aka <code>VE_CODE</code> is used. This value is used whenever the primary identifier is not available. (either locationMasterIdentifier or locationIds is required)</span></td>
+      <td><span class="schema-desc">[{"locationId": "string", "locationIdType": "VE_CODE"}]</span></td><td><span class="schema-desc">Zodra een secundaire identifier voor een uitzonderingssituatie gehanteerd wordt, wordt naast het Id ook het Type gespecificeerd. De secundaire identifier voor locatie is de vestigingserkenning (VE_CODE).</span></td>
+    </tr>    <tr>
+      <td><span class="field-name">name</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">A name for the Location.</span></td>
+      <td><span class="schema-desc"></span></td><td><span class="schema-desc"></span></td>
+    </tr>
+  </tbody>
+</table>
+<h3>LocationReference.locationIds</h3>
+
+<table class="schema-table">
+  <thead><tr><th>Veld</th><th>Type</th><th>V/O</th><th>Omschrijving</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><span class="field-name">locationId</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc"></span></td>
+      
+    </tr>    <tr>
+      <td><span class="field-name">locationIdType</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc"></span><div class="enum-list">enum: <span class="enum-val">VE_CODE</span></div></td>
+      
+    </tr>
+  </tbody>
+</table>
+
+<h3>StatusResponse</h3>
+<div class="description"><p>Functional status code and status message.</p></div>
+<table class="schema-table">
+  <thead><tr><th>Veld</th><th>Type</th><th>V/O</th><th>Omschrijving</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><span class="field-name">status</span></td>
+      <td><span class="field-type">integer</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">Functional status code, as defined in &quot;Status- en foutcodes 1.0.0&quot;. Codes are sent as integers without leading zeros (0011 = 11).  Algemeen (00xx) - applies to every API:   * <code>0000</code> - OK: Bevraging succesvol (HTTP 200).   * <code>0001</code> - Created: Bericht heeft geleid tot registratie van een nieuwe entiteit (HTTP 201).   * <code>0002</code> - Accepted: Bericht geaccepteerd (HTTP 202).   * <code>0011</code> - Schema incorrect: Schemavalidatie niet succesvol (HTTP 400).   * <code>0012</code> - schemaVersion not supported: De ontvanger kan de gehanteerde schemaVersion niet verwerken (HTTP 400).   * <code>0021</code> - scope required: Leverancier is niet geautoriseerd voor scope (HTTP 401).   * <code>0022</code> - consent required: Informatieobject van classificatie IV zonder geactiveerde gegevensdienst (HTTP 403).   * <code>0023</code> - school unknown: De client communiceert in de context van een Onderwijsorganisatie die niet bekend is bij de server (HTTP 400).   * <code>0099</code> - Overige reden: Vullingsregel: neem in statusMessage een beschrijving van de reden op.  Association API (20xx):   * <code>2001</code> - School unknown: De identifier van de onderwijsorganisatie is onbekend.   * <code>2002</code> - SubjectOffering unknown: De identifier van het SchoolVak is onbekend.   * <code>2003</code> - StudyOffering unknown: De aangeboden opleiding is onbekend.   * <code>2004</code> - Student unknown: De identifier van de onderwijsdeelnemer is onbekend.   * <code>2005</code> - Employee unknown: De identifier van de onderwijsmedewerker is onbekend.   * <code>2006</code> - Assignment unknown: De identifier van de toewijzing is onbekend.   * <code>2007</code> - Group unknown: De identifier van de groep is onbekend.   * <code>2008</code> - SchoolPeriod unknown: De identifier van de schoolperiode is onbekend.   * <code>2009</code> - Enrollment unknown: De identifier van de inschrijving is onbekend.</span></td>
+      
+    </tr>    <tr>
+      <td><span class="field-name">statusMessage</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">See functional status messages within the Documentation.</span></td>
+      
+    </tr>
+  </tbody>
+</table>
+
+
+<div class="footer">
+  Edu-V &nbsp;|&nbsp; <a href="https://www.edu-v.org/afsprakenstelsel" style="color:#aaa;">www.edu-v.org/afsprakenstelsel</a> &nbsp;|&nbsp; info@edu-v.org
+</div>
+
+</body>
+</html>
