@@ -72,10 +72,12 @@ components:
         - entitlementStatus is cancelled and send to `Licentieregistratie`: `Licentieregistratie` sends a confirmation with the newEntitlementStatus cancelled
         - entitlementStatus is blocked and send to `Licentieregistratie`: `Licentieregistratie` sends a confirmation with the newEntitlementStatus blocked
         
-        Confirmations by `Leermiddelenportaal`:
-        - urlStatus is initialized and send to `Leermiddelenportaal`: `Leermiddelenportaal` sends a confirmation with the newUrlStatus processed
-        - urlStatus is cancelled and send to `Leermiddelenportaal`: `Leermiddelenportaal` sends a confirmation with the newUrlStatus cancelled
-        - urlStatus is blocked and send to `Leermiddelenportaal`: `Leermiddelenportaal` sends a confirmation with the newUrlStatus blocked
+        Confirmations by `Leermiddelenportaal` are triggered by the entitlementStatus, not by the urlStatus.
+        The entitlementStatus is set by the `Aanspraakmanager`. The urlStatus belongs to the `Leermiddelenportaal` and is only reported back via newUrlStatus.
+        Every Entitlement request contains the latest state of the Entitlement. The `Leermiddelenportaal` processes it as that state, not as a step in a mandatory sequence.
+        - entitlementStatus is entitled or licensed and sent to `Leermiddelenportaal`: `Leermiddelenportaal` sends a confirmation with the newUrlStatus processed, or initialized when the access link is not placed yet. A later change of the urlStatus is reported with the confirmation of the next Entitlement request.
+        - entitlementStatus is cancelled and sent to `Leermiddelenportaal`: `Leermiddelenportaal` sends a confirmation with the newUrlStatus cancelled
+        - entitlementStatus is blocked and sent to `Leermiddelenportaal`: `Leermiddelenportaal` sends a confirmation with the newUrlStatus blocked
 
         The entitlementReferenceId, entitlementId are echoed back to the `Aanspraakmanager`, with a new entitlementReceiveId.
         
@@ -120,8 +122,8 @@ components:
         newUrlStatus:
           type: object
           description: |
-            Confirmation of the processing of the request.
-            Example: as a reply to a initialized status in an Entitlement request, the `Leermiddelenportaal` application can reply with a processed status to the `Aanspraakmanager`.
+            Confirmation of the processing of the request. The `Leermiddelenportaal` always reports its current urlStatus.
+            Example: as a reply to an entitled status in an Entitlement request, the `Leermiddelenportaal` application can reply with a processed status to the `Aanspraakmanager`.
           properties:
             portal:
               type: string
@@ -204,7 +206,7 @@ components:
             
             If the `Aanspraakmanager` receives an InitialActivation message regarding this Entitlement from the `Licentieregistratie` via the Usage API, the expirationDate could be updated.
             The InitialActivation message could include an updated expirationDate. In that case this new expirationDate overwrites the initially set minExpirationDate.
-            This triggers the process within the `Aanspraakmanager` to exchange the updated entitlement with the `Leermiddelenportaal`. The urlStatus is updated to `initialized` and is newly exchanged with the `Leermiddelenportaal`.
+            This triggers the process within the `Aanspraakmanager` to exchange the updated entitlement with the `Leermiddelenportaal`. The `Leermiddelenportaal` reports its urlStatus back via newUrlStatus.
             
             Format: YYYY-MM-DD (according to RFC3339).
           example: '2022-07-31'
@@ -248,7 +250,9 @@ components:
                 description: 'Identifier of the `Leermiddelenportaal` application.'
               urlStatus:
                 type: string
-                description: 'The status of the accessUrl at the `Leermiddelenportaal` application.'
+                description: |
+                  The status of the accessUrl at the `Leermiddelenportaal` application, as last reported by that `Leermiddelenportaal` via newUrlStatus.
+                  The `Aanspraakmanager` does not set this status itself. Until the first confirmation of the `Leermiddelenportaal` it remains uninitialized.
                 enum:
                   - uninitialized
                   - initialized
@@ -566,7 +570,7 @@ components:
             
             If the `Aanspraakmanager` receives an InitialActivation message regarding this Entitlement from the `Licentieregistratie` via the Usage API, the expirationDate could be updated.
             The InitialActivation message could include an updated expirationDate. In that case this new expirationDate overwrites the initially set minExpirationDate.
-            This triggers the process within the `Aanspraakmanager` to exchange the updated entitlement with the `Leermiddelenportaal`. The urlStatus is updated to `initialized` and is newly exchanged with the `Leermiddelenportaal`.
+            This triggers the process within the `Aanspraakmanager` to exchange the updated entitlement with the `Leermiddelenportaal`. The `Leermiddelenportaal` reports its urlStatus back via newUrlStatus.
             
             Format: YYYY-MM-DD (according to RFC3339).
           example: '2022-07-31'
