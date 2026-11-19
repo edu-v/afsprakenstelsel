@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <title>ActivationCode API | Edu-V</title>
+  <style>
+    body { font-family: Arial, sans-serif; font-size: 13px; margin: 40px; color: #222; background: white; max-width: 1100px; }
+    h1 { font-size: 20px; margin-bottom: 4px; color: #c0392b; }
+    h2 { font-size: 15px; margin-top: 36px; margin-bottom: 6px; border-bottom: 2px solid #c0392b; padding-bottom: 4px; color: #c0392b; }
+    h3 { font-size: 13px; margin-top: 24px; margin-bottom: 4px; color: #444; }
+    .meta { color: #888; font-size: 11px; margin-bottom: 8px; }
+    .version-badge { display: inline-block; background: #c0392b; color: white; border-radius: 4px; padding: 2px 10px; font-size: 11px; font-weight: bold; margin-bottom: 12px; }
+    .status-badge { display: inline-block; background: #e8f4ea; color: #1a7a4a; border: 1px solid #b0d8b8; border-radius: 3px; padding: 2px 9px; font-size: 11px; font-weight: bold; margin-left: 6px; }
+    .status-beta { background: #fef3e2; color: #b7691a; border-color: #f0c090; }
+    .status-candidate { background: #e8f0fe; color: #2176c7; border-color: #b0c8f0; }
+    .status-draft { background: #f0f0f0; color: #666; border-color: #ccc; }
+    .description { font-size: 12px; color: #444; line-height: 1.6; max-width: 820px; margin-bottom: 24px; }
+    .description p, .description ul { margin: 0 0 10px; } .description h4 { font-size: 12px; margin: 14px 0 4px; }
+    .description code, .schema-desc code, .toelichting code { font-family: monospace; background: #f2f2f2; padding: 0 3px; border-radius: 3px; }
+
+    /* Metadatatabel */
+    .meta-table { width: 100%; border-collapse: collapse; margin-bottom: 24px; font-size: 12px; }
+    .meta-table td { padding: 7px 12px; border: 1px solid #e0e0e0; vertical-align: top; }
+    .meta-table td:first-child { width: 150px; background: #f7f7f7; font-weight: bold; color: #555; }
+    .meta-tag { display: inline-block; background: #f0f0f0; border-radius: 3px; padding: 1px 7px; margin: 2px 2px 2px 0; font-size: 11px; }
+
+    /* Toelichting blok */
+    .toelichting { background-color: #f9f4ee; border-left: 3px solid #c0392b; padding: 9px 13px; margin-bottom: 12px; font-size: 12px; line-height: 1.6; color: #555; }
+
+    /* Endpoints tabel */
+    .endpoints-table { width: 100%; border-collapse: collapse; margin-bottom: 32px; font-size: 12px; }
+    .endpoints-table th { background: #c0392b; color: white; text-align: left; padding: 8px 12px; }
+    .endpoints-table td { padding: 7px 12px; border-bottom: 1px solid #eee; vertical-align: top; }
+    .endpoints-table tr:hover { background: #f9f9f9; }
+    .method { font-weight: bold; font-family: monospace; font-size: 11px; padding: 2px 6px; border-radius: 3px; }
+    .method-put { background: #fef3e2; color: #b7691a; }
+    .method-get { background: #e8f4ea; color: #1a7a4a; }
+    .method-post { background: #e8f0fe; color: #2176c7; }
+    .method-delete { background: #fde8e6; color: #c0392b; }
+    .path { font-family: monospace; font-size: 11px; color: #333; }
+
+    /* Schema veldentabel */
+    .schema-table { width: 100%; border-collapse: collapse; margin-bottom: 28px; font-size: 12px; }
+    .schema-table th { background: #f0f0f0; text-align: left; padding: 7px 10px; border-bottom: 2px solid #ccc; font-size: 11px; }
+    .schema-table td { padding: 6px 10px; border-bottom: 1px solid #eee; vertical-align: top; }
+    .schema-table tr:hover { background: #fafafa; }
+    .field-name { font-family: monospace; font-weight: bold; color: #c0392b; font-size: 11px; }
+    .field-type { font-family: monospace; font-size: 10px; color: #666; }
+    .badge-v { background: #fde8e6; color: #c0392b; font-size: 10px; font-weight: bold; padding: 1px 5px; border-radius: 3px; }
+    .badge-o { background: #e8f0fe; color: #2176c7; font-size: 10px; padding: 1px 5px; border-radius: 3px; }
+    .enum-list { font-family: monospace; font-size: 10px; color: #666; margin-top: 3px; }
+    .enum-val { display: inline-block; background: #f0f0f0; padding: 1px 4px; border-radius: 2px; margin: 1px 2px 1px 0; }
+    .ref-link { font-family: monospace; font-size: 10px; color: #c0392b; }
+    .schema-desc { font-size: 11px; color: #555; line-height: 1.4; }
+
+    /* Contact footer */
+    .footer { margin-top: 48px; font-size: 11px; color: #aaa; border-top: 1px solid #eee; padding-top: 12px; }
+  </style>
+</head>
+<body>
+
+<h1>ActivationCode API</h1>
+<div class="meta">Edu-V Afsprakenstelsel &nbsp;|&nbsp; Gegenereerd op 19 November 2026 &nbsp;|&nbsp; Bron: activationcode-api.yaml</div>
+<div style="margin-bottom:20px;">
+  <span class="version-badge">v0.10.0-rc.1</span><span class="status-badge status-beta">Beta Draft</span>
+</div>
+
+<table class="meta-table">
+<tr><td>Status</td><td><span class="status-badge status-beta">Beta Draft</span></td></tr>
+<tr><td>Versie</td><td>0.10.0-rc.1</td></tr>
+<tr><td>Afkorting</td><td>ACT</td></tr>
+<tr><td>Beheer</td><td>Werkgroep Verwerven en in gebruik nemen</td></tr>
+<tr><td>Ingangsdatum</td><td>2027-01-14</td></tr>
+<tr><td>Gegevensdienst</td><td>Activatiecodeverzoek</td></tr>
+<tr><td>Bron</td><td><span class="meta-tag">Bestelomgeving leermiddelen</span></td></tr>
+</table>
+
+<h2>Beschrijving</h2>
+<div class="description"><p>The ActivationCode API is implemented by the reference components <code>Bestelomgeving leermiddelen</code> and <code>Licentieregistratie</code>.</p><p>The <code>Bestelomgeving leermiddelen</code> is able to request or revoke an activation code from the <code>Licentieregistratie</code>.</p><p>Requests are send and received via asynchronous transactions. Therefore the <code>Licentieregistratie</code> need to implement endpoints to receive requests. Moreover the <code>Bestelomgeving leermiddelen</code> needs to implement confirmation endpoints to receive confirmations from the <code>Licentieregistratie</code> that requests have been processed.</p></div>
+<h2>Endpoints</h2>
+<table class="endpoints-table">
+  <thead><tr><th>Methode</th><th>Pad</th><th>Omschrijving</th><th>Tag</th><th>Foutcodes</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><span class="method method-put">PUT</span></td>
+      <td><span class="path">/activationcodes</span></td>
+      <td>Accept activation code request</td>
+      <td style="font-size:10px;color:#888;">Licentieregistratie</td>
+      <td style="font-size:11px;"></td>
+    </tr>    <tr>
+      <td><span class="method method-put">PUT</span></td>
+      <td><span class="path">/activationcodes/revoke</span></td>
+      <td>Accept activation code revoke request</td>
+      <td style="font-size:10px;color:#888;">Licentieregistratie</td>
+      <td style="font-size:11px;"></td>
+    </tr>    <tr>
+      <td><span class="method method-put">PUT</span></td>
+      <td><span class="path">/activationcodes/confirmations</span></td>
+      <td>Confirm activation code request</td>
+      <td style="font-size:10px;color:#888;">Bestelomgeving leermiddelen</td>
+      <td style="font-size:11px;"></td>
+    </tr>    <tr>
+      <td><span class="method method-put">PUT</span></td>
+      <td><span class="path">/activationcodes/revoke/confirmations</span></td>
+      <td>Confirm activation code revoke request</td>
+      <td style="font-size:10px;color:#888;">Bestelomgeving leermiddelen</td>
+      <td style="font-size:11px;"></td>
+    </tr>
+  </tbody>
+</table>
+
+<h2>Schemas</h2>
+<h3>ActivationCodeRequest</h3>
+<div class="description"><p>Request send by the <code>Bestelomgeving leermiddelen</code> to the <code>Licentieregistratie</code> to request a specified quantity of activation codes for a single Product. These activation codes can be sold by the <code>Bestelomgeving leermiddelen</code> and can be used to specify schoolstudent, schoolemployee or Personal Entitlements.</p></div><div class="toelichting">Het ActivationCodeRequest bericht wordt door de Bestelomgeving leermiddelen verstuurd naar de Licentieregistratie binnen de activationcode. In de berichtspecificatie is een requestReferenceId opgenomen die wordt bepaald door de verzender. Dit stelt de verzender in staat om bevestigingsberichten vanuit de Licentieregistratie terug te relateren aan het verstuurde activationCodeRequest bericht. Dit is vergelijkbaar met de uitwisselingsvariant die ook geïmplementeerd is voor aanspraken (Entitlements).</div>
+<table class="schema-table">
+  <thead><tr><th>Veld</th><th>Type</th><th>V/O</th><th>Omschrijving</th><th>Voorbeeld</th><th>Vullingsregel</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><span class="field-name">requestReferenceId</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">Unique requestReferenceId for this request. This referenceId is used by the Event Mediator of the <code>Bestelomgeving leermiddelen</code> to match the ActivationCodeConfirmation confirmation message(s) send by the <code>Licentieregistratie</code>. If a party receives another request with the same requestReferenceId value, the receiving party should not process the request again. It should send the confirmation again.</span></td>
+      <td><span class="schema-desc">eacb81ef-c9d5-4bd8-a624-4088bee04b73</span></td><td><span class="schema-desc">Dit nummer wordt gebruikt door de event mediator van de Bestelomgeving leermiddelen om een logboek bij te houden van verzonden en ontvangen meldingen en terugmeldingen met betrekking tot een unieke aanvraag van een activatiecode.</span></td>
+    </tr>    <tr>
+      <td><span class="field-name">productId</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">The Product for which a <code>Bestelomgeving leermiddelen</code> requests (an) activation code(s). The productId can be retrieved from the Catalogue API from the supplier of the learning material.</span></td>
+      <td><span class="schema-desc">8717927130834</span></td><td><span class="schema-desc">Een aanvraag voor een activatiecode verwijst naar exact 1 Product-Beschrijving (Leermiddel- of Setbeschrijving) Waarde mag niet gewijzigd worden</span></td>
+    </tr>    <tr>
+      <td><span class="field-name">quantity</span></td>
+      <td><span class="field-type">integer</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">Total requested activation codes for the Product.</span></td>
+      <td><span class="schema-desc"></span></td><td><span class="schema-desc">Waarde mag niet gewijzigd worden.</span></td>
+    </tr>    <tr>
+      <td><span class="field-name">contractId</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">An optional unique identifier for a contract between the two suppliers where this requests belongs to.</span></td>
+      <td><span class="schema-desc">2022-12-v1</span></td><td><span class="schema-desc">Waarde mag niet gewijzigd worden.</span></td>
+    </tr>
+  </tbody>
+</table>
+
+<h3>ActivationCodeConfirmation</h3>
+<div class="description"><p>The confirmation that is send back by the <code>Licentieregistratie</code> as an asynchronous reply to the request of the <code>Bestelomgeving leermiddelen</code>.<br>The <code>Licentieregistratie</code> includes in the confirmation message the requested activation codes. In case the <code>Licentieregistratie</code> cannot generate these codes a functional status code and message is replied.<br>Confirmations are only handled once. If a confirmation with the similar requestReferenceId is received the processing is only done the first time. The confirmation may be send multiple times, but always with the same responseReferenceId. In this way the <code>Bestelomgeving leermiddelen</code> can validate that the confirmation is processed only once.</p><p>Functional status codes and messages are described in the Documentation.</p></div><div class="toelichting">De Licentieregistratie reageert op een ActivationCodeRequest bericht met een ActivationCodeConfirmation bevestigingsbericht. In dit bevestigingsbericht worden de activatiecodes opgenomen. In aanvulling hierop wordt optioneel de informatie uit de aanvraag (product, contractId) ook bevestigd. Door ook een tijdstempel op te nemen kan dit bevestigingsbericht worden gezien als een formele levering van activatiecodes van aan de Bestelomgeving leermiddelen.</div>
+<div class="toelichting">Indien success = true: verplicht: activationCodes</div><table class="schema-table">
+  <thead><tr><th>Veld</th><th>Type</th><th>V/O</th><th>Omschrijving</th><th>Voorbeeld</th><th>Vullingsregel</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><span class="field-name">requestReferenceId</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">The requestReferenceId that was send by the <code>Bestelomgeving leermiddelen</code> as part of the ActivationCodeRequest event</span></td>
+      <td><span class="schema-desc">eacb81ef-c9d5-4bd8-a624-4088bee04b73</span></td><td><span class="schema-desc">Waarde mag niet gewijzigd worden.</span></td>
+    </tr>    <tr>
+      <td><span class="field-name">responseReferenceId</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">A reference to this confirmation message send by the <code>Licentieregistratie</code>.</span></td>
+      <td><span class="schema-desc">eacb81ef-c9d5-4bd8-a624-4088bee04b76</span></td><td><span class="schema-desc">Waarde mag niet gewijzigd worden.</span></td>
+    </tr>    <tr>
+      <td><span class="field-name">productId</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">The productId which was part of the ActivationCodeRequest Event send by the <code>Bestelomgeving leermiddelen</code>. The activation codes give Students or Employees the possibility to activate this Product.</span></td>
+      <td><span class="schema-desc">8717927130834</span></td><td><span class="schema-desc">Waarde mag gewijzigd worden.</span></td>
+    </tr>    <tr>
+      <td><span class="field-name">activationCodes</span></td>
+      <td><span class="field-type">array[string]</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">List of activation codes which can be used to activate the Product.</span></td>
+      <td><span class="schema-desc">[XXXXXX, YYYYYY, ZZZZZZ]</span></td><td><span class="schema-desc">Waarde wordt gevuld indien het verzoek succesvol is verwerkt Waarde mag niet gewijzigd worden.</span></td>
+    </tr>    <tr>
+      <td><span class="field-name">processedTimestamp</span></td>
+      <td><span class="field-type">string (date-time)</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">The moment that the activation codes were generated by the <code>Licentieregistratie</code> and the request was processed. As Events and confirmation messages are send asynchronous, this is not the moment the confirmation message was send by the <code>Licentieregistratie</code> to the <code>Bestelomgeving leermiddelen</code>.  Format: Conform openapi in ZULU time as specified in RFC 3339, section 5.6</span></td>
+      <td><span class="schema-desc"></span></td><td><span class="schema-desc">Het tijdstip kan afwijken van het versturen van het bevestigingsbericht. Intentie is om aan te geven wanneer het bericht is verwerkt.</span></td>
+    </tr>    <tr>
+      <td><span class="field-name">success</span></td>
+      <td><span class="field-type">boolean</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">Boolean indicating the ActivationCodeRequest event was processed successfully. When the <code>Licentieregistratie</code> disagrees with the request a false will be returned, along with a status code and a status message.</span></td>
+      <td><span class="schema-desc"></span></td><td><span class="schema-desc">False indien de Licentieregistratie niet akkoord is of er een fout is opgetreden.</span></td>
+    </tr>    <tr>
+      <td><span class="field-name">status</span></td>
+      <td><span class="field-type">integer</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">Functional status code, as defined in &quot;Status- en foutcodes 1.0.0&quot;. Codes are sent as integers without leading zeros (0011 = 11).  Algemeen (00xx) - applies to every API:   * <code>0000</code> - OK: Bevraging succesvol (HTTP 200).   * <code>0001</code> - Created: Bericht heeft geleid tot registratie van een nieuwe entiteit (HTTP 201).   * <code>0002</code> - Accepted: Bericht geaccepteerd (HTTP 202).   * <code>0011</code> - Schema incorrect: Schemavalidatie niet succesvol (HTTP 400).   * <code>0012</code> - schemaVersion not supported: De ontvanger kan de gehanteerde schemaVersion niet verwerken (HTTP 400).   * <code>0021</code> - scope required: Leverancier is niet geautoriseerd voor scope (HTTP 401).   * <code>0022</code> - consent required: Informatieobject van classificatie IV zonder geactiveerde gegevensdienst (HTTP 403).   * <code>0023</code> - school unknown: De client communiceert in de context van een Onderwijsorganisatie die niet bekend is bij de server (HTTP 400).   * <code>0099</code> - Overige reden: Vullingsregel: neem in statusMessage een beschrijving van de reden op.  ActivationCode API (50xx):   * <code>5001</code> - requestReferenceId unknown: requestReferenceId onbekend   * <code>5002</code> - requestReferenceId already used: requestReferenceId is al eerder gebruikt.   * <code>5003</code> - responseReferenceId unknown: responseReferenceId onbekend   * <code>5004</code> - responseReferenceId already used: responseReferenceId is al eerder gebruikt.   * <code>5011</code> - activationCode unknown: Activatiecode is onbekend   * <code>5021</code> - productId missing: Specificatie van Product ontbreekt   * <code>5022</code> - productId unknown: Gespecificeerd Product onbekend bij Ontvanger   * <code>5023</code> - Product not yet for sale: Gespecificeerd Product is nog niet in de verkoop   * <code>5024</code> - Product not available: Gespecificeerd Product is niet beschikbaar.   * <code>5025</code> - Product no longer for sale: Gespecificeerd Product is niet langer in de verkoop   * <code>5026</code> - Product does not support activation codes: Gespecificeerd Product kan niet worden verkocht middels een activatiecode.   * <code>5041</code> - contractId unknown: Gespecificeerd contractId is onbekend bij de ontvangende Licentieregistratie   * <code>5042</code> - Contract restrictions: Bericht niet toegestaan als gevolg van contractuele afspraken tussen de leverancier van het leermiddel en de leverancier die de verwerving faciliteert.   * <code>5051</code> - License registered on activationCode: Het annuleren van een activatiecode is niet mogelijk zodra het leermiddel in gebruik is genomen.</span></td>
+      <td><span class="schema-desc"></span></td><td><span class="schema-desc">Zie status en foutcodes</span></td>
+    </tr>    <tr>
+      <td><span class="field-name">statusMessage</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">See functional status messages within the Documentation.</span></td>
+      <td><span class="schema-desc"></span></td><td><span class="schema-desc">Zie status en foutcodes</span></td>
+    </tr>
+  </tbody>
+</table>
+
+<h3>ActivationCodeRevokeRequest</h3>
+<div class="description"><p>Request send by the <code>Bestelomgeving leermiddelen</code> to the <code>Licentieregistratie</code> with a request to revoke an activation code. After the revoke, the activation code cannot be used to activate a Product.</p></div><div class="toelichting">Naast een regulier verzoek om een activatiecode is het mogelijk om om een activatiecode in te laten trekken. Ook dit bericht wordt verstuurd binnen de scope activationcode. In dat geval dient de Bestelomgeving leermiddelen een ActivationCodeRevokeRequest in bij de Licentieregistratie.
+
+In dit bericht wordt de activatiecode en optioneel het responseReferenceId ontvangen van de Aanbieder gespecificeerd. Op deze wijze kunnen zowel Bestelomgeving leermiddelen als Licentieregistratie dit bericht relateren aan de oorspronkelijke aanvraag voor de activatiecode die ingetrokken dient te worden. Uiteraard is het afhankelijk van bilaterale afspraken tussen leveranciers of het intrekken van een activatiecode al dan niet mogelijk is.</div>
+<table class="schema-table">
+  <thead><tr><th>Veld</th><th>Type</th><th>V/O</th><th>Omschrijving</th><th>Voorbeeld</th><th>Vullingsregel</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><span class="field-name">requestReferenceId</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">Unique requestReferenceId for this request. This referenceId is used by the Event Mediator of the <code>Bestelomgeving leermiddelen</code> to match the ActivationCodeRevokeConfirmation confirmation message(s) send by the <code>Licentieregistratie</code>. If a party receives another request with the same requestReferenceId value, the receiving party should not process the request again. It should send the confirmation again.</span></td>
+      <td><span class="schema-desc">eacb81ef-c9d5-4bd8-a624-4088bee04b73</span></td><td><span class="schema-desc">Dit nummer wordt gebruikt door de event mediator van de Bestelomgeving leermiddelen of de Licentieregistratie om een logboek bij te houden van verzonden en ontvangen meldingen en terugmeldingen met betrekking tot een unieke aanvraag van een activatiecode.</span></td>
+    </tr>    <tr>
+      <td><span class="field-name">activationCode</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">Activation code which should be revoked by the <code>Licentieregistratie</code>.</span></td>
+      <td><span class="schema-desc">XXXXXX</span></td><td><span class="schema-desc">Waarde mag niet gewijzigd worden.</span></td>
+    </tr>    <tr>
+      <td><span class="field-name">responseReferenceId</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">Optional reference to the responseReferenceID of the confirmation message in which the <code>Licentieregistratie</code> send the activation code to the <code>Bestelomgeving leermiddelen</code>.</span></td>
+      <td><span class="schema-desc">eacb81ef-c9d5-4bd8-a624-4088bee04b76</span></td><td><span class="schema-desc">Waarde mag niet gewijzigd worden</span></td>
+    </tr>
+  </tbody>
+</table>
+
+<h3>ActivationCodeRevokeConfirmation</h3>
+<div class="description"><p>The confirmation that is send back by the <code>Licentieregistratie</code> as an asynchronous reply to the request of the <code>Bestelomgeving leermiddelen</code>.<br>The <code>Licentieregistratie</code> will send a confirmation message back to the <code>Bestelomgeving leermiddelen</code> including a success parameter indicating if the revoke has been processed successfully. In case the revoke was not processed, the <code>Licentieregistratie</code> replies with a functional status code and message.<br>Confirmations are only handled once. If a confirmation with the similar requestReferenceId is received the processing is only done the first time. The confirmation may be send multiple times, but always with the same responseReferenceId. In this way the <code>Bestelomgeving leermiddelen</code> can validate that the response is processed only once.</p><p>Functional status codes and messages are described in the Documentation.</p></div><div class="toelichting">De Licentieregistratie reageert op een ActivationCodeRevokeRequest met een bevestigingsbericht ActivationCodeRevokeConfirmation.</div>
+<table class="schema-table">
+  <thead><tr><th>Veld</th><th>Type</th><th>V/O</th><th>Omschrijving</th><th>Voorbeeld</th><th>Vullingsregel</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><span class="field-name">requestReferenceId</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">The requestReferenceId that was send by the <code>Bestelomgeving leermiddelen</code> as part of the ActivationCodeRequest event</span></td>
+      <td><span class="schema-desc">eacb81ef-c9d5-4bd8-a624-4088bee04b73</span></td><td><span class="schema-desc">Waarde mag niet gewijzigd worden.</span></td>
+    </tr>    <tr>
+      <td><span class="field-name">responseReferenceId</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">A reference to this confirmation message send by the <code>Licentieregistratie</code> to the <code>Bestelomgeving leermiddelen</code>.</span></td>
+      <td><span class="schema-desc">24e39454-5360-4ba4-819f-03e59b8dd679</span></td><td><span class="schema-desc">Waarde mag niet gewijzigd worden.</span></td>
+    </tr>    <tr>
+      <td><span class="field-name">activationCode</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">The activation code which was part of the ActivationCodeRevokeRequest Event send by the <code>Bestelomgeving leermiddelen</code>.</span></td>
+      <td><span class="schema-desc">XXXXX-XXXXX-XXXXX-XXXXX-XXXXX</span></td><td><span class="schema-desc">Waarde mag niet gewijzigd worden.</span></td>
+    </tr>    <tr>
+      <td><span class="field-name">processedTimestamp</span></td>
+      <td><span class="field-type">string (date-time)</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">The moment that the activation codes were revoked by the <code>Licentieregistratie</code> and the request was processed. As Events and confirmation messages are send asynchronous, this is not the moment the confirmation message was send by the <code>Licentieregistratie</code> to the <code>Bestelomgeving leermiddelen</code>.  Format: Conform openapi in ZULU time as specified in RFC 3339, section 5.6</span></td>
+      <td><span class="schema-desc"></span></td><td><span class="schema-desc">Het tijdstip kan afwijken van het versturen van het bevestigingsbericht. Intentie is om aan te geven wanneer het bericht is verwerkt.</span></td>
+    </tr>    <tr>
+      <td><span class="field-name">success</span></td>
+      <td><span class="field-type">boolean</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">Boolean indicating the ActivationCodeRevokeRequest event was processed successfully. When the <code>Licentieregistratie</code> disagrees with the request a false will be returned, along with a status code and a status message.</span></td>
+      <td><span class="schema-desc"></span></td><td><span class="schema-desc">False indien de Ontvanger niet akkoord is of er een fout is opgetreden.</span></td>
+    </tr>    <tr>
+      <td><span class="field-name">status</span></td>
+      <td><span class="field-type">integer</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">Functional status code, as defined in &quot;Status- en foutcodes 1.0.0&quot;. Codes are sent as integers without leading zeros (0011 = 11).  Algemeen (00xx) - applies to every API:   * <code>0000</code> - OK: Bevraging succesvol (HTTP 200).   * <code>0001</code> - Created: Bericht heeft geleid tot registratie van een nieuwe entiteit (HTTP 201).   * <code>0002</code> - Accepted: Bericht geaccepteerd (HTTP 202).   * <code>0011</code> - Schema incorrect: Schemavalidatie niet succesvol (HTTP 400).   * <code>0012</code> - schemaVersion not supported: De ontvanger kan de gehanteerde schemaVersion niet verwerken (HTTP 400).   * <code>0021</code> - scope required: Leverancier is niet geautoriseerd voor scope (HTTP 401).   * <code>0022</code> - consent required: Informatieobject van classificatie IV zonder geactiveerde gegevensdienst (HTTP 403).   * <code>0023</code> - school unknown: De client communiceert in de context van een Onderwijsorganisatie die niet bekend is bij de server (HTTP 400).   * <code>0099</code> - Overige reden: Vullingsregel: neem in statusMessage een beschrijving van de reden op.  ActivationCode API (50xx):   * <code>5001</code> - requestReferenceId unknown: requestReferenceId onbekend   * <code>5002</code> - requestReferenceId already used: requestReferenceId is al eerder gebruikt.   * <code>5003</code> - responseReferenceId unknown: responseReferenceId onbekend   * <code>5004</code> - responseReferenceId already used: responseReferenceId is al eerder gebruikt.   * <code>5011</code> - activationCode unknown: Activatiecode is onbekend   * <code>5021</code> - productId missing: Specificatie van Product ontbreekt   * <code>5022</code> - productId unknown: Gespecificeerd Product onbekend bij Ontvanger   * <code>5023</code> - Product not yet for sale: Gespecificeerd Product is nog niet in de verkoop   * <code>5024</code> - Product not available: Gespecificeerd Product is niet beschikbaar.   * <code>5025</code> - Product no longer for sale: Gespecificeerd Product is niet langer in de verkoop   * <code>5026</code> - Product does not support activation codes: Gespecificeerd Product kan niet worden verkocht middels een activatiecode.   * <code>5041</code> - contractId unknown: Gespecificeerd contractId is onbekend bij de ontvangende Licentieregistratie   * <code>5042</code> - Contract restrictions: Bericht niet toegestaan als gevolg van contractuele afspraken tussen de leverancier van het leermiddel en de leverancier die de verwerving faciliteert.   * <code>5051</code> - License registered on activationCode: Het annuleren van een activatiecode is niet mogelijk zodra het leermiddel in gebruik is genomen.</span></td>
+      <td><span class="schema-desc"></span></td><td><span class="schema-desc">Zie status en foutcodes</span></td>
+    </tr>    <tr>
+      <td><span class="field-name">statusMessage</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">See functional status messages within the Documentation.</span></td>
+      <td><span class="schema-desc"></span></td><td><span class="schema-desc">Zie status en foutcodes</span></td>
+    </tr>
+  </tbody>
+</table>
+
+<h3>StatusResponse</h3>
+<div class="description"><p>Functional status code and status message.</p></div>
+<table class="schema-table">
+  <thead><tr><th>Veld</th><th>Type</th><th>V/O</th><th>Omschrijving</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><span class="field-name">status</span></td>
+      <td><span class="field-type">integer</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">Functional status code, as defined in &quot;Status- en foutcodes 1.0.0&quot;. Codes are sent as integers without leading zeros (0011 = 11).  Algemeen (00xx) - applies to every API:   * <code>0000</code> - OK: Bevraging succesvol (HTTP 200).   * <code>0001</code> - Created: Bericht heeft geleid tot registratie van een nieuwe entiteit (HTTP 201).   * <code>0002</code> - Accepted: Bericht geaccepteerd (HTTP 202).   * <code>0011</code> - Schema incorrect: Schemavalidatie niet succesvol (HTTP 400).   * <code>0012</code> - schemaVersion not supported: De ontvanger kan de gehanteerde schemaVersion niet verwerken (HTTP 400).   * <code>0021</code> - scope required: Leverancier is niet geautoriseerd voor scope (HTTP 401).   * <code>0022</code> - consent required: Informatieobject van classificatie IV zonder geactiveerde gegevensdienst (HTTP 403).   * <code>0023</code> - school unknown: De client communiceert in de context van een Onderwijsorganisatie die niet bekend is bij de server (HTTP 400).   * <code>0099</code> - Overige reden: Vullingsregel: neem in statusMessage een beschrijving van de reden op.  ActivationCode API (50xx):   * <code>5001</code> - requestReferenceId unknown: requestReferenceId onbekend   * <code>5002</code> - requestReferenceId already used: requestReferenceId is al eerder gebruikt.   * <code>5003</code> - responseReferenceId unknown: responseReferenceId onbekend   * <code>5004</code> - responseReferenceId already used: responseReferenceId is al eerder gebruikt.   * <code>5011</code> - activationCode unknown: Activatiecode is onbekend   * <code>5021</code> - productId missing: Specificatie van Product ontbreekt   * <code>5022</code> - productId unknown: Gespecificeerd Product onbekend bij Ontvanger   * <code>5023</code> - Product not yet for sale: Gespecificeerd Product is nog niet in de verkoop   * <code>5024</code> - Product not available: Gespecificeerd Product is niet beschikbaar.   * <code>5025</code> - Product no longer for sale: Gespecificeerd Product is niet langer in de verkoop   * <code>5026</code> - Product does not support activation codes: Gespecificeerd Product kan niet worden verkocht middels een activatiecode.   * <code>5041</code> - contractId unknown: Gespecificeerd contractId is onbekend bij de ontvangende Licentieregistratie   * <code>5042</code> - Contract restrictions: Bericht niet toegestaan als gevolg van contractuele afspraken tussen de leverancier van het leermiddel en de leverancier die de verwerving faciliteert.   * <code>5051</code> - License registered on activationCode: Het annuleren van een activatiecode is niet mogelijk zodra het leermiddel in gebruik is genomen.</span></td>
+      
+    </tr>    <tr>
+      <td><span class="field-name">statusMessage</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">See functional status messages within the Documentation.</span></td>
+      
+    </tr>
+  </tbody>
+</table>
+
+
+<div class="footer">
+  Edu-V &nbsp;|&nbsp; <a href="https://www.edu-v.org/afsprakenstelsel" style="color:#aaa;">www.edu-v.org/afsprakenstelsel</a> &nbsp;|&nbsp; info@edu-v.org
+</div>
+
+</body>
+</html>
