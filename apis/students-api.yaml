@@ -194,6 +194,7 @@ components:
           example: "2022-08-11T15:31:12Z"
       required:
         - givenName
+        - preferredFirstName
         - familyName
         - status
         - dateCreated
