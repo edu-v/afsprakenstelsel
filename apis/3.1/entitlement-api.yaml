@@ -1,0 +1,1532 @@
+openapi: 3.1.1
+info:
+  title: Entitlement API
+  version: 1.2.0-rc.1
+  description: 'The Entitlement API is implemented by the `Aanspraakmanager`, `Licentieregistratie`, and
+    `Leermiddelenportaal`.
+
+    The Entitlement API is used to orchestrate the digital delivery of learning materials to all involved
+    reference components.
+
+    The `Aanspraakmanager` is responsible for the consistency and traceability of all transactions.
+
+
+    The Aanspraakmanager is the source of Entitlement information and provides GET endpoints to receive
+    the latest state.
+
+
+    Entitlements are send and received via several asynchronous transactions.
+
+    Therefore the consuming reference components `Licentieregistratie`, and `Leermiddelenportaal` need
+    to implement endpoints to receive data.
+
+    Moreover the `Aanspraakmanager` needs to implement confirmation endpoints to receive confirmations
+    from the consumer that entitlements have been processed.
+
+
+    After consent by the School, a `Leermiddelendashboard` is able to request information about entitlements
+    from the `Aanspraakmanager`. The `Leermiddelendashboard` uses the GET endpoints provided by the `Aanspraakmanager`.
+
+
+    The `Bestelomgeving leermiddelen` is also able to request information from the `Aanspraakmanager`.
+    This allows the `Bestelomgeving leermiddelen` to provide support to buyers.
+
+    '
+  x-afkorting: ENT
+  x-status: release-candidate
+  x-beheer: Werkgroep Verwerven en in gebruik nemen
+  x-ingangsdatum: '2027-01-14'
+  x-gegevensdienst: Aanspraken en leermiddelactivatie
+  x-bron:
+  - Aanspraakmanager
+  x-afnemers:
+  - Leermiddelendashboard
+  - Leermiddelenportaal
+  - Bestelomgeving leermiddelen
+  contact:
+    name: Edu-V
+    url: www.edu-v.org/afsprakenstelsel
+    email: info@edu-v.org
+components:
+  schemas:
+    schemaVersion:
+      description: 'Schema version of this API using semantic versioning 2.0.0.
+
+        The API version number is communicated in the header.
+
+        The major version is communicated in the URI.
+
+        For more information see the [Edu-V versioning guidelines](https://edu-v.atlassian.net/wiki/spaces/AFSPRAKENS/pages/9437200/Versiebeheer).
+
+        '
+      type: string
+      default: 1.2.0-rc.1
+    EntitlementRequest:
+      title: EntitlementRequest
+      description: 'A new or updated Entitlement is send from the `Aanspraakmanager` to the `Licentieregistratie`,
+        and `Leermiddelenportaal`.
+
+        In some cases the `Licentieregistratie` or `Leermiddelenportaal` will send an EntitlementConfirmation
+        to confirm this message.
+
+
+        The Entitlement is always send as latest status. Many fields cannot be changed after initial "entitled"
+        status. just the state can change or quantity be lowered.
+
+        The request should always be processed once, the entitlementReferenceId is unique.
+
+        '
+      type: object
+      x-tags:
+      - Entitlement
+      x-toelichting: 'Het EntitlementRequest bericht bevat de specificatie van de aanspraak op een leermiddel.
+        In het bericht is een unieke referentie opgenomen om de traceerbaarheid van verzonden en ontvangen
+        berichten bij te kunnen houden. Indien een ontvanger een bericht ontvangt met eenzelfde entitlementReferenceId
+        is het niet de bedoeling om het bericht opnieuw te verwerken; het verzoek is om het bevestigingsbericht
+        opnieuw toe te sturen.
+
+        '
+      properties:
+        entitlementReferenceId:
+          type: string
+          description: 'Unique entitlementReferenceId for this request.
+
+            This referenceId is used by the Event Mediator of the `Aanspraakmanager` to match the EntitlementConfirmation
+            confirmation message(s) send by the `Licentieregistratie` and/or the `Leermiddelenportaal`.
+
+            If a party receives another request with the same entitlementReferenceId value, the receiving
+            party should not process the request again. It should send the confirmation again.
+
+            '
+          format: uuid
+          x-voorbeeld: eacb81ef-c9d5-4bd8-a624-4088bee04b73
+          x-vullingsregel: Dit nummer wordt gebruikt door de event mediator om een logboek bij te houden
+            van verzonden en ontvangen meldingen en terugmeldingen met betrekking tot een unieke entitlementId.
+        entitlement:
+          $ref: '#/components/schemas/Entitlement'
+      required:
+      - entitlementReferenceId
+      - entitlement
+    EntitlementConfirmation:
+      title: EntitlementConfirmation
+      description: 'The confirmation that is send back when the `Aanspraakmanager` sends an EntitlementRequest
+        message to the `Licentieregistratie` or the `Leermiddelenportaal`.
+
+
+        The confirmation is not always needed, only in the following situations:
+
+
+        Confirmations by `Licentieregistratie`:
+
+        - entitlementStatus is created and send to `Licentieregistratie`: `Licentieregistratie` sends
+        a confirmation with the newEntitlementStatus entitled
+
+        - entitlementStatus is cancelled and send to `Licentieregistratie`: `Licentieregistratie` sends
+        a confirmation with the newEntitlementStatus cancelled
+
+        - entitlementStatus is blocked and send to `Licentieregistratie`: `Licentieregistratie` sends
+        a confirmation with the newEntitlementStatus blocked
+
+
+        Confirmations by `Leermiddelenportaal` are triggered by the entitlementStatus, not by the urlStatus.
+
+        The entitlementStatus is set by the `Aanspraakmanager`. The urlStatus belongs to the `Leermiddelenportaal`
+        and is only reported back via newUrlStatus.
+
+        Every Entitlement request contains the latest state of the Entitlement. The `Leermiddelenportaal`
+        processes it as that state, not as a step in a mandatory sequence.
+
+        - entitlementStatus is entitled or licensed and sent to `Leermiddelenportaal`: `Leermiddelenportaal`
+        sends a confirmation with the newUrlStatus processed, or initialized when the access link is not
+        placed yet. A later change of the urlStatus is reported with the confirmation of the next Entitlement
+        request.
+
+        - entitlementStatus is cancelled and sent to `Leermiddelenportaal`: `Leermiddelenportaal` sends
+        a confirmation with the newUrlStatus cancelled
+
+        - entitlementStatus is blocked and sent to `Leermiddelenportaal`: `Leermiddelenportaal` sends
+        a confirmation with the newUrlStatus blocked
+
+
+        The entitlementReferenceId, entitlementId are echoed back to the `Aanspraakmanager`, with a new
+        entitlementReceiveId.
+
+
+        Requests are only handled once. If a request with a similar entitlementReferenceId is received,
+        the processing is only done the first time.
+
+        The confirmation may be send multiple times, but always with the same entitlementReceiveId. In
+        this way the `Aanspraakmanager` can validate that the response is processed only once.
+
+
+        Functional status codes and messages are described in the Documentation.
+
+        '
+      type: object
+      x-tags:
+      - Entitlement
+      x-toelichting: 'De Licentieregistratie en het Leermiddelenportaal antwoorden op Entitlement-berichten
+        met dit bevestigingsbericht.
+
+        '
+      properties:
+        entitlementReferenceId:
+          type: string
+          description: The entitlementReferenceId that was send by the `Aanspraakmanager` as part of the
+            Entitlement request
+          x-voorbeeld: eacb81ef-c9d5-4bd8-a624-4088bee04b73
+        entitlementReceiveId:
+          type: string
+          description: A reference to this confirmation message send by the `Licentieregistratie` or the
+            `Leermiddelenportaal` to the `Aanspraakmanager`.
+          x-voorbeeld: 3437e98f-855d-4f29-9092-7ba311228920
+        entitlementId:
+          type: string
+          description: The entitlementId which was part of the Entitlement request send by the `Aanspraakmanager`.
+          format: uuid
+          x-voorbeeld: 24e39454-5360-4ba4-819f-03e59b8dd679
+        productId:
+          type: string
+          description: The productId which was part of the Entitlement request send by the `Aanspraakmanager`
+          x-voorbeeld: '8717927130834'
+        processedTimestamp:
+          type: string
+          description: 'The moment that the Entitlement request was processed by the `Licentieregistratie`
+            or the `Leermiddelenportaal` and the change became effective.
+
+            As requests and confirmation messages are send asynchronous, this is not the moment the confirmation
+            message was send by the `Licentieregistratie` or the `Leermiddelenportaal` to the `Aanspraakmanager`.
+
+
+            Format: Conform openapi in ZULU time as specified in RFC 3339, section 5.6
+
+            '
+          format: date-time
+          example: '2017-07-21T17:32:28Z'
+        newEntitlementStatus:
+          type: string
+          description: "Confirmation of the proposed status. \nExample: as a reply to a created status\
+            \ in an Entitlement request, a `Licentieregistratie` can reply with an entitled status to\
+            \ the `Aanspraakmanager`.\n"
+          enum:
+          - created
+          - entitled
+          - licensed
+          - cancelled
+          - blocked
+          x-vullingsregel: De Licentieregistratie antwoordt via dit veld naar de Aanspraakmanager met
+            een nieuwe status indien de verwerking succesvol was.
+        newUrlStatus:
+          type: object
+          description: 'Confirmation of the processing of the request. The `Leermiddelenportaal` always
+            reports its current urlStatus.
+
+            Example: as a reply to an entitled status in an Entitlement request, the `Leermiddelenportaal`
+            application can reply with a processed status to the `Aanspraakmanager`.
+
+            '
+          properties:
+            portal:
+              type: string
+              description: Identifier of the `Leermiddelenportaal` application.
+            urlStatus:
+              type: string
+              enum:
+              - initialized
+              - processed
+              - cancelled
+              - blocked
+              - expired
+          x-vullingsregel: Het Leermiddelenportaal antwoordt via dit veld naar de Aanspraakmanager met
+            een nieuwe status indien de verwerking succesvol was.
+        success:
+          type: boolean
+          description: 'Boolean indicating the Entitlement request was processed successfully.
+
+            When the `Licentieregistratie` disagrees with a certain change (i.e. cancelled) a false will
+            be returned, along with a status code and a status message.
+
+            '
+          x-vullingsregel: False indien de Ontvanger niet akkoord is of er een fout is opgetreden.
+        status:
+          type: integer
+          description: "Functional status code, as defined in \"Status- en foutcodes 1.0.0\".\nCodes are sent as integers without\
+            \ leading zeros (0011 = 11).\n\nAlgemeen (00xx) - applies to every\
+            \ API:\n  * `0000` - OK: Bevraging succesvol (HTTP 200).\n  * `0001` - Created: Bericht heeft\
+            \ geleid tot registratie van een nieuwe entiteit (HTTP 201).\n  * `0002` - Accepted: Bericht\
+            \ geaccepteerd (HTTP 202).\n  * `0011` - Schema incorrect: Schemavalidatie niet succesvol\
+            \ (HTTP 400).\n  * `0012` - schemaVersion not supported: De ontvanger kan de gehanteerde schemaVersion\
+            \ niet verwerken (HTTP 400).\n  * `0021` - scope required: Leverancier is niet geautoriseerd\
+            \ voor scope (HTTP 401).\n  * `0022` - consent required: Informatieobject van classificatie\
+            \ IV zonder geactiveerde gegevensdienst (HTTP 403).\n  * `0023` - school unknown: De client\
+            \ communiceert in de context van een Onderwijsorganisatie die niet bekend is bij de server\
+            \ (HTTP 400).\n  * `0099` - Overige reden: Vullingsregel: neem in statusMessage een beschrijving\
+            \ van de reden op.\n\nEntitlement API (40xx):\n  * `4001` - entitlementReferenceId missing:\
+            \ entitlementReferenceId ontbreekt.\n  * `4002` - entitlementReferenceId unknown: Het entitlementReferenceId\
+            \ is onbekend.\n  * `4003` - entitlementReferenceId already used: Het entitlementReferenceId\
+            \ is al eerder gebruikt.\n  * `4004` - entitlementReceiveId missing: Het entitlementReceiveId\
+            \ ontbreekt.\n  * `4005` - entitlementReceiveId already used: Het entitlementReceiveId is\
+            \ al eerder gebruikt.\n  * `4011` - entitlementId unknown: Het entitlementId is onbekend.\n\
+            \  * `4012` - deliveryOrderId missing: Specificatie van deliveryOrder ontbreekt.\n  * `4013`\
+            \ - deliveryOrderId unknown: Het deliveryOrderId is onbekend.\n  * `4021` - productId missing:\
+            \ Specificatie van Product ontbreekt.\n  * `4022` - productId unknown: Gespecificeerd Product\
+            \ onbekend bij Ontvanger.\n  * `4023` - Product not yet for sale: Gespecificeerd Product is\
+            \ nog niet in de verkoop.\n  * `4024` - Product not available: Gespecificeerd Product is niet\
+            \ beschikbaar.\n  * `4025` - Product no longer for sale: Gespecificeerd Product is niet langer\
+            \ in de verkoop.\n  * `4031` - School missing: Onderwijsorganisatie is niet gespecificeerd.\n\
+            \  * `4032` - School unknown: Gespecificeerde Onderwijsorganisatie is niet bekend bij Ontvanger.\n\
+            \  * `4033` - User missing: Specificatie van entitlees of activatiecodes niet volledig.\n\
+            \  * `4034` - User unknown: Gespecificeerde entitlees zijn niet bekend bij Ontvanger.\n  *\
+            \ `4041` - contractId unknown: Gespecificeerd contractId is onbekend bij de ontvangende Licentieregistratie.\n\
+            \  * `4042` - Contract restrictions: Bericht niet toegestaan als gevolg van contractuele afspraken\
+            \ tussen de leverancier van het leermiddel en de leverancier die de verwerving faciliteert.\n\
+            \  * `4051` - startDate before firstPublishedDate: Gespecificeerde startdatum van de activatieperiode\
+            \ ligt voor de datum dat het product op de markt verschijnt.\n  * `4061` - Entitlement is\
+            \ licensed: Indien een Aanspraakmanager een aanspraak wil annuleren dan mag er geen licentie\
+            \ geregistreerd zijn op de aanspraak.\n  * `4071` - activationCode unknown: Gespecificeerde\
+            \ activatiecode is onbekend bij de ontvangende Licentieregistratie.\n  * `4072` - activationCode\
+            \ already used: Gespecificeerde activatiecode is reeds gebruikt voor een aanspraak.\n  * `4073`\
+            \ - activationCode revoked: Gespecificeerde activatiecode is ingetrokken."
+          x-voorbeeld: 0
+          x-vullingsregel: Zie status en foutcodes.
+        statusMessage:
+          type: string
+          description: See functional status messages within the Documentation.
+          x-vullingsregel: Zie status en foutcodes.
+      required:
+      - entitlementReferenceId
+      - entitlementReceiveId
+      - entitlementId
+      - productId
+      - processedTimestamp
+      - success
+      - status
+    Entitlement:
+      title: Entitlement
+      description: The core object that expresses information about a product that is entitled by the
+        `Aanspraakmanager` to a specified user or a user in possession of a specified activation code.
+      type: object
+      x-tags:
+      - Entitlement
+      x-toelichting: 'Het object Entitlement beschrijft de aanspraak zoals deze is aangemaakt op basis
+        van de leverspecificatie uit een leveringsorder die door de Aanspraakmanager van een Bestelomgeving
+        leermiddelen is ontvangen.
+
+
+        Iedere aanspraak heeft een status conform de levenscyclus van een Aanspraak. De waarden uit een
+        aanspraak mogen niet gewijzigd worden (ook niet voor foutcorrecties). Indien de aanspraak niet
+        correct is, wordt deze geannuleerd en wordt er een nieuwe aanspraak gestuurd.
+
+        '
+      properties:
+        entitlementId:
+          type: string
+          format: uuid
+          example: 24e39454-5360-4ba4-819f-03e59b8dd679
+          x-vullingsregel: Waarde mag niet gewijzigd worden.
+        deliveryOrderId:
+          type: string
+          description: The deliveryOrderId which was part of the DeliveryOrder request send by the `Bestelomgeving
+            leermiddelen` to the `Aanspraakmanager`.
+          format: uuid
+          x-voorbeeld: 24e39454-5360-4ba4-819f-03e59b8dd679
+          x-vullingsregel: Waarde mag niet gewijzigd worden. Alleen optioneel als deliveryType school-admin
+            is.
+        contractId:
+          type: string
+          description: 'An optional unique identifier for a contract between the supplier that is responsible
+            for the `Bestelomgeving leermiddelen` and the supplier of the learning materials.
+
+            The DeliveryOrder should be handled according to the business rules of the contract.''
+
+            '
+          x-voorbeeld: 2022-12-v1
+          x-vullingsregel: Waarde mag niet gewijzigd worden.
+        productId:
+          type: string
+          description: Unique identifier of a Product. The productId can be retrieved from the Catalogue
+            API of supplier of the learning materials.
+          x-voorbeeld: '8717927130834'
+          x-vullingsregel: Een aanspraak verwijst naar exact 1 productbeschrijving. Waarde mag niet gewijzigd
+            worden.
+        startDate:
+          type: string
+          description: 'Date from which the product can be activated by the Entitlee(s). The startDate
+            marks the start of the activation period.
+
+
+            Format: YYYY-MM-DD (according to RFC3339).
+
+            '
+          format: date
+          example: '2021-08-22'
+          x-voorbeeld: '2022-08-01'
+          x-vullingsregel: Waarde mag niet gewijzigd worden.
+        activationUntilDate:
+          type: string
+          description: 'Date on which the product can no longer be activated by the Entitlee(s).
+
+            The activationUntilDate marks the end of the activation period.
+
+            This does not imply the product can not be used by Licensees who have activated the product
+            during the activation period.
+
+
+            Format: YYYY-MM-DD (according to RFC3339).
+
+            '
+          format: date
+          example: '2022-07-31'
+          x-voorbeeld: '2023-07-31'
+          x-vullingsregel: Waarde mag niet gewijzigd worden.
+        expirationDate:
+          type: string
+          description: 'ExpirationDate a `Leermiddelenportaal` can use to maintain access links to the
+            Product in the Learning Material Lists of Students or Employees.
+
+            An initially set minExpirationDate is calculated by the `Aanspraakmanager` based on info from
+            the Product retrieved from the Catalogue API.
+
+
+            If the `Aanspraakmanager` receives an InitialActivation message regarding this Entitlement
+            from the `Licentieregistratie` via the Usage API, the expirationDate could be updated.
+
+            The InitialActivation message could include an updated expirationDate. In that case this new
+            expirationDate overwrites the initially set minExpirationDate.
+
+            This triggers the process within the `Aanspraakmanager` to exchange the updated entitlement
+            with the `Leermiddelenportaal`. The `Leermiddelenportaal` reports its urlStatus back via newUrlStatus.
+
+
+            Format: YYYY-MM-DD (according to RFC3339).
+
+            '
+          format: date
+          example: '2022-07-31'
+          x-voorbeeld: '2023-07-31'
+          x-vullingsregel: 'Deze waarde wordt berekend op basis van de informatie over het product uit
+            de catalogus. Voor een jaarlicentie is dit bijvoorbeeld 1 jaar na de startDate.
+
+            Dit veld is optioneel. Indien het veld leeg is, is er geen einddatum voor het tonen van de
+            toegangslink.
+
+            De Aanspraakmanager kan via een InitialActivation-bericht een nieuwe expirationDate doorkrijgen
+            uit de Licentieregistratie. In dat geval wordt het plaatsen van de toegangslink door het Leermiddelenportaal
+            opnieuw geïnitieerd door de Aanspraakmanager. Deze nieuwe expirationDate is gelijk aan of
+            ligt verder in de toekomst en overschrijft voor de betreffende gebruiker de eerder berekende
+            minExpirationDate.
+
+            '
+        endDate:
+          type: string
+          description: 'Date this Entitlement was blocked or cancelled. Mandatory field when the status
+            changes to Cancelled or Blocked.
+
+
+            Format: YYYY-MM-DD (according to RFC3339).
+
+            '
+          format: date
+          x-voorbeeld: '2022-09-28'
+          x-vullingsregel: De endDate wordt gevuld zodra de status wijzigt naar cancelled of blocked.
+            Waarde mag niet gewijzigd worden.
+        entitlementType:
+          type: string
+          description: 'The entitlement type specifies if a student, employee or a user with an activation
+            code can activate and license the product.
+
+            '
+          enum:
+          - school-student
+          - school-employee
+          - school-activationcode
+          - customer-student
+          - customer-activationcode
+          x-vullingsregel: Waarde mag niet gewijzigd worden.
+        entitlementSpecification:
+          $ref: '#/components/schemas/EntitlementSpecification'
+        entitlementStatus:
+          type: string
+          description: The status of the entitlement.
+          enum:
+          - created
+          - entitled
+          - licensed
+          - cancelled
+          - blocked
+          default: created
+          x-vullingsregel: Status wordt toegekend conform de levenscyclus van de Aanspraak.
+        urlStatuses:
+          type: array
+          items:
+            type: object
+            description: The status of the accessUrl at the `Leermiddelenportaal` application.
+            properties:
+              portal:
+                type: string
+                description: Identifier of the `Leermiddelenportaal` application.
+              urlStatus:
+                type: string
+                description: 'The status of the accessUrl at the `Leermiddelenportaal` application, as
+                  last reported by that `Leermiddelenportaal` via newUrlStatus.
+
+                  The `Aanspraakmanager` does not set this status itself. Until the first confirmation
+                  of the `Leermiddelenportaal` it remains uninitialized.
+
+                  '
+                enum:
+                - uninitialized
+                - initialized
+                - processed
+                - cancelled
+                - blocked
+                default: uninitialized
+          x-vullingsregel: De toegangslink kan bij meerdere portalen geplaatst zijn of worden.
+        dateCreated:
+          type: string
+          description: 'Indicates the date and time the object was first created. Format: Conform openapi
+            in ZULU time zoals gespecificeerd in RFC 3339, section 5.6.'
+          format: date-time
+          example: '2017-07-21T17:32:28Z'
+        dateLastModified:
+          type: string
+          description: 'Indicates the date and time the object was last modified. Format: Conform openapi
+            in ZULU time zoals gespecificeerd in RFC 3339, section 5.6.'
+          format: date-time
+          example: '2022-08-11T15:31:12Z'
+      required:
+      - entitlementId
+      - productId
+      - startDate
+      - activationUntilDate
+      - entitlementType
+      - entitlementStatus
+      - dateCreated
+      - dateLastModified
+      if:
+        properties:
+          entitlementStatus:
+            enum:
+            - cancelled
+            - blocked
+        required:
+        - entitlementStatus
+      then:
+        required:
+        - endDate
+    SchoolReference:
+      title: SchoolReference
+      description: A reference to a School organisation.
+      type: object
+      properties:
+        organisationMasterIdentifier:
+          type: string
+          description: 'The primary identifier for a School. For Schools the `OnderwijsaanbiederId` is
+            used.
+
+            (exactly one of organisationMasterIdentifier or organisationIds must be present)
+
+            '
+          example: 104A158
+        organisationIds:
+          type: array
+          description: 'A secondary identifier for the School. This value is used whenever the primary
+            identifier is not available.
+
+            (exactly one of organisationMasterIdentifier or organisationIds must be present)
+
+            '
+          items:
+            type: object
+            properties:
+              organisationId:
+                type: string
+              organisationIdType:
+                type: string
+                enum:
+                - OIE_CODE
+                - BP_ID
+                - DD_ID
+                - AS_ID
+            required:
+            - organisationId
+            - organisationIdType
+      if:
+        required:
+        - organisationMasterIdentifier
+      then:
+        not:
+          required:
+          - organisationIds
+      else:
+        required:
+        - organisationIds
+    CustomerReference:
+      title: CustomerReference
+      description: Information about an B2C Customer who acquired the product.
+      type: object
+      x-tags:
+      - DeliveryOrder
+      properties:
+        displayName:
+          type: string
+          description: The name of the Customer.
+        email:
+          type: string
+          description: The email address of the Customer.
+    EntitlementSpecification:
+      title: EntitlementSpecification
+      x-tags:
+      - Entitlement
+      x-toelichting: 'De entitlementSpecification bevat de verplichte specificatie die hoort bij het gekozen
+        entitlementType. Voor school-student en school-employee zijn een schoolreferentie en een gebruikersreferentie
+        vereist, voor school-activationcode een school en een activatiecode, voor customer-student alleen
+        een gebruikersreferentie, en voor customer-activationcode alleen een activatiecode.
+
+        '
+      oneOf:
+      - $ref: '#/components/schemas/EntitlementSchoolStudent'
+      - $ref: '#/components/schemas/EntitlementSchoolEmployee'
+      - $ref: '#/components/schemas/EntitlementSchoolActivationCode'
+      - $ref: '#/components/schemas/EntitlementCustomerStudent'
+      - $ref: '#/components/schemas/EntitlementCustomerActivationCode'
+    EntitlementSchoolStudent:
+      title: EntitleeSchoolStudent
+      description: The specified student at the school is allowed to activate and license the product.
+      type: object
+      x-toelichting: 'Van toepassing wanneer de gespecificeerde onderwijsdeelnemer vanuit de gespecificeerde
+        onderwijsorganisatie het leermiddel in gebruik gaat nemen.
+
+        '
+      x-examples:
+        example-1:
+          school:
+            organisationMasterIdentifier: 104A158
+          student:
+            userMasterIdentifier: https://ketenid.nl/201703/1a5c9c7203901866532c2d72ce056e1d29cacc70836fe2bc3a517f3f9a53eed3d77ef370ad6dcf80b3f34ced1c547c7d2e679e8e47002355f938213b3656b206
+      properties:
+        school:
+          $ref: '#/components/schemas/SchoolReference'
+        student:
+          $ref: '#/components/schemas/UserReference'
+      required:
+      - school
+      - student
+    EntitlementSchoolEmployee:
+      title: EntitleeSchoolEmployee
+      description: The specified employee at the school is allowed to activate and license the product.
+      type: object
+      x-toelichting: 'Van toepassing wanneer de gespecificeerde onderwijsmedewerker vanuit de gespecificeerde
+        onderwijsorganisatie het leermiddel in gebruik gaat nemen.
+
+        '
+      x-examples:
+        example-1:
+          school:
+            organisationMasterIdentifier: 104A158
+          employee:
+            userMasterIdentifier: https://ketenid.nl/201703/1a5c9c7203901866532c2d72ce056e1d29cacc70836fe2bc3a517f3f9a53eed3d77ef370ad6dcf80b3f34ced1c547c7d2e679e8e47002355f938213b3656b206
+      properties:
+        school:
+          $ref: '#/components/schemas/SchoolReference'
+        employee:
+          $ref: '#/components/schemas/UserReference'
+      required:
+      - school
+    EntitlementSchoolActivationCode:
+      title: EntitleeSchoolActivationCode
+      description: A user from a school is allowed to activate and license the product using the ActivationCode.
+      type: object
+      x-toelichting: 'Van toepassing wanneer een eindgebruiker vanuit de gespecificeerde onderwijsorganisatie
+        het leermiddel in gebruik gaat nemen met de gespecificeerde en nog niet gebruikte activatiecode.
+
+        '
+      x-examples:
+        example-1:
+          school:
+            organisationMasterIdentifier: 104A158
+          activationCode: XXXXX-XXXXX-XXXXX-XXXXX-XXXXX
+      properties:
+        school:
+          $ref: '#/components/schemas/SchoolReference'
+        activationCode:
+          type: string
+          description: The activation codes, the school can use to activate and license the product. Activation
+            codes can be requested from the `Licentieregistratie`
+          example: XXXXX-XXXXX-XXXXX-XXXXX-XXXXY
+      required:
+      - school
+      - activationCode
+    EntitlementCustomerStudent:
+      title: EntitleeCustomerStudent
+      description: The specified student is allowed to activate and license the product.
+      type: object
+      x-toelichting: 'Van toepassing wanneer de gespecificeerde onderwijsdeelnemer (particulier, niet
+        via een onderwijsorganisatie) het leermiddel in gebruik gaat nemen.
+
+        '
+      x-examples:
+        example-1:
+          student:
+            userMasterIdentifier: https://ketenid.nl/201703/1a5c9c7203901866532c2d72ce056e1d29cacc70836fe2bc3a517f3f9a53eed3d77ef370ad6dcf80b3f34ced1c547c7d2e679e8e47002355f938213b3656b206
+      properties:
+        student:
+          $ref: '#/components/schemas/UserReference'
+      required:
+      - student
+    EntitlementCustomerActivationCode:
+      title: EntitleeCustomerActivationCode
+      description: A user is allowed to activate and license the product using the ActivationCode.
+      type: object
+      x-toelichting: 'Van toepassing wanneer een eindgebruiker (particulier) het leermiddel in gebruik
+        gaat nemen met de gespecificeerde en nog niet gebruikte activatiecode.
+
+        '
+      x-examples:
+        example-1:
+          activationCode: XXXXX-XXXXX-XXXXX-XXXXX-XXXXX
+      properties:
+        activationCode:
+          type: string
+          description: The activation codes, the school can use to activate and license the product. Activation
+            codes can be requested from the `Licentieregistratie`
+          example: XXXXX-XXXXX-XXXXX-XXXXX-XXXXY
+      required:
+      - activationCode
+    UserReference:
+      title: UserReference
+      type: object
+      properties:
+        userMasterIdentifier:
+          type: string
+          description: 'The primary identifier for a User.
+
+            For Students the ECK iD is used.
+
+            For Employees this value is empty. There is no primary identifier for Employees.
+
+            (either userMasterIdentifier or userIds is required)
+
+            '
+        userIds:
+          type: array
+          description: 'A secondary identifier for a User. This value is used whenever the primary identifier
+            is not available.
+
+            For Employees this value is mandatory.
+
+            (either userMasterIdentifier or userIds is required)
+
+            '
+          items:
+            type: object
+            properties:
+              userId:
+                type: string
+              userIdType:
+                type: string
+                enum:
+                - NEPPI
+                - BPI
+                - eduID
+                - NEPRI
+                - ASI
+                - eckId
+            required:
+            - userId
+            - userIdType
+      if:
+        not:
+          required:
+          - userMasterIdentifier
+      then:
+        required:
+        - userIds
+    StatusResponse:
+      title: StatusResponse
+      description: Functional status code and status message.
+      type: object
+      properties:
+        status:
+          type: integer
+          description: "Functional status code, as defined in \"Status- en foutcodes 1.0.0\".\nCodes are sent as integers without\
+            \ leading zeros (0011 = 11).\n\nAlgemeen (00xx) - applies to every\
+            \ API:\n  * `0000` - OK: Bevraging succesvol (HTTP 200).\n  * `0001` - Created: Bericht heeft\
+            \ geleid tot registratie van een nieuwe entiteit (HTTP 201).\n  * `0002` - Accepted: Bericht\
+            \ geaccepteerd (HTTP 202).\n  * `0011` - Schema incorrect: Schemavalidatie niet succesvol\
+            \ (HTTP 400).\n  * `0012` - schemaVersion not supported: De ontvanger kan de gehanteerde schemaVersion\
+            \ niet verwerken (HTTP 400).\n  * `0021` - scope required: Leverancier is niet geautoriseerd\
+            \ voor scope (HTTP 401).\n  * `0022` - consent required: Informatieobject van classificatie\
+            \ IV zonder geactiveerde gegevensdienst (HTTP 403).\n  * `0023` - school unknown: De client\
+            \ communiceert in de context van een Onderwijsorganisatie die niet bekend is bij de server\
+            \ (HTTP 400).\n  * `0099` - Overige reden: Vullingsregel: neem in statusMessage een beschrijving\
+            \ van de reden op.\n\nEntitlement API (40xx):\n  * `4001` - entitlementReferenceId missing:\
+            \ entitlementReferenceId ontbreekt.\n  * `4002` - entitlementReferenceId unknown: Het entitlementReferenceId\
+            \ is onbekend.\n  * `4003` - entitlementReferenceId already used: Het entitlementReferenceId\
+            \ is al eerder gebruikt.\n  * `4004` - entitlementReceiveId missing: Het entitlementReceiveId\
+            \ ontbreekt.\n  * `4005` - entitlementReceiveId already used: Het entitlementReceiveId is\
+            \ al eerder gebruikt.\n  * `4011` - entitlementId unknown: Het entitlementId is onbekend.\n\
+            \  * `4012` - deliveryOrderId missing: Specificatie van deliveryOrder ontbreekt.\n  * `4013`\
+            \ - deliveryOrderId unknown: Het deliveryOrderId is onbekend.\n  * `4021` - productId missing:\
+            \ Specificatie van Product ontbreekt.\n  * `4022` - productId unknown: Gespecificeerd Product\
+            \ onbekend bij Ontvanger.\n  * `4023` - Product not yet for sale: Gespecificeerd Product is\
+            \ nog niet in de verkoop.\n  * `4024` - Product not available: Gespecificeerd Product is niet\
+            \ beschikbaar.\n  * `4025` - Product no longer for sale: Gespecificeerd Product is niet langer\
+            \ in de verkoop.\n  * `4031` - School missing: Onderwijsorganisatie is niet gespecificeerd.\n\
+            \  * `4032` - School unknown: Gespecificeerde Onderwijsorganisatie is niet bekend bij Ontvanger.\n\
+            \  * `4033` - User missing: Specificatie van entitlees of activatiecodes niet volledig.\n\
+            \  * `4034` - User unknown: Gespecificeerde entitlees zijn niet bekend bij Ontvanger.\n  *\
+            \ `4041` - contractId unknown: Gespecificeerd contractId is onbekend bij de ontvangende Licentieregistratie.\n\
+            \  * `4042` - Contract restrictions: Bericht niet toegestaan als gevolg van contractuele afspraken\
+            \ tussen de leverancier van het leermiddel en de leverancier die de verwerving faciliteert.\n\
+            \  * `4051` - startDate before firstPublishedDate: Gespecificeerde startdatum van de activatieperiode\
+            \ ligt voor de datum dat het product op de markt verschijnt.\n  * `4061` - Entitlement is\
+            \ licensed: Indien een Aanspraakmanager een aanspraak wil annuleren dan mag er geen licentie\
+            \ geregistreerd zijn op de aanspraak.\n  * `4071` - activationCode unknown: Gespecificeerde\
+            \ activatiecode is onbekend bij de ontvangende Licentieregistratie.\n  * `4072` - activationCode\
+            \ already used: Gespecificeerde activatiecode is reeds gebruikt voor een aanspraak.\n  * `4073`\
+            \ - activationCode revoked: Gespecificeerde activatiecode is ingetrokken."
+        statusMessage:
+          type: string
+          description: See functional status messages within the Documentation.
+      required:
+      - status
+    DeliveryOrderEntitlements:
+      title: DeliveryOrderEntitlements
+      description: 'This object reports all Entitlement information for a single DeliveryOrder.
+
+        '
+      type: object
+      x-tags:
+      - Entitlement
+      properties:
+        deliveryOrderId:
+          type: string
+          description: The deliveryOrderId which was part of the DeliveryOrder request send by the `Bestelomgeving
+            leermiddelen` to the `Aanspraakmanager`.
+          format: uuid
+        contractId:
+          type: string
+          description: An optional unique identifier for a contract between the supplier that is responsible
+            for the `Bestelomgeving leermiddelen` and the supplier of the learning materials.
+        totalQuantity:
+          type: integer
+          description: 'Total quantity as specified in the DeliveryOrder received from the `Bestelomgeving
+            leermiddelen`.
+
+            '
+        totalCreated:
+          type: integer
+          description: Total number of entitlements that are created.
+        totalEntitled:
+          type: integer
+          description: Total number of entitlements that are entitled to users.
+        totalLicensed:
+          type: integer
+          description: Total number of entitlements that are licensed to users.
+        totalCancelled:
+          type: integer
+          description: Total number of entitlements that are cancelled for users.
+        totalBlocked:
+          type: integer
+          description: Total number of entitlements that are blocked for users.
+        entitlements:
+          type: array
+          description: An array of all entitlements for this deliveryOrder.
+          items:
+            $ref: '#/components/schemas/Entitlement'
+      required:
+      - deliveryOrderId
+      - entitlements
+    EntitlementProduct:
+      title: EntitlementProduct
+      description: 'This object describes the Product information a `Leermiddelenportaal` can use to display
+        accessUrls to a User.
+
+        '
+      type: object
+      x-tags:
+      - Entitlement
+      x-toelichting: 'Een Leermiddelenportaal kan bij de Aanspraakmanager de producten opvragen waar een
+        eindgebruiker een aanspraak op heeft. Dit object bevat alleen informatie over het product, de
+        status van de aanspraak en de datumvelden die van toepassing zijn op de activatie- en gebruiksperiode.
+
+        '
+      properties:
+        entitlementId:
+          type: string
+          format: uuid
+          example: 24e39454-5360-4ba4-819f-03e59b8dd679
+        productId:
+          type: string
+          description: Unique identifier of a Product. The productId can be retrieved from the Catalogue
+            API of supplier of the learning materials.
+          x-voorbeeld: '8717927130834'
+        entitlementStatus:
+          type: string
+          description: The status of the entitlement.
+          enum:
+          - created
+          - entitled
+          - licensed
+          - cancelled
+          - blocked
+          x-vullingsregel: Status wordt toegekend conform de levenscyclus van de Aanspraak.
+        startDate:
+          type: string
+          description: 'Date from which the product can be activated by the Entitlee(s). The startDate
+            marks the start of the activation period.
+
+
+            Format: YYYY-MM-DD (according to RFC3339).
+
+            '
+          format: date
+          example: '2021-08-22'
+          x-voorbeeld: '2022-08-01'
+          x-vullingsregel: Waarde mag niet gewijzigd worden.
+        activationUntilDate:
+          type: string
+          description: 'Date on which the product can no longer be activated by the Entitlee(s).
+
+            The activationUntilDate marks the end of the activation period.
+
+            This does not imply the product can not be used by Licensees who have activated the product
+            during the activation period.
+
+
+            Format: YYYY-MM-DD (according to RFC3339).
+
+            '
+          format: date
+          example: '2022-07-31'
+          x-voorbeeld: '2023-07-31'
+          x-vullingsregel: Waarde mag niet gewijzigd worden.
+        expirationDate:
+          type: string
+          description: 'ExpirationDate a `Leermiddelenportaal` can use to maintain access links to the
+            Product in the Learning Material Lists of Students or Employees.
+
+            An initially set minExpirationDate is calculated by the `Aanspraakmanager` based on info from
+            the Product retrieved from the Catalogue API.
+
+
+            If the `Aanspraakmanager` receives an InitialActivation message regarding this Entitlement
+            from the `Licentieregistratie` via the Usage API, the expirationDate could be updated.
+
+            The InitialActivation message could include an updated expirationDate. In that case this new
+            expirationDate overwrites the initially set minExpirationDate.
+
+            This triggers the process within the `Aanspraakmanager` to exchange the updated entitlement
+            with the `Leermiddelenportaal`. The `Leermiddelenportaal` reports its urlStatus back via newUrlStatus.
+
+
+            Format: YYYY-MM-DD (according to RFC3339).
+
+            '
+          format: date
+          example: '2022-07-31'
+          x-voorbeeld: '2023-07-31'
+          x-vullingsregel: 'Deze waarde wordt berekend op basis van de informatie over het product uit
+            de catalogus. Voor een jaarlicentie is dit bijvoorbeeld 1 jaar na de startDate.
+
+            Dit veld is optioneel. Indien het veld leeg is, is er geen einddatum voor het tonen van de
+            toegangslink.
+
+            De Aanspraakmanager kan via een InitialActivation-bericht een nieuwe expirationDate doorkrijgen
+            uit de Licentieregistratie. In dat geval wordt het plaatsen van de toegangslink door het Leermiddelenportaal
+            opnieuw geïnitieerd door de Aanspraakmanager. Deze nieuwe expirationDate is gelijk aan of
+            ligt verder in de toekomst en overschrijft voor de betreffende gebruiker de eerder berekende
+            minExpirationDate.
+
+            '
+      required:
+      - entitlementId
+      - productId
+      - entitlementStatus
+      - startDate
+      - activationUntilDate
+  securitySchemes:
+    OAuth2:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.example.com/oauth2/token
+          refreshUrl: https://api.example.com/oauth2/token
+          scopes:
+            eduv.entitlement.seller: scope that allows a `Bestelomgeving leermiddelen` to request entitlement
+              information.
+            eduv.entitlement.licensor: scope needed to send and receive Entitlement requests and Confirmation
+              messages to the `Licentieregistratie` and to request entitlement information as a `Licentieregistratie.
+            eduv.entitlement.portal: scope needed to send and receive Entitlement requests and Confirmation
+              messages to the `Leermiddelenportaal` and to request entitlement information as a `Leermiddelenportaal`.
+              to display accessUrls.
+            eduv.entitlement.dashboard: scope that allows a `Leermiddelendashboard` to request entitlement
+              information.
+      description: ''
+  responses:
+    BadRequest:
+      description: Bad Request - schema validation failed, unsupported schemaVersion, or unknown school
+        (status 0011 / 0012 / 0023).
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/StatusResponse'
+    Unauthorized:
+      description: Unauthorized - the supplier is not authorised for the requested scope (status 0021).
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/StatusResponse'
+    Forbidden:
+      description: Forbidden - the information object is classification IV and the gegevensdienst has
+        not been activated (status 0022).
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/StatusResponse'
+    NotFound:
+      description: Not Found - the endpoint URL is not known.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/StatusResponse'
+    ServerError:
+      description: Internal Server Error - general server-side error.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/StatusResponse'
+paths:
+  /entitlements/{id}:
+    parameters:
+    - schema:
+        type: string
+      name: id
+      in: path
+      required: true
+      description: Specific entitlementId of an Entitlement.
+    get:
+      summary: Get Entitlement
+      operationId: get-entitlement
+      tags:
+      - Aanspraakmanager
+      x-tags:
+      - Entitlement
+      description: 'Retrieve an entitlement by ID from a `Aanspraakmanager`.
+
+
+        The `Aanspraakmanager` is the provider of this endpoint.
+
+        The `Licentieregistratie` and `Leermiddelenportaal` should give a 405 HTTP status as result when
+        called.
+
+
+        This endpoint can be used by the `Bestelomgeving leermiddelen`, `Licentieregistratie`, and `Leermiddelenportaal`
+        for support processes.
+
+
+        Consent is required for exchange of entitlement information from the ''Aanspraakmanager'' to the
+        `Leermiddelenportaal` and the `Leermiddelendashboard`.
+
+        '
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Entitlement'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '405':
+          description: Method not allowed - Aanspraakmanager is provider of this endpoint
+        '500':
+          $ref: '#/components/responses/ServerError'
+      security:
+      - OAuth2:
+        - eduv.entitlement.seller
+        - eduv.entitlement.licensor
+        - eduv.entitlement.portal
+        - eduv.entitlement.dashboard
+      x-eduv-error-codes:
+      - '4011'
+  /entitlements/deliveryorder/{id}:
+    parameters:
+    - schema:
+        type: string
+      name: id
+      in: path
+      required: true
+      description: The deliveryOrderId for which entitlement information is requested.
+    get:
+      summary: Get Entitlements by DeliveryOrder
+      operationId: get-entitlements-by-delivery-order
+      tags:
+      - Aanspraakmanager
+      x-tags:
+      - Entitlement
+      - DeliveryOrder
+      description: 'Retrieve all entitlements for a deliveryOrder from a `Aanspraakmanager`.
+
+
+        The `Aanspraakmanager` is the provider of this endpoint.
+
+        The `Licentieregistratie` and `Leermiddelenportaal` should give a 405 HTTP status as result when
+        called.
+
+        Consent is required for exchange of entitlement information from the ''Aanspraakmanager'' to the
+        `Leermiddelenportaal` and the `Leermiddelendashboard`.
+
+        '
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Entitlement'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '405':
+          description: Method not allowed - Aanspraakmanager is provider of this endpoint
+        '500':
+          $ref: '#/components/responses/ServerError'
+      security:
+      - OAuth2:
+        - eduv.entitlement.seller
+        - eduv.entitlement.licensor
+        - eduv.entitlement.portal
+        - eduv.entitlement.dashboard
+      x-eduv-error-codes:
+      - '4012'
+      - '4013'
+  /entitlements/school:
+    parameters:
+    - schema:
+        type: string
+      name: orgMasterId
+      in: query
+      required: false
+      description: 'The organisationMasterIdentifier of the school.
+
+        This parameter is used when the primary identifier for a school (being the `OnderwijsaanbiederId`)
+        is available.
+
+        '
+      x-vullingsregel: Gebruik óf orgMasterId, óf de combinatie orgId + orgIdType, nooit beide in hetzelfde
+        request (zie "Organisatie-identiteiten en filtergedrag").
+    - schema:
+        type: string
+      name: orgId
+      in: query
+      required: false
+      description: 'The organisationIdentifier (secondary identifier) of the school.
+
+        This parameter is used in combination with the orgIdType when the organisationMasterIdentifier
+        is not available.
+
+        '
+      x-vullingsregel: Gebruik óf orgMasterId, óf de combinatie orgId + orgIdType, nooit beide in hetzelfde
+        request (zie "Organisatie-identiteiten en filtergedrag").
+    - schema:
+        type: string
+        example: DD_ID
+        enum:
+        - OIE_CODE
+        - BP_ID
+        - DD_ID
+        - AS_ID
+      name: orgIdType
+      in: query
+      required: false
+      description: 'The type of the organisationIdentifier.
+
+        This parameter is used in combination with the orgId when the organisationMasterIdentifier is
+        not available.
+
+        '
+      x-vullingsregel: Gebruik óf orgMasterId, óf de combinatie orgId + orgIdType, nooit beide in hetzelfde
+        request (zie "Organisatie-identiteiten en filtergedrag").
+    - schema:
+        type: string
+      name: deliveryOrderId
+      in: query
+      description: Filter by deliveryOrderId
+    - schema:
+        type: string
+        example: entitled
+        enum:
+        - created
+        - entitled
+        - licensed
+        - cancelled
+        - blocked
+      name: entitlementStatus
+      in: query
+      description: Filter by entitlementStatus
+    get:
+      summary: Get Entitlements for School
+      operationId: get-entitlements-for-school
+      tags:
+      - Aanspraakmanager
+      x-tags:
+      - Entitlement
+      - DeliveryOrder
+      description: 'Retrieve all entitlements for a specific school from a `Aanspraakmanager`.
+
+
+        The `Aanspraakmanager` is the provider of this endpoint.
+
+
+        The `Licentieregistratie` and `Leermiddelenportaal` should give a 405 HTTP status as result when
+        called.
+
+        Consent is required for exchange of entitlement information from the ''Aanspraakmanager'' to the
+        `Leermiddelenportaal` and the `Leermiddelendashboard`.
+
+        '
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Entitlement'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '405':
+          description: Method not allowed - Aanspraakmanager is provider of this endpoint
+        '500':
+          $ref: '#/components/responses/ServerError'
+      security:
+      - OAuth2:
+        - eduv.entitlement.dashboard
+        - eduv.entitlement.portal
+      x-eduv-error-codes:
+      - '4012'
+      - '4013'
+      - '4031'
+      - '4032'
+  /entitlements/school/user:
+    parameters:
+    - schema:
+        type: string
+        example: entitled
+        enum:
+        - created
+        - entitled
+        - licensed
+        - cancelled
+        - blocked
+      name: status
+      in: query
+      description: Filter by status
+    post:
+      summary: Get Entitlements for User at School
+      operationId: get-entitlements-for-user-at-school
+      tags:
+      - Aanspraakmanager
+      x-tags:
+      - Entitlement
+      description: "Retrieve all entitlements for a user at a school from an `Aanspraakmanager`\nThe `Aanspraakmanager`\
+        \ is the provider of this endpoint. \n\nThe `Licentieregistratie` and `Leermiddelenportaal` should\
+        \ give a 405 HTTP status as result when called.\nConsent is required for exchange of entitlement\
+        \ information from the 'Aanspraakmanager' to the `Leermiddelenportaal` and the `Leermiddelendashboard`.\n\
+        \nDue to the confidentiality of the eckId and userIds this endpoint has been implemented as a\
+        \ POST endpoint where the confidential information is securely send within the request body.\n"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                school:
+                  $ref: '#/components/schemas/SchoolReference'
+                user:
+                  $ref: '#/components/schemas/UserReference'
+              required:
+              - school
+              - user
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Entitlement'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '405':
+          description: Method not allowed - Aanspraakmanager is provider of this endpoint
+        '500':
+          $ref: '#/components/responses/ServerError'
+      security:
+      - OAuth2:
+        - eduv.entitlement.dashboard
+        - eduv.entitlement.portal
+      x-eduv-error-codes:
+      - '4031'
+      - '4032'
+      - '4033'
+      - '4034'
+  /entitlements/school/user/products:
+    parameters:
+    - schema:
+        type: string
+        example: entitled
+        enum:
+        - created
+        - entitled
+        - licensed
+        - cancelled
+        - blocked
+      name: status
+      in: query
+      description: Filter by status
+    post:
+      summary: Get Entitlementproducts for User at School
+      operationId: get-entitlementproducts-for-user-at-school
+      tags:
+      - Aanspraakmanager
+      x-tags:
+      - Entitlement
+      description: 'Retrieve a subset of product information of entitlements for a user at a school from
+        an `Aanspraakmanager`
+
+        The `Aanspraakmanager` is the provider of this endpoint. The `Leermiddelenportaal` is the targeted
+        consumer of this endpoint.
+
+        In practice only entitlement with the entitlementStatus entitled and licensed are requested.
+
+
+        The `Licentieregistratie` and `Leermiddelenportaal` should give a 405 HTTP status as result when
+        called.
+
+        Consent is required for exchange of entitlement information from the ''Aanspraakmanager'' to the
+        `Leermiddelenportaal` and the `Leermiddelendashboard`.
+
+
+        Due to the confidentiality of the eckId and userIds this endpoint has been implemented as a POST
+        endpoint where the confidential information is securely send within the request body.
+
+        '
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                school:
+                  $ref: '#/components/schemas/SchoolReference'
+                user:
+                  $ref: '#/components/schemas/UserReference'
+              required:
+              - school
+              - user
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/EntitlementProduct'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '405':
+          description: Method not allowed - Aanspraakmanager is provider of this endpoint
+        '500':
+          $ref: '#/components/responses/ServerError'
+      security:
+      - OAuth2:
+        - eduv.entitlement.dashboard
+        - eduv.entitlement.portal
+      x-eduv-error-codes:
+      - '4031'
+      - '4032'
+      - '4033'
+      - '4034'
+  /entitlements/contracts/{id}:
+    parameters:
+    - schema:
+        type: string
+      name: id
+      in: path
+      required: true
+      description: The contractId for which entitlement information is requested.
+    get:
+      summary: Get Entitlements by Contract
+      operationId: get-entitlements-by-contract
+      tags:
+      - Aanspraakmanager
+      x-tags:
+      - Entitlement
+      - DeliveryOrder
+      description: 'Retrieve all entitlements for a specific contract grouped by deliveryOrder from a
+        `Aanspraakmanager`.
+
+
+        The `Aanspraakmanager` is the provider of this endpoint.
+
+        The `Licentieregistratie` and `Leermiddelenportaal` should give a 405 HTTP status as result when
+        called.
+
+        '
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DeliveryOrderEntitlements'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '405':
+          description: Method not allowed - Aanspraakmanager is provider of this endpoint
+        '500':
+          $ref: '#/components/responses/ServerError'
+      security:
+      - OAuth2:
+        - eduv.entitlement.seller
+        - eduv.entitlement.licensor
+      x-eduv-error-codes:
+      - '4041'
+  /entitlements:
+    put:
+      summary: Accept Entitlement from Aanspraakmanager
+      operationId: accept-entitlement
+      tags:
+      - Licentieregistratie
+      - Leermiddelenportaal
+      x-tags:
+      - Entitlement
+      description: 'As a `Aanspraakmanager`, send a new Entitlement to a `Licentieregistratie` or `Leermiddelenportaal`.
+
+
+        The `Licentieregistratie` and ''Leermiddelenportaal'' are the providers of this endpoint.
+
+        The `Aanspraakmanager` should give a 405 HTTP status as result when called.
+
+        Consent is required for exchange of entitlement information from the ''Aanspraakmanager'' to the
+        `Leermiddelenportaal`.
+
+        '
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EntitlementRequest'
+      responses:
+        '202':
+          description: Accepted
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '405':
+          description: Method Not Allowed - Licentieregistratie and Leermiddelenportaal are providers
+            of this endpoint
+        '500':
+          $ref: '#/components/responses/ServerError'
+      security:
+      - OAuth2:
+        - eduv.entitlement.licensor
+        - eduv.entitlement.portal
+      x-eduv-error-codes:
+      - '4001'
+      - '4003'
+      - '4012'
+      - '4021'
+      - '4031'
+      - '4033'
+  /entitlements/confirmations:
+    put:
+      summary: Confirm Entitlement to Aanspraakmanager
+      operationId: confirm-entitlement
+      tags:
+      - Aanspraakmanager
+      x-tags:
+      - Entitlement
+      description: "As a `Licentieregistratie` or `Leermiddelenportaal` confirm an Entitlement to the\
+        \ `Aanspraakmanager`.\n\nThe `Aanspraakmanager` is the provider of this endpoint. \nThe `Licentieregistratie`\
+        \ and `Leermiddelenportaal` should give a 405 HTTP status as result when called.\nConsent is required\
+        \ for exchange of entitlement information from the 'Aanspraakmanager' to the `Leermiddelenportaal`.\n"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EntitlementConfirmation'
+      responses:
+        '202':
+          description: Accepted
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '405':
+          description: Method Not Allowed - Aanspraakmanager is provider of this endpoint
+        '500':
+          $ref: '#/components/responses/ServerError'
+      security:
+      - OAuth2:
+        - eduv.entitlement.licensor
+        - eduv.entitlement.portal
+      x-eduv-error-codes:
+      - '4001'
+      - '4002'
+      - '4004'
+      - '4005'
+      - '4011'
+x-tags:
+- name: Entitlement
+- name: DeliveryOrder

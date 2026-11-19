@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <title>Entitlement API | Edu-V</title>
+  <style>
+    body { font-family: Arial, sans-serif; font-size: 13px; margin: 40px; color: #222; background: white; max-width: 1100px; }
+    h1 { font-size: 20px; margin-bottom: 4px; color: #2176c7; }
+    h2 { font-size: 15px; margin-top: 36px; margin-bottom: 6px; border-bottom: 2px solid #2176c7; padding-bottom: 4px; color: #2176c7; }
+    h3 { font-size: 13px; margin-top: 24px; margin-bottom: 4px; color: #444; }
+    .meta { color: #888; font-size: 11px; margin-bottom: 8px; }
+    .version-badge { display: inline-block; background: #2176c7; color: white; border-radius: 4px; padding: 2px 10px; font-size: 11px; font-weight: bold; margin-bottom: 12px; }
+    .status-badge { display: inline-block; background: #e8f4ea; color: #1a7a4a; border: 1px solid #b0d8b8; border-radius: 3px; padding: 2px 9px; font-size: 11px; font-weight: bold; margin-left: 6px; }
+    .status-beta { background: #fef3e2; color: #b7691a; border-color: #f0c090; }
+    .status-candidate { background: #e8f0fe; color: #2176c7; border-color: #b0c8f0; }
+    .status-draft { background: #f0f0f0; color: #666; border-color: #ccc; }
+    .description { font-size: 12px; color: #444; line-height: 1.6; max-width: 820px; margin-bottom: 24px; }
+    .description p, .description ul { margin: 0 0 10px; } .description h4 { font-size: 12px; margin: 14px 0 4px; }
+    .description code, .schema-desc code, .toelichting code { font-family: monospace; background: #f2f2f2; padding: 0 3px; border-radius: 3px; }
+
+    /* Metadatatabel */
+    .meta-table { width: 100%; border-collapse: collapse; margin-bottom: 24px; font-size: 12px; }
+    .meta-table td { padding: 7px 12px; border: 1px solid #e0e0e0; vertical-align: top; }
+    .meta-table td:first-child { width: 150px; background: #f7f7f7; font-weight: bold; color: #555; }
+    .meta-tag { display: inline-block; background: #f0f0f0; border-radius: 3px; padding: 1px 7px; margin: 2px 2px 2px 0; font-size: 11px; }
+
+    /* Toelichting blok */
+    .toelichting { background-color: #f9f4ee; border-left: 3px solid #2176c7; padding: 9px 13px; margin-bottom: 12px; font-size: 12px; line-height: 1.6; color: #555; }
+
+    /* Endpoints tabel */
+    .endpoints-table { width: 100%; border-collapse: collapse; margin-bottom: 32px; font-size: 12px; }
+    .endpoints-table th { background: #2176c7; color: white; text-align: left; padding: 8px 12px; }
+    .endpoints-table td { padding: 7px 12px; border-bottom: 1px solid #eee; vertical-align: top; }
+    .endpoints-table tr:hover { background: #f9f9f9; }
+    .method { font-weight: bold; font-family: monospace; font-size: 11px; padding: 2px 6px; border-radius: 3px; }
+    .method-put { background: #fef3e2; color: #b7691a; }
+    .method-get { background: #e8f4ea; color: #1a7a4a; }
+    .method-post { background: #e8f0fe; color: #2176c7; }
+    .method-delete { background: #fde8e6; color: #c0392b; }
+    .path { font-family: monospace; font-size: 11px; color: #333; }
+
+    /* Schema veldentabel */
+    .schema-table { width: 100%; border-collapse: collapse; margin-bottom: 28px; font-size: 12px; }
+    .schema-table th { background: #f0f0f0; text-align: left; padding: 7px 10px; border-bottom: 2px solid #ccc; font-size: 11px; }
+    .schema-table td { padding: 6px 10px; border-bottom: 1px solid #eee; vertical-align: top; }
+    .schema-table tr:hover { background: #fafafa; }
+    .field-name { font-family: monospace; font-weight: bold; color: #2176c7; font-size: 11px; }
+    .field-type { font-family: monospace; font-size: 10px; color: #666; }
+    .badge-v { background: #fde8e6; color: #c0392b; font-size: 10px; font-weight: bold; padding: 1px 5px; border-radius: 3px; }
+    .badge-o { background: #e8f0fe; color: #2176c7; font-size: 10px; padding: 1px 5px; border-radius: 3px; }
+    .enum-list { font-family: monospace; font-size: 10px; color: #666; margin-top: 3px; }
+    .enum-val { display: inline-block; background: #f0f0f0; padding: 1px 4px; border-radius: 2px; margin: 1px 2px 1px 0; }
+    .ref-link { font-family: monospace; font-size: 10px; color: #2176c7; }
+    .schema-desc { font-size: 11px; color: #555; line-height: 1.4; }
+
+    /* Contact footer */
+    .footer { margin-top: 48px; font-size: 11px; color: #aaa; border-top: 1px solid #eee; padding-top: 12px; }
+  </style>
+</head>
+<body>
+
+<h1>Entitlement API</h1>
+<div class="meta">Edu-V Afsprakenstelsel &nbsp;|&nbsp; Gegenereerd op 19 November 2026 &nbsp;|&nbsp; Bron: entitlement-api.yaml</div>
+<div style="margin-bottom:20px;">
+  <span class="version-badge">v1.2.0-rc.1</span><span class="status-badge status-candidate">Release Candidate</span>
+</div>
+
+<table class="meta-table">
+<tr><td>Status</td><td><span class="status-badge status-candidate">Release Candidate</span></td></tr>
+<tr><td>Versie</td><td>1.2.0-rc.1</td></tr>
+<tr><td>Afkorting</td><td>ENT</td></tr>
+<tr><td>Beheer</td><td>Werkgroep Verwerven en in gebruik nemen</td></tr>
+<tr><td>Ingangsdatum</td><td>2027-01-14</td></tr>
+<tr><td>Gegevensdienst</td><td>Aanspraken en leermiddelactivatie</td></tr>
+<tr><td>Bron</td><td><span class="meta-tag">Aanspraakmanager</span></td></tr>
+<tr><td>Afnemers</td><td><span class="meta-tag">Leermiddelendashboard</span> <span class="meta-tag">Leermiddelenportaal</span> <span class="meta-tag">Bestelomgeving leermiddelen</span></td></tr>
+</table>
+
+<h2>Beschrijving</h2>
+<div class="description"><p>The Entitlement API is implemented by the <code>Aanspraakmanager</code>, <code>Licentieregistratie</code>, and <code>Leermiddelenportaal</code>.<br>The Entitlement API is used to orchestrate the digital delivery of learning materials to all involved reference components.<br>The <code>Aanspraakmanager</code> is responsible for the consistency and traceability of all transactions.</p><p>The Aanspraakmanager is the source of Entitlement information and provides GET endpoints to receive the latest state.</p><p>Entitlements are send and received via several asynchronous transactions.<br>Therefore the consuming reference components <code>Licentieregistratie</code>, and <code>Leermiddelenportaal</code> need to implement endpoints to receive data.<br>Moreover the <code>Aanspraakmanager</code> needs to implement confirmation endpoints to receive confirmations from the consumer that entitlements have been processed.</p><p>After consent by the School, a <code>Leermiddelendashboard</code> is able to request information about entitlements from the <code>Aanspraakmanager</code>. The <code>Leermiddelendashboard</code> uses the GET endpoints provided by the <code>Aanspraakmanager</code>.</p><p>The <code>Bestelomgeving leermiddelen</code> is also able to request information from the <code>Aanspraakmanager</code>. This allows the <code>Bestelomgeving leermiddelen</code> to provide support to buyers.</p></div>
+<h2>Endpoints</h2>
+<table class="endpoints-table">
+  <thead><tr><th>Methode</th><th>Pad</th><th>Omschrijving</th><th>Tag</th><th>Foutcodes</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><span class="method method-get">GET</span></td>
+      <td><span class="path">/entitlements/{id}</span></td>
+      <td>Get Entitlement</td>
+      <td style="font-size:10px;color:#888;">Aanspraakmanager</td>
+      <td style="font-size:11px;">4011</td>
+    </tr>    <tr>
+      <td><span class="method method-get">GET</span></td>
+      <td><span class="path">/entitlements/deliveryorder/{id}</span></td>
+      <td>Get Entitlements by DeliveryOrder</td>
+      <td style="font-size:10px;color:#888;">Aanspraakmanager</td>
+      <td style="font-size:11px;">4012, 4013</td>
+    </tr>    <tr>
+      <td><span class="method method-get">GET</span></td>
+      <td><span class="path">/entitlements/school</span></td>
+      <td>Get Entitlements for School</td>
+      <td style="font-size:10px;color:#888;">Aanspraakmanager</td>
+      <td style="font-size:11px;">4012, 4013, 4031, 4032</td>
+    </tr>    <tr>
+      <td><span class="method method-post">POST</span></td>
+      <td><span class="path">/entitlements/school/user</span></td>
+      <td>Get Entitlements for User at School</td>
+      <td style="font-size:10px;color:#888;">Aanspraakmanager</td>
+      <td style="font-size:11px;">4031, 4032, 4033, 4034</td>
+    </tr>    <tr>
+      <td><span class="method method-post">POST</span></td>
+      <td><span class="path">/entitlements/school/user/products</span></td>
+      <td>Get Entitlementproducts for User at School</td>
+      <td style="font-size:10px;color:#888;">Aanspraakmanager</td>
+      <td style="font-size:11px;">4031, 4032, 4033, 4034</td>
+    </tr>    <tr>
+      <td><span class="method method-get">GET</span></td>
+      <td><span class="path">/entitlements/contracts/{id}</span></td>
+      <td>Get Entitlements by Contract</td>
+      <td style="font-size:10px;color:#888;">Aanspraakmanager</td>
+      <td style="font-size:11px;">4041</td>
+    </tr>    <tr>
+      <td><span class="method method-put">PUT</span></td>
+      <td><span class="path">/entitlements</span></td>
+      <td>Accept Entitlement from Aanspraakmanager</td>
+      <td style="font-size:10px;color:#888;">Licentieregistratie, Leermiddelenportaal</td>
+      <td style="font-size:11px;">4001, 4003, 4012, 4021, 4031, 4033</td>
+    </tr>    <tr>
+      <td><span class="method method-put">PUT</span></td>
+      <td><span class="path">/entitlements/confirmations</span></td>
+      <td>Confirm Entitlement to Aanspraakmanager</td>
+      <td style="font-size:10px;color:#888;">Aanspraakmanager</td>
+      <td style="font-size:11px;">4001, 4002, 4004, 4005, 4011</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2>Schemas</h2>
+<h3>EntitlementRequest</h3>
+<div class="description"><p>A new or updated Entitlement is send from the <code>Aanspraakmanager</code> to the <code>Licentieregistratie</code>, and <code>Leermiddelenportaal</code>.<br>In some cases the <code>Licentieregistratie</code> or <code>Leermiddelenportaal</code> will send an EntitlementConfirmation to confirm this message.</p><p>The Entitlement is always send as latest status. Many fields cannot be changed after initial &quot;entitled&quot; status. just the state can change or quantity be lowered.<br>The request should always be processed once, the entitlementReferenceId is unique.</p></div><div class="toelichting">Het EntitlementRequest bericht bevat de specificatie van de aanspraak op een leermiddel. In het bericht is een unieke referentie opgenomen om de traceerbaarheid van verzonden en ontvangen berichten bij te kunnen houden. Indien een ontvanger een bericht ontvangt met eenzelfde entitlementReferenceId is het niet de bedoeling om het bericht opnieuw te verwerken; het verzoek is om het bevestigingsbericht opnieuw toe te sturen.</div>
+<table class="schema-table">
+  <thead><tr><th>Veld</th><th>Type</th><th>V/O</th><th>Omschrijving</th><th>Voorbeeld</th><th>Vullingsregel</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><span class="field-name">entitlementReferenceId</span></td>
+      <td><span class="field-type">string (uuid)</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">Unique entitlementReferenceId for this request. This referenceId is used by the Event Mediator of the <code>Aanspraakmanager</code> to match the EntitlementConfirmation confirmation message(s) send by the <code>Licentieregistratie</code> and/or the <code>Leermiddelenportaal</code>. If a party receives another request with the same entitlementReferenceId value, the receiving party should not process the request again. It should send the confirmation again.</span></td>
+      <td><span class="schema-desc">eacb81ef-c9d5-4bd8-a624-4088bee04b73</span></td><td><span class="schema-desc">Dit nummer wordt gebruikt door de event mediator om een logboek bij te houden van verzonden en ontvangen meldingen en terugmeldingen met betrekking tot een unieke entitlementId.</span></td>
+    </tr>    <tr>
+      <td><span class="field-name">entitlement</span></td>
+      <td><span class="ref-link">→ Entitlement</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc"></span></td>
+      <td><span class="schema-desc"></span></td><td><span class="schema-desc"></span></td>
+    </tr>
+  </tbody>
+</table>
+
+<h3>EntitlementConfirmation</h3>
+<div class="description"><p>The confirmation that is send back when the <code>Aanspraakmanager</code> sends an EntitlementRequest message to the <code>Licentieregistratie</code> or the <code>Leermiddelenportaal</code>.</p><p>The confirmation is not always needed, only in the following situations:</p><p>Confirmations by <code>Licentieregistratie</code>:</p><ul><li>entitlementStatus is created and send to <code>Licentieregistratie</code>: <code>Licentieregistratie</code> sends a confirmation with the newEntitlementStatus entitled</li><li>entitlementStatus is cancelled and send to <code>Licentieregistratie</code>: <code>Licentieregistratie</code> sends a confirmation with the newEntitlementStatus cancelled</li><li>entitlementStatus is blocked and send to <code>Licentieregistratie</code>: <code>Licentieregistratie</code> sends a confirmation with the newEntitlementStatus blocked</li></ul><p>Confirmations by <code>Leermiddelenportaal</code> are triggered by the entitlementStatus, not by the urlStatus.<br>The entitlementStatus is set by the <code>Aanspraakmanager</code>. The urlStatus belongs to the <code>Leermiddelenportaal</code> and is only reported back via newUrlStatus.<br>Every Entitlement request contains the latest state of the Entitlement. The <code>Leermiddelenportaal</code> processes it as that state, not as a step in a mandatory sequence.</p><ul><li>entitlementStatus is entitled or licensed and sent to <code>Leermiddelenportaal</code>: <code>Leermiddelenportaal</code> sends a confirmation with the newUrlStatus processed, or initialized when the access link is not placed yet. A later change of the urlStatus is reported with the confirmation of the next Entitlement request.</li><li>entitlementStatus is cancelled and sent to <code>Leermiddelenportaal</code>: <code>Leermiddelenportaal</code> sends a confirmation with the newUrlStatus cancelled</li><li>entitlementStatus is blocked and sent to <code>Leermiddelenportaal</code>: <code>Leermiddelenportaal</code> sends a confirmation with the newUrlStatus blocked</li></ul><p>The entitlementReferenceId, entitlementId are echoed back to the <code>Aanspraakmanager</code>, with a new entitlementReceiveId.</p><p>Requests are only handled once. If a request with a similar entitlementReferenceId is received, the processing is only done the first time.<br>The confirmation may be send multiple times, but always with the same entitlementReceiveId. In this way the <code>Aanspraakmanager</code> can validate that the response is processed only once.</p><p>Functional status codes and messages are described in the Documentation.</p></div><div class="toelichting">De Licentieregistratie en het Leermiddelenportaal antwoorden op Entitlement-berichten met dit bevestigingsbericht.</div>
+<table class="schema-table">
+  <thead><tr><th>Veld</th><th>Type</th><th>V/O</th><th>Omschrijving</th><th>Voorbeeld</th><th>Vullingsregel</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><span class="field-name">entitlementReferenceId</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">The entitlementReferenceId that was send by the <code>Aanspraakmanager</code> as part of the Entitlement request</span></td>
+      <td><span class="schema-desc">eacb81ef-c9d5-4bd8-a624-4088bee04b73</span></td><td><span class="schema-desc"></span></td>
+    </tr>    <tr>
+      <td><span class="field-name">entitlementReceiveId</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">A reference to this confirmation message send by the <code>Licentieregistratie</code> or the <code>Leermiddelenportaal</code> to the <code>Aanspraakmanager</code>.</span></td>
+      <td><span class="schema-desc">3437e98f-855d-4f29-9092-7ba311228920</span></td><td><span class="schema-desc"></span></td>
+    </tr>    <tr>
+      <td><span class="field-name">entitlementId</span></td>
+      <td><span class="field-type">string (uuid)</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">The entitlementId which was part of the Entitlement request send by the <code>Aanspraakmanager</code>.</span></td>
+      <td><span class="schema-desc">24e39454-5360-4ba4-819f-03e59b8dd679</span></td><td><span class="schema-desc"></span></td>
+    </tr>    <tr>
+      <td><span class="field-name">productId</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">The productId which was part of the Entitlement request send by the <code>Aanspraakmanager</code></span></td>
+      <td><span class="schema-desc">8717927130834</span></td><td><span class="schema-desc"></span></td>
+    </tr>    <tr>
+      <td><span class="field-name">processedTimestamp</span></td>
+      <td><span class="field-type">string (date-time)</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">The moment that the Entitlement request was processed by the <code>Licentieregistratie</code> or the <code>Leermiddelenportaal</code> and the change became effective. As requests and confirmation messages are send asynchronous, this is not the moment the confirmation message was send by the <code>Licentieregistratie</code> or the <code>Leermiddelenportaal</code> to the <code>Aanspraakmanager</code>.  Format: Conform openapi in ZULU time as specified in RFC 3339, section 5.6</span></td>
+      <td><span class="schema-desc"></span></td><td><span class="schema-desc"></span></td>
+    </tr>    <tr>
+      <td><span class="field-name">newEntitlementStatus</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">Confirmation of the proposed status.  Example: as a reply to a created status in an Entitlement request, a <code>Licentieregistratie</code> can reply with an entitled status to the <code>Aanspraakmanager</code>.</span><div class="enum-list">enum: <span class="enum-val">created</span> <span class="enum-val">entitled</span> <span class="enum-val">licensed</span> <span class="enum-val">cancelled</span> <span class="enum-val">blocked</span></div></td>
+      <td><span class="schema-desc"></span></td><td><span class="schema-desc">De Licentieregistratie antwoordt via dit veld naar de Aanspraakmanager met een nieuwe status indien de verwerking succesvol was.</span></td>
+    </tr>    <tr>
+      <td><span class="field-name">newUrlStatus</span></td>
+      <td><span class="ref-link">→ EntitlementConfirmation.newUrlStatus</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">Confirmation of the processing of the request. The <code>Leermiddelenportaal</code> always reports its current urlStatus. Example: as a reply to an entitled status in an Entitlement request, the <code>Leermiddelenportaal</code> application can reply with a processed status to the <code>Aanspraakmanager</code>.</span></td>
+      <td><span class="schema-desc"></span></td><td><span class="schema-desc">Het Leermiddelenportaal antwoordt via dit veld naar de Aanspraakmanager met een nieuwe status indien de verwerking succesvol was.</span></td>
+    </tr>    <tr>
+      <td><span class="field-name">success</span></td>
+      <td><span class="field-type">boolean</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">Boolean indicating the Entitlement request was processed successfully. When the <code>Licentieregistratie</code> disagrees with a certain change (i.e. cancelled) a false will be returned, along with a status code and a status message.</span></td>
+      <td><span class="schema-desc"></span></td><td><span class="schema-desc">False indien de Ontvanger niet akkoord is of er een fout is opgetreden.</span></td>
+    </tr>    <tr>
+      <td><span class="field-name">status</span></td>
+      <td><span class="field-type">integer</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">Functional status code, as defined in &quot;Status- en foutcodes 1.0.0&quot;. Codes are sent as integers without leading zeros (0011 = 11).  Algemeen (00xx) - applies to every API:   * <code>0000</code> - OK: Bevraging succesvol (HTTP 200).   * <code>0001</code> - Created: Bericht heeft geleid tot registratie van een nieuwe entiteit (HTTP 201).   * <code>0002</code> - Accepted: Bericht geaccepteerd (HTTP 202).   * <code>0011</code> - Schema incorrect: Schemavalidatie niet succesvol (HTTP 400).   * <code>0012</code> - schemaVersion not supported: De ontvanger kan de gehanteerde schemaVersion niet verwerken (HTTP 400).   * <code>0021</code> - scope required: Leverancier is niet geautoriseerd voor scope (HTTP 401).   * <code>0022</code> - consent required: Informatieobject van classificatie IV zonder geactiveerde gegevensdienst (HTTP 403).   * <code>0023</code> - school unknown: De client communiceert in de context van een Onderwijsorganisatie die niet bekend is bij de server (HTTP 400).   * <code>0099</code> - Overige reden: Vullingsregel: neem in statusMessage een beschrijving van de reden op.  Entitlement API (40xx):   * <code>4001</code> - entitlementReferenceId missing: entitlementReferenceId ontbreekt.   * <code>4002</code> - entitlementReferenceId unknown: Het entitlementReferenceId is onbekend.   * <code>4003</code> - entitlementReferenceId already used: Het entitlementReferenceId is al eerder gebruikt.   * <code>4004</code> - entitlementReceiveId missing: Het entitlementReceiveId ontbreekt.   * <code>4005</code> - entitlementReceiveId already used: Het entitlementReceiveId is al eerder gebruikt.   * <code>4011</code> - entitlementId unknown: Het entitlementId is onbekend.   * <code>4012</code> - deliveryOrderId missing: Specificatie van deliveryOrder ontbreekt.   * <code>4013</code> - deliveryOrderId unknown: Het deliveryOrderId is onbekend.   * <code>4021</code> - productId missing: Specificatie van Product ontbreekt.   * <code>4022</code> - productId unknown: Gespecificeerd Product onbekend bij Ontvanger.   * <code>4023</code> - Product not yet for sale: Gespecificeerd Product is nog niet in de verkoop.   * <code>4024</code> - Product not available: Gespecificeerd Product is niet beschikbaar.   * <code>4025</code> - Product no longer for sale: Gespecificeerd Product is niet langer in de verkoop.   * <code>4031</code> - School missing: Onderwijsorganisatie is niet gespecificeerd.   * <code>4032</code> - School unknown: Gespecificeerde Onderwijsorganisatie is niet bekend bij Ontvanger.   * <code>4033</code> - User missing: Specificatie van entitlees of activatiecodes niet volledig.   * <code>4034</code> - User unknown: Gespecificeerde entitlees zijn niet bekend bij Ontvanger.   * <code>4041</code> - contractId unknown: Gespecificeerd contractId is onbekend bij de ontvangende Licentieregistratie.   * <code>4042</code> - Contract restrictions: Bericht niet toegestaan als gevolg van contractuele afspraken tussen de leverancier van het leermiddel en de leverancier die de verwerving faciliteert.   * <code>4051</code> - startDate before firstPublishedDate: Gespecificeerde startdatum van de activatieperiode ligt voor de datum dat het product op de markt verschijnt.   * <code>4061</code> - Entitlement is licensed: Indien een Aanspraakmanager een aanspraak wil annuleren dan mag er geen licentie geregistreerd zijn op de aanspraak.   * <code>4071</code> - activationCode unknown: Gespecificeerde activatiecode is onbekend bij de ontvangende Licentieregistratie.   * <code>4072</code> - activationCode already used: Gespecificeerde activatiecode is reeds gebruikt voor een aanspraak.   * <code>4073</code> - activationCode revoked: Gespecificeerde activatiecode is ingetrokken.</span></td>
+      <td><span class="schema-desc"></span></td><td><span class="schema-desc">Zie status en foutcodes.</span></td>
+    </tr>    <tr>
+      <td><span class="field-name">statusMessage</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">See functional status messages within the Documentation.</span></td>
+      <td><span class="schema-desc"></span></td><td><span class="schema-desc">Zie status en foutcodes.</span></td>
+    </tr>
+  </tbody>
+</table>
+<h3>EntitlementConfirmation.newUrlStatus</h3>
+<div class="description"><p>Confirmation of the processing of the request. The <code>Leermiddelenportaal</code> always reports its current urlStatus.<br>Example: as a reply to an entitled status in an Entitlement request, the <code>Leermiddelenportaal</code> application can reply with a processed status to the <code>Aanspraakmanager</code>.</p></div>
+<table class="schema-table">
+  <thead><tr><th>Veld</th><th>Type</th><th>V/O</th><th>Omschrijving</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><span class="field-name">portal</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">Identifier of the <code>Leermiddelenportaal</code> application.</span></td>
+      
+    </tr>    <tr>
+      <td><span class="field-name">urlStatus</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc"></span><div class="enum-list">enum: <span class="enum-val">initialized</span> <span class="enum-val">processed</span> <span class="enum-val">cancelled</span> <span class="enum-val">blocked</span> <span class="enum-val">expired</span></div></td>
+      
+    </tr>
+  </tbody>
+</table>
+
+<h3>Entitlement</h3>
+<div class="description"><p>The core object that expresses information about a product that is entitled by the <code>Aanspraakmanager</code> to a specified user or a user in possession of a specified activation code.</p></div><div class="toelichting">Het object Entitlement beschrijft de aanspraak zoals deze is aangemaakt op basis van de leverspecificatie uit een leveringsorder die door de Aanspraakmanager van een Bestelomgeving leermiddelen is ontvangen.
+
+Iedere aanspraak heeft een status conform de levenscyclus van een Aanspraak. De waarden uit een aanspraak mogen niet gewijzigd worden (ook niet voor foutcorrecties). Indien de aanspraak niet correct is, wordt deze geannuleerd en wordt er een nieuwe aanspraak gestuurd.</div>
+<div class="toelichting">Indien entitlementStatus is cancelled of blocked: verplicht: endDate</div><table class="schema-table">
+  <thead><tr><th>Veld</th><th>Type</th><th>V/O</th><th>Omschrijving</th><th>Voorbeeld</th><th>Vullingsregel</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><span class="field-name">entitlementId</span></td>
+      <td><span class="field-type">string (uuid)</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc"></span></td>
+      <td><span class="schema-desc"></span></td><td><span class="schema-desc">Waarde mag niet gewijzigd worden.</span></td>
+    </tr>    <tr>
+      <td><span class="field-name">deliveryOrderId</span></td>
+      <td><span class="field-type">string (uuid)</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">The deliveryOrderId which was part of the DeliveryOrder request send by the <code>Bestelomgeving leermiddelen</code> to the <code>Aanspraakmanager</code>.</span></td>
+      <td><span class="schema-desc">24e39454-5360-4ba4-819f-03e59b8dd679</span></td><td><span class="schema-desc">Waarde mag niet gewijzigd worden. Alleen optioneel als deliveryType school-admin is.</span></td>
+    </tr>    <tr>
+      <td><span class="field-name">contractId</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">An optional unique identifier for a contract between the supplier that is responsible for the <code>Bestelomgeving leermiddelen</code> and the supplier of the learning materials. The DeliveryOrder should be handled according to the business rules of the contract.&#x27;</span></td>
+      <td><span class="schema-desc">2022-12-v1</span></td><td><span class="schema-desc">Waarde mag niet gewijzigd worden.</span></td>
+    </tr>    <tr>
+      <td><span class="field-name">productId</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">Unique identifier of a Product. The productId can be retrieved from the Catalogue API of supplier of the learning materials.</span></td>
+      <td><span class="schema-desc">8717927130834</span></td><td><span class="schema-desc">Een aanspraak verwijst naar exact 1 productbeschrijving. Waarde mag niet gewijzigd worden.</span></td>
+    </tr>    <tr>
+      <td><span class="field-name">startDate</span></td>
+      <td><span class="field-type">string (date)</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">Date from which the product can be activated by the Entitlee(s). The startDate marks the start of the activation period.  Format: YYYY-MM-DD (according to RFC3339).</span></td>
+      <td><span class="schema-desc">2022-08-01</span></td><td><span class="schema-desc">Waarde mag niet gewijzigd worden.</span></td>
+    </tr>    <tr>
+      <td><span class="field-name">activationUntilDate</span></td>
+      <td><span class="field-type">string (date)</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">Date on which the product can no longer be activated by the Entitlee(s). The activationUntilDate marks the end of the activation period. This does not imply the product can not be used by Licensees who have activated the product during the activation period.  Format: YYYY-MM-DD (according to RFC3339).</span></td>
+      <td><span class="schema-desc">2023-07-31</span></td><td><span class="schema-desc">Waarde mag niet gewijzigd worden.</span></td>
+    </tr>    <tr>
+      <td><span class="field-name">expirationDate</span></td>
+      <td><span class="field-type">string (date)</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">ExpirationDate a <code>Leermiddelenportaal</code> can use to maintain access links to the Product in the Learning Material Lists of Students or Employees. An initially set minExpirationDate is calculated by the <code>Aanspraakmanager</code> based on info from the Product retrieved from the Catalogue API.  If the <code>Aanspraakmanager</code> receives an InitialActivation message regarding this Entitlement from the <code>Licentieregistratie</code> via the Usage API, the expirationDate could be updated. The InitialActivation message could include an updated expirationDate. In that case this new expirationDate overwrites the initially set minExpirationDate. This triggers the process within the <code>Aanspraakmanager</code> to exchange the updated entitlement with the <code>Leermiddelenportaal</code>. The <code>Leermiddelenportaal</code> reports its urlStatus back via newUrlStatus.  Format: YYYY-MM-DD (according to RFC3339).</span></td>
+      <td><span class="schema-desc">2023-07-31</span></td><td><span class="schema-desc">Deze waarde wordt berekend op basis van de informatie over het product uit de catalogus. Voor een jaarlicentie is dit bijvoorbeeld 1 jaar na de startDate. Dit veld is optioneel. Indien het veld leeg is, is er geen einddatum voor het tonen van de toegangslink. De Aanspraakmanager kan via een InitialActivation-bericht een nieuwe expirationDate doorkrijgen uit de Licentieregistratie. In dat geval wordt het plaatsen van de toegangslink door het Leermiddelenportaal opnieuw geïnitieerd door de Aanspraakmanager. Deze nieuwe expirationDate is gelijk aan of ligt verder in de toekomst en overschrijft voor de betreffende gebruiker de eerder berekende minExpirationDate.</span></td>
+    </tr>    <tr>
+      <td><span class="field-name">endDate</span></td>
+      <td><span class="field-type">string (date)</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">Date this Entitlement was blocked or cancelled. Mandatory field when the status changes to Cancelled or Blocked.  Format: YYYY-MM-DD (according to RFC3339).</span></td>
+      <td><span class="schema-desc">2022-09-28</span></td><td><span class="schema-desc">De endDate wordt gevuld zodra de status wijzigt naar cancelled of blocked. Waarde mag niet gewijzigd worden.</span></td>
+    </tr>    <tr>
+      <td><span class="field-name">entitlementType</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">The entitlement type specifies if a student, employee or a user with an activation code can activate and license the product.</span><div class="enum-list">enum: <span class="enum-val">school-student</span> <span class="enum-val">school-employee</span> <span class="enum-val">school-activationcode</span> <span class="enum-val">customer-student</span> <span class="enum-val">customer-activationcode</span></div></td>
+      <td><span class="schema-desc"></span></td><td><span class="schema-desc">Waarde mag niet gewijzigd worden.</span></td>
+    </tr>    <tr>
+      <td><span class="field-name">entitlementSpecification</span></td>
+      <td><span class="ref-link">→ EntitlementSpecification</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc"></span></td>
+      <td><span class="schema-desc"></span></td><td><span class="schema-desc"></span></td>
+    </tr>    <tr>
+      <td><span class="field-name">entitlementStatus</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">The status of the entitlement.</span><div class="enum-list">enum: <span class="enum-val">created</span> <span class="enum-val">entitled</span> <span class="enum-val">licensed</span> <span class="enum-val">cancelled</span> <span class="enum-val">blocked</span></div><div class="enum-list">default: <span class="enum-val">created</span></div></td>
+      <td><span class="schema-desc"></span></td><td><span class="schema-desc">Status wordt toegekend conform de levenscyclus van de Aanspraak.</span></td>
+    </tr>    <tr>
+      <td><span class="field-name">urlStatuses</span></td>
+      <td><span class="ref-link">→ array[Entitlement.urlStatuses]</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc"></span></td>
+      <td><span class="schema-desc"></span></td><td><span class="schema-desc">De toegangslink kan bij meerdere portalen geplaatst zijn of worden.</span></td>
+    </tr>    <tr>
+      <td><span class="field-name">dateCreated</span></td>
+      <td><span class="field-type">string (date-time)</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">Indicates the date and time the object was first created. Format: Conform openapi in ZULU time zoals gespecificeerd in RFC 3339, section 5.6.</span></td>
+      <td><span class="schema-desc"></span></td><td><span class="schema-desc"></span></td>
+    </tr>    <tr>
+      <td><span class="field-name">dateLastModified</span></td>
+      <td><span class="field-type">string (date-time)</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">Indicates the date and time the object was last modified. Format: Conform openapi in ZULU time zoals gespecificeerd in RFC 3339, section 5.6.</span></td>
+      <td><span class="schema-desc"></span></td><td><span class="schema-desc"></span></td>
+    </tr>
+  </tbody>
+</table>
+<h3>Entitlement.urlStatuses</h3>
+<div class="description"><p>The status of the accessUrl at the <code>Leermiddelenportaal</code> application.</p></div>
+<table class="schema-table">
+  <thead><tr><th>Veld</th><th>Type</th><th>V/O</th><th>Omschrijving</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><span class="field-name">portal</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">Identifier of the <code>Leermiddelenportaal</code> application.</span></td>
+      
+    </tr>    <tr>
+      <td><span class="field-name">urlStatus</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">The status of the accessUrl at the <code>Leermiddelenportaal</code> application, as last reported by that <code>Leermiddelenportaal</code> via newUrlStatus. The <code>Aanspraakmanager</code> does not set this status itself. Until the first confirmation of the <code>Leermiddelenportaal</code> it remains uninitialized.</span><div class="enum-list">enum: <span class="enum-val">uninitialized</span> <span class="enum-val">initialized</span> <span class="enum-val">processed</span> <span class="enum-val">cancelled</span> <span class="enum-val">blocked</span></div><div class="enum-list">default: <span class="enum-val">uninitialized</span></div></td>
+      
+    </tr>
+  </tbody>
+</table>
+
+<h3>SchoolReference</h3>
+<div class="description"><p>A reference to a School organisation.</p></div>
+<div class="toelichting">Indien organisationMasterIdentifier gevuld: niet toegestaan: organisationIds; anders verplicht: organisationIds</div><table class="schema-table">
+  <thead><tr><th>Veld</th><th>Type</th><th>V/O</th><th>Omschrijving</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><span class="field-name">organisationMasterIdentifier</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">The primary identifier for a School. For Schools the <code>OnderwijsaanbiederId</code> is used. (exactly one of organisationMasterIdentifier or organisationIds must be present)</span></td>
+      
+    </tr>    <tr>
+      <td><span class="field-name">organisationIds</span></td>
+      <td><span class="ref-link">→ array[SchoolReference.organisationIds]</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">A secondary identifier for the School. This value is used whenever the primary identifier is not available. (exactly one of organisationMasterIdentifier or organisationIds must be present)</span></td>
+      
+    </tr>
+  </tbody>
+</table>
+<h3>SchoolReference.organisationIds</h3>
+
+<table class="schema-table">
+  <thead><tr><th>Veld</th><th>Type</th><th>V/O</th><th>Omschrijving</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><span class="field-name">organisationId</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc"></span></td>
+      
+    </tr>    <tr>
+      <td><span class="field-name">organisationIdType</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc"></span><div class="enum-list">enum: <span class="enum-val">OIE_CODE</span> <span class="enum-val">BP_ID</span> <span class="enum-val">DD_ID</span> <span class="enum-val">AS_ID</span></div></td>
+      
+    </tr>
+  </tbody>
+</table>
+
+<h3>CustomerReference</h3>
+<div class="description"><p>Information about an B2C Customer who acquired the product.</p></div>
+<table class="schema-table">
+  <thead><tr><th>Veld</th><th>Type</th><th>V/O</th><th>Omschrijving</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><span class="field-name">displayName</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">The name of the Customer.</span></td>
+      
+    </tr>    <tr>
+      <td><span class="field-name">email</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">The email address of the Customer.</span></td>
+      
+    </tr>
+  </tbody>
+</table>
+
+<h3>EntitlementSpecification</h3>
+<div class="toelichting">De entitlementSpecification bevat de verplichte specificatie die hoort bij het gekozen entitlementType. Voor school-student en school-employee zijn een schoolreferentie en een gebruikersreferentie vereist, voor school-activationcode een school en een activatiecode, voor customer-student alleen een gebruikersreferentie, en voor customer-activationcode alleen een activatiecode.</div><p class="description">Een van (oneOf):</p>
+<table class="schema-table">
+  <thead><tr><th>Variant</th><th>Pattern</th><th>Omschrijving</th></tr></thead>
+  <tbody>
+    <tr><td>EntitlementSchoolStudent</td><td><span class="schema-desc"></span></td><td><span class="schema-desc"></span></td></tr>
+    <tr><td>EntitlementSchoolEmployee</td><td><span class="schema-desc"></span></td><td><span class="schema-desc"></span></td></tr>
+    <tr><td>EntitlementSchoolActivationCode</td><td><span class="schema-desc"></span></td><td><span class="schema-desc"></span></td></tr>
+    <tr><td>EntitlementCustomerStudent</td><td><span class="schema-desc"></span></td><td><span class="schema-desc"></span></td></tr>
+    <tr><td>EntitlementCustomerActivationCode</td><td><span class="schema-desc"></span></td><td><span class="schema-desc"></span></td></tr>
+  </tbody>
+</table>
+
+<h3>EntitlementSchoolStudent</h3>
+<div class="description"><p>The specified student at the school is allowed to activate and license the product.</p></div><div class="toelichting">Van toepassing wanneer de gespecificeerde onderwijsdeelnemer vanuit de gespecificeerde onderwijsorganisatie het leermiddel in gebruik gaat nemen.</div>
+<table class="schema-table">
+  <thead><tr><th>Veld</th><th>Type</th><th>V/O</th><th>Omschrijving</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><span class="field-name">school</span></td>
+      <td><span class="ref-link">→ SchoolReference</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc"></span></td>
+      
+    </tr>    <tr>
+      <td><span class="field-name">student</span></td>
+      <td><span class="ref-link">→ UserReference</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc"></span></td>
+      
+    </tr>
+  </tbody>
+</table>
+
+<h3>EntitlementSchoolEmployee</h3>
+<div class="description"><p>The specified employee at the school is allowed to activate and license the product.</p></div><div class="toelichting">Van toepassing wanneer de gespecificeerde onderwijsmedewerker vanuit de gespecificeerde onderwijsorganisatie het leermiddel in gebruik gaat nemen.</div>
+<table class="schema-table">
+  <thead><tr><th>Veld</th><th>Type</th><th>V/O</th><th>Omschrijving</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><span class="field-name">school</span></td>
+      <td><span class="ref-link">→ SchoolReference</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc"></span></td>
+      
+    </tr>    <tr>
+      <td><span class="field-name">employee</span></td>
+      <td><span class="ref-link">→ UserReference</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc"></span></td>
+      
+    </tr>
+  </tbody>
+</table>
+
+<h3>EntitlementSchoolActivationCode</h3>
+<div class="description"><p>A user from a school is allowed to activate and license the product using the ActivationCode.</p></div><div class="toelichting">Van toepassing wanneer een eindgebruiker vanuit de gespecificeerde onderwijsorganisatie het leermiddel in gebruik gaat nemen met de gespecificeerde en nog niet gebruikte activatiecode.</div>
+<table class="schema-table">
+  <thead><tr><th>Veld</th><th>Type</th><th>V/O</th><th>Omschrijving</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><span class="field-name">school</span></td>
+      <td><span class="ref-link">→ SchoolReference</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc"></span></td>
+      
+    </tr>    <tr>
+      <td><span class="field-name">activationCode</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">The activation codes, the school can use to activate and license the product. Activation codes can be requested from the <code>Licentieregistratie</code></span></td>
+      
+    </tr>
+  </tbody>
+</table>
+
+<h3>EntitlementCustomerStudent</h3>
+<div class="description"><p>The specified student is allowed to activate and license the product.</p></div><div class="toelichting">Van toepassing wanneer de gespecificeerde onderwijsdeelnemer (particulier, niet via een onderwijsorganisatie) het leermiddel in gebruik gaat nemen.</div>
+<table class="schema-table">
+  <thead><tr><th>Veld</th><th>Type</th><th>V/O</th><th>Omschrijving</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><span class="field-name">student</span></td>
+      <td><span class="ref-link">→ UserReference</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc"></span></td>
+      
+    </tr>
+  </tbody>
+</table>
+
+<h3>EntitlementCustomerActivationCode</h3>
+<div class="description"><p>A user is allowed to activate and license the product using the ActivationCode.</p></div><div class="toelichting">Van toepassing wanneer een eindgebruiker (particulier) het leermiddel in gebruik gaat nemen met de gespecificeerde en nog niet gebruikte activatiecode.</div>
+<table class="schema-table">
+  <thead><tr><th>Veld</th><th>Type</th><th>V/O</th><th>Omschrijving</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><span class="field-name">activationCode</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">The activation codes, the school can use to activate and license the product. Activation codes can be requested from the <code>Licentieregistratie</code></span></td>
+      
+    </tr>
+  </tbody>
+</table>
+
+<h3>UserReference</h3>
+
+<div class="toelichting">Indien userMasterIdentifier leeg: verplicht: userIds</div><table class="schema-table">
+  <thead><tr><th>Veld</th><th>Type</th><th>V/O</th><th>Omschrijving</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><span class="field-name">userMasterIdentifier</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">The primary identifier for a User. For Students the ECK iD is used. For Employees this value is empty. There is no primary identifier for Employees. (either userMasterIdentifier or userIds is required)</span></td>
+      
+    </tr>    <tr>
+      <td><span class="field-name">userIds</span></td>
+      <td><span class="ref-link">→ array[UserReference.userIds]</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">A secondary identifier for a User. This value is used whenever the primary identifier is not available. For Employees this value is mandatory. (either userMasterIdentifier or userIds is required)</span></td>
+      
+    </tr>
+  </tbody>
+</table>
+<h3>UserReference.userIds</h3>
+
+<table class="schema-table">
+  <thead><tr><th>Veld</th><th>Type</th><th>V/O</th><th>Omschrijving</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><span class="field-name">userId</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc"></span></td>
+      
+    </tr>    <tr>
+      <td><span class="field-name">userIdType</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc"></span><div class="enum-list">enum: <span class="enum-val">NEPPI</span> <span class="enum-val">BPI</span> <span class="enum-val">eduID</span> <span class="enum-val">NEPRI</span> <span class="enum-val">ASI</span> <span class="enum-val">eckId</span></div></td>
+      
+    </tr>
+  </tbody>
+</table>
+
+<h3>StatusResponse</h3>
+<div class="description"><p>Functional status code and status message.</p></div>
+<table class="schema-table">
+  <thead><tr><th>Veld</th><th>Type</th><th>V/O</th><th>Omschrijving</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><span class="field-name">status</span></td>
+      <td><span class="field-type">integer</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">Functional status code, as defined in &quot;Status- en foutcodes 1.0.0&quot;. Codes are sent as integers without leading zeros (0011 = 11).  Algemeen (00xx) - applies to every API:   * <code>0000</code> - OK: Bevraging succesvol (HTTP 200).   * <code>0001</code> - Created: Bericht heeft geleid tot registratie van een nieuwe entiteit (HTTP 201).   * <code>0002</code> - Accepted: Bericht geaccepteerd (HTTP 202).   * <code>0011</code> - Schema incorrect: Schemavalidatie niet succesvol (HTTP 400).   * <code>0012</code> - schemaVersion not supported: De ontvanger kan de gehanteerde schemaVersion niet verwerken (HTTP 400).   * <code>0021</code> - scope required: Leverancier is niet geautoriseerd voor scope (HTTP 401).   * <code>0022</code> - consent required: Informatieobject van classificatie IV zonder geactiveerde gegevensdienst (HTTP 403).   * <code>0023</code> - school unknown: De client communiceert in de context van een Onderwijsorganisatie die niet bekend is bij de server (HTTP 400).   * <code>0099</code> - Overige reden: Vullingsregel: neem in statusMessage een beschrijving van de reden op.  Entitlement API (40xx):   * <code>4001</code> - entitlementReferenceId missing: entitlementReferenceId ontbreekt.   * <code>4002</code> - entitlementReferenceId unknown: Het entitlementReferenceId is onbekend.   * <code>4003</code> - entitlementReferenceId already used: Het entitlementReferenceId is al eerder gebruikt.   * <code>4004</code> - entitlementReceiveId missing: Het entitlementReceiveId ontbreekt.   * <code>4005</code> - entitlementReceiveId already used: Het entitlementReceiveId is al eerder gebruikt.   * <code>4011</code> - entitlementId unknown: Het entitlementId is onbekend.   * <code>4012</code> - deliveryOrderId missing: Specificatie van deliveryOrder ontbreekt.   * <code>4013</code> - deliveryOrderId unknown: Het deliveryOrderId is onbekend.   * <code>4021</code> - productId missing: Specificatie van Product ontbreekt.   * <code>4022</code> - productId unknown: Gespecificeerd Product onbekend bij Ontvanger.   * <code>4023</code> - Product not yet for sale: Gespecificeerd Product is nog niet in de verkoop.   * <code>4024</code> - Product not available: Gespecificeerd Product is niet beschikbaar.   * <code>4025</code> - Product no longer for sale: Gespecificeerd Product is niet langer in de verkoop.   * <code>4031</code> - School missing: Onderwijsorganisatie is niet gespecificeerd.   * <code>4032</code> - School unknown: Gespecificeerde Onderwijsorganisatie is niet bekend bij Ontvanger.   * <code>4033</code> - User missing: Specificatie van entitlees of activatiecodes niet volledig.   * <code>4034</code> - User unknown: Gespecificeerde entitlees zijn niet bekend bij Ontvanger.   * <code>4041</code> - contractId unknown: Gespecificeerd contractId is onbekend bij de ontvangende Licentieregistratie.   * <code>4042</code> - Contract restrictions: Bericht niet toegestaan als gevolg van contractuele afspraken tussen de leverancier van het leermiddel en de leverancier die de verwerving faciliteert.   * <code>4051</code> - startDate before firstPublishedDate: Gespecificeerde startdatum van de activatieperiode ligt voor de datum dat het product op de markt verschijnt.   * <code>4061</code> - Entitlement is licensed: Indien een Aanspraakmanager een aanspraak wil annuleren dan mag er geen licentie geregistreerd zijn op de aanspraak.   * <code>4071</code> - activationCode unknown: Gespecificeerde activatiecode is onbekend bij de ontvangende Licentieregistratie.   * <code>4072</code> - activationCode already used: Gespecificeerde activatiecode is reeds gebruikt voor een aanspraak.   * <code>4073</code> - activationCode revoked: Gespecificeerde activatiecode is ingetrokken.</span></td>
+      
+    </tr>    <tr>
+      <td><span class="field-name">statusMessage</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">See functional status messages within the Documentation.</span></td>
+      
+    </tr>
+  </tbody>
+</table>
+
+<h3>DeliveryOrderEntitlements</h3>
+<div class="description"><p>This object reports all Entitlement information for a single DeliveryOrder.</p></div>
+<table class="schema-table">
+  <thead><tr><th>Veld</th><th>Type</th><th>V/O</th><th>Omschrijving</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><span class="field-name">deliveryOrderId</span></td>
+      <td><span class="field-type">string (uuid)</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">The deliveryOrderId which was part of the DeliveryOrder request send by the <code>Bestelomgeving leermiddelen</code> to the <code>Aanspraakmanager</code>.</span></td>
+      
+    </tr>    <tr>
+      <td><span class="field-name">contractId</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">An optional unique identifier for a contract between the supplier that is responsible for the <code>Bestelomgeving leermiddelen</code> and the supplier of the learning materials.</span></td>
+      
+    </tr>    <tr>
+      <td><span class="field-name">totalQuantity</span></td>
+      <td><span class="field-type">integer</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">Total quantity as specified in the DeliveryOrder received from the <code>Bestelomgeving leermiddelen</code>.</span></td>
+      
+    </tr>    <tr>
+      <td><span class="field-name">totalCreated</span></td>
+      <td><span class="field-type">integer</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">Total number of entitlements that are created.</span></td>
+      
+    </tr>    <tr>
+      <td><span class="field-name">totalEntitled</span></td>
+      <td><span class="field-type">integer</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">Total number of entitlements that are entitled to users.</span></td>
+      
+    </tr>    <tr>
+      <td><span class="field-name">totalLicensed</span></td>
+      <td><span class="field-type">integer</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">Total number of entitlements that are licensed to users.</span></td>
+      
+    </tr>    <tr>
+      <td><span class="field-name">totalCancelled</span></td>
+      <td><span class="field-type">integer</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">Total number of entitlements that are cancelled for users.</span></td>
+      
+    </tr>    <tr>
+      <td><span class="field-name">totalBlocked</span></td>
+      <td><span class="field-type">integer</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">Total number of entitlements that are blocked for users.</span></td>
+      
+    </tr>    <tr>
+      <td><span class="field-name">entitlements</span></td>
+      <td><span class="field-type">array[Entitlement]</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">An array of all entitlements for this deliveryOrder.</span></td>
+      
+    </tr>
+  </tbody>
+</table>
+
+<h3>EntitlementProduct</h3>
+<div class="description"><p>This object describes the Product information a <code>Leermiddelenportaal</code> can use to display accessUrls to a User.</p></div><div class="toelichting">Een Leermiddelenportaal kan bij de Aanspraakmanager de producten opvragen waar een eindgebruiker een aanspraak op heeft. Dit object bevat alleen informatie over het product, de status van de aanspraak en de datumvelden die van toepassing zijn op de activatie- en gebruiksperiode.</div>
+<table class="schema-table">
+  <thead><tr><th>Veld</th><th>Type</th><th>V/O</th><th>Omschrijving</th><th>Voorbeeld</th><th>Vullingsregel</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><span class="field-name">entitlementId</span></td>
+      <td><span class="field-type">string (uuid)</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc"></span></td>
+      <td><span class="schema-desc"></span></td><td><span class="schema-desc"></span></td>
+    </tr>    <tr>
+      <td><span class="field-name">productId</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">Unique identifier of a Product. The productId can be retrieved from the Catalogue API of supplier of the learning materials.</span></td>
+      <td><span class="schema-desc">8717927130834</span></td><td><span class="schema-desc"></span></td>
+    </tr>    <tr>
+      <td><span class="field-name">entitlementStatus</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">The status of the entitlement.</span><div class="enum-list">enum: <span class="enum-val">created</span> <span class="enum-val">entitled</span> <span class="enum-val">licensed</span> <span class="enum-val">cancelled</span> <span class="enum-val">blocked</span></div></td>
+      <td><span class="schema-desc"></span></td><td><span class="schema-desc">Status wordt toegekend conform de levenscyclus van de Aanspraak.</span></td>
+    </tr>    <tr>
+      <td><span class="field-name">startDate</span></td>
+      <td><span class="field-type">string (date)</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">Date from which the product can be activated by the Entitlee(s). The startDate marks the start of the activation period.  Format: YYYY-MM-DD (according to RFC3339).</span></td>
+      <td><span class="schema-desc">2022-08-01</span></td><td><span class="schema-desc">Waarde mag niet gewijzigd worden.</span></td>
+    </tr>    <tr>
+      <td><span class="field-name">activationUntilDate</span></td>
+      <td><span class="field-type">string (date)</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">Date on which the product can no longer be activated by the Entitlee(s). The activationUntilDate marks the end of the activation period. This does not imply the product can not be used by Licensees who have activated the product during the activation period.  Format: YYYY-MM-DD (according to RFC3339).</span></td>
+      <td><span class="schema-desc">2023-07-31</span></td><td><span class="schema-desc">Waarde mag niet gewijzigd worden.</span></td>
+    </tr>    <tr>
+      <td><span class="field-name">expirationDate</span></td>
+      <td><span class="field-type">string (date)</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">ExpirationDate a <code>Leermiddelenportaal</code> can use to maintain access links to the Product in the Learning Material Lists of Students or Employees. An initially set minExpirationDate is calculated by the <code>Aanspraakmanager</code> based on info from the Product retrieved from the Catalogue API.  If the <code>Aanspraakmanager</code> receives an InitialActivation message regarding this Entitlement from the <code>Licentieregistratie</code> via the Usage API, the expirationDate could be updated. The InitialActivation message could include an updated expirationDate. In that case this new expirationDate overwrites the initially set minExpirationDate. This triggers the process within the <code>Aanspraakmanager</code> to exchange the updated entitlement with the <code>Leermiddelenportaal</code>. The <code>Leermiddelenportaal</code> reports its urlStatus back via newUrlStatus.  Format: YYYY-MM-DD (according to RFC3339).</span></td>
+      <td><span class="schema-desc">2023-07-31</span></td><td><span class="schema-desc">Deze waarde wordt berekend op basis van de informatie over het product uit de catalogus. Voor een jaarlicentie is dit bijvoorbeeld 1 jaar na de startDate. Dit veld is optioneel. Indien het veld leeg is, is er geen einddatum voor het tonen van de toegangslink. De Aanspraakmanager kan via een InitialActivation-bericht een nieuwe expirationDate doorkrijgen uit de Licentieregistratie. In dat geval wordt het plaatsen van de toegangslink door het Leermiddelenportaal opnieuw geïnitieerd door de Aanspraakmanager. Deze nieuwe expirationDate is gelijk aan of ligt verder in de toekomst en overschrijft voor de betreffende gebruiker de eerder berekende minExpirationDate.</span></td>
+    </tr>
+  </tbody>
+</table>
+
+
+<div class="footer">
+  Edu-V &nbsp;|&nbsp; <a href="https://www.edu-v.org/afsprakenstelsel" style="color:#aaa;">www.edu-v.org/afsprakenstelsel</a> &nbsp;|&nbsp; info@edu-v.org
+</div>
+
+</body>
+</html>
