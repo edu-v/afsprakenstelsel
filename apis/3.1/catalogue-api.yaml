@@ -1,7 +1,7 @@
 openapi: 3.1.1
 info:
   title: Catalogue API
-  version: 2.1.0-rc.1
+  version: 2.2.0-rc.1
   description: 'The Catalogue API is implemented by the publisher or reseller of learning materials.
 
 
@@ -53,7 +53,7 @@ components:
 
         '
       type: string
-      default: 2.1.0-rc.1
+      default: 2.2.0-rc.1
     Product:
       title: Product
       description: A product that is available for selection within a `Bestelomgeving leermiddelen`, `Selectieomgeving
@@ -1132,9 +1132,9 @@ components:
       type: object
       properties:
         status:
-          type: string
-          description: "Functional status code, as defined in \"Status- en foutcodes 1.0.0\".\nCodes are\
-            \ 4-character strings; leading zeros are significant.\n\nAlgemeen (00xx) - applies to every\
+          type: integer
+          description: "Functional status code, as defined in \"Status- en foutcodes 1.0.0\".\nCodes are sent as integers without\
+            \ leading zeros (0011 = 11).\n\nAlgemeen (00xx) - applies to every\
             \ API:\n  * `0000` - OK: Bevraging succesvol (HTTP 200).\n  * `0001` - Created: Bericht heeft\
             \ geleid tot registratie van een nieuwe entiteit (HTTP 201).\n  * `0002` - Accepted: Bericht\
             \ geaccepteerd (HTTP 202).\n  * `0011` - Schema incorrect: Schemavalidatie niet succesvol\
@@ -1146,18 +1146,6 @@ components:
             \ (HTTP 400).\n  * `0099` - Overige reden: Vullingsregel: neem in statusMessage een beschrijving\
             \ van de reden op.\n\nCatalogue API (30xx):\n  * `3001` - Product unknown: De identifier van\
             \ het Product is onbekend.\n"
-          enum:
-          - '0000'
-          - '0001'
-          - '0002'
-          - '0011'
-          - '0012'
-          - '0021'
-          - '0022'
-          - '0023'
-          - '0099'
-          - '3001'
-          pattern: ^[0-9]{4}$
         statusMessage:
           type: string
           description: See functional status messages within the Documentation.

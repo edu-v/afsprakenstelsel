@@ -2,7 +2,7 @@
 <html lang="nl">
 <head>
   <meta charset="UTF-8">
-  <title>Catalogue API – Edu-V</title>
+  <title>Catalogue API | Edu-V</title>
   <style>
     body { font-family: Arial, sans-serif; font-size: 13px; margin: 40px; color: #222; background: white; max-width: 1100px; }
     h1 { font-size: 20px; margin-bottom: 4px; color: #1a7a4a; }
@@ -14,7 +14,9 @@
     .status-beta { background: #fef3e2; color: #b7691a; border-color: #f0c090; }
     .status-candidate { background: #e8f0fe; color: #2176c7; border-color: #b0c8f0; }
     .status-draft { background: #f0f0f0; color: #666; border-color: #ccc; }
-    .description { font-size: 12px; color: #444; line-height: 1.6; max-width: 820px; margin-bottom: 24px; white-space: pre-wrap; }
+    .description { font-size: 12px; color: #444; line-height: 1.6; max-width: 820px; margin-bottom: 24px; }
+    .description p, .description ul { margin: 0 0 10px; } .description h4 { font-size: 12px; margin: 14px 0 4px; }
+    .description code, .schema-desc code, .toelichting code { font-family: monospace; background: #f2f2f2; padding: 0 3px; border-radius: 3px; }
 
     /* Metadatatabel */
     .meta-table { width: 100%; border-collapse: collapse; margin-bottom: 24px; font-size: 12px; }
@@ -58,14 +60,14 @@
 <body>
 
 <h1>Catalogue API</h1>
-<div class="meta">Edu-V Afsprakenstelsel &nbsp;|&nbsp; Gegenereerd op 4 November 2026 &nbsp;|&nbsp; Bron: catalogue-api.yaml</div>
+<div class="meta">Edu-V Afsprakenstelsel &nbsp;|&nbsp; Gegenereerd op 19 November 2026 &nbsp;|&nbsp; Bron: catalogue-api.yaml</div>
 <div style="margin-bottom:20px;">
-  <span class="version-badge">v2.1.0-rc.1</span><span class="status-badge status-candidate">Release Candidate</span>
+  <span class="version-badge">v2.2.0-rc.1</span><span class="status-badge status-candidate">Release Candidate</span>
 </div>
 
 <table class="meta-table">
 <tr><td>Status</td><td><span class="status-badge status-candidate">Release Candidate</span></td></tr>
-<tr><td>Versie</td><td>2.1.0-rc.1</td></tr>
+<tr><td>Versie</td><td>2.2.0-rc.1</td></tr>
 <tr><td>Afkorting</td><td>CAT</td></tr>
 <tr><td>Beheer</td><td>Werkgroep Verwerven en in gebruik nemen</td></tr>
 <tr><td>Ingangsdatum</td><td>2027-01-14</td></tr>
@@ -75,47 +77,43 @@
 </table>
 
 <h2>Beschrijving</h2>
-<div class="description">The Catalogue API is implemented by the publisher or reseller of learning materials.
-
-The Catalogue API is the source of Product information and provides GET endpoints to receive the latest state.
-
-Two entities are available to Consumers of the Catalogue API:
-- **Product**: the full set of attributes including metadata, media, licensing, pricing, and payment information, especially useful for the `Overkoepelende leermiddelencatalogus`, `Selectieomgeving leermiddelen`, and `Bestelomgeving leermiddelen`.
-- **ProductInfo**: a smaller subset of attributes focused on displaying the product within a portal, especially useful for the `Leermiddelenportaal` and `Onderwijsleeromgeving`
-
-In a future version the Notifications API can be used to notify Consumers of the Catalogue API whenever a Product changes (new, update or delete).</div>
+<div class="description"><p>The Catalogue API is implemented by the publisher or reseller of learning materials.</p><p>The Catalogue API is the source of Product information and provides GET endpoints to receive the latest state.</p><p>Two entities are available to Consumers of the Catalogue API:</p><ul><li><strong>Product</strong>: the full set of attributes including metadata, media, licensing, pricing, and payment information, especially useful for the <code>Overkoepelende leermiddelencatalogus</code>, <code>Selectieomgeving leermiddelen</code>, and <code>Bestelomgeving leermiddelen</code>.</li><li><strong>ProductInfo</strong>: a smaller subset of attributes focused on displaying the product within a portal, especially useful for the <code>Leermiddelenportaal</code> and <code>Onderwijsleeromgeving</code></li></ul><p>In a future version the Notifications API can be used to notify Consumers of the Catalogue API whenever a Product changes (new, update or delete).</p></div>
 <h2>Endpoints</h2>
 <table class="endpoints-table">
-  <thead><tr><th>Methode</th><th>Pad</th><th>Omschrijving</th><th>Tag</th></tr></thead>
+  <thead><tr><th>Methode</th><th>Pad</th><th>Omschrijving</th><th>Tag</th><th>Foutcodes</th></tr></thead>
   <tbody>
     <tr>
       <td><span class="method method-get">GET</span></td>
       <td><span class="path">/products</span></td>
       <td>Get All Products</td>
       <td style="font-size:10px;color:#888;">Leveranciersspecifieke leermiddelencatalogus</td>
+      <td style="font-size:11px;"></td>
     </tr>    <tr>
       <td><span class="method method-get">GET</span></td>
       <td><span class="path">/products/{id}</span></td>
       <td>Get Product by ID</td>
       <td style="font-size:10px;color:#888;">Leveranciersspecifieke leermiddelencatalogus</td>
+      <td style="font-size:11px;">3001</td>
     </tr>    <tr>
       <td><span class="method method-get">GET</span></td>
       <td><span class="path">/products/info</span></td>
       <td>Get All Products Info for Display In Portal</td>
       <td style="font-size:10px;color:#888;">Leveranciersspecifieke leermiddelencatalogus</td>
+      <td style="font-size:11px;"></td>
     </tr>    <tr>
       <td><span class="method method-get">GET</span></td>
       <td><span class="path">/products/info/{id}</span></td>
       <td>Get Product Info by ID for Display in Portal</td>
       <td style="font-size:10px;color:#888;">Leveranciersspecifieke leermiddelencatalogus</td>
+      <td style="font-size:11px;">3001</td>
     </tr>
   </tbody>
 </table>
 
 <h2>Schemas</h2>
 <h3>Product</h3>
-<p class="description">A product that is available for selection within a `Bestelomgeving leermiddelen`, `Selectieomgeving leermiddelen`, and `Overkoepelende leermiddelencatalogus`. This entity captures all information needed for presentation, selection and optionally sale.</p><div class="toelichting">Een product dat beschikbaar is voor selectie binnen een Bestelomgeving leermiddelen, Selectieomgeving leermiddelen en Overkoepelende leermiddelencatalogus. Dit object bevat alle informatie voor presentatie, selectie en optioneel verkoop.</div>
-<table class="schema-table">
+<div class="description"><p>A product that is available for selection within a <code>Bestelomgeving leermiddelen</code>, <code>Selectieomgeving leermiddelen</code>, and <code>Overkoepelende leermiddelencatalogus</code>. This entity captures all information needed for presentation, selection and optionally sale.</p></div><div class="toelichting">Een product dat beschikbaar is voor selectie binnen een Bestelomgeving leermiddelen, Selectieomgeving leermiddelen en Overkoepelende leermiddelencatalogus. Dit object bevat alle informatie voor presentatie, selectie en optioneel verkoop.</div>
+<div class="toelichting">Indien forSale = true: verplicht: price, paymentModels</div><div class="toelichting">Indien niet (type = physical): verplicht: licensePeriod, activationPeriod</div><div class="toelichting">Indien type = physical: verplicht: physicalInfo</div><table class="schema-table">
   <thead><tr><th>Veld</th><th>Type</th><th>V/O</th><th>Omschrijving</th><th>Vullingsregel</th></tr></thead>
   <tbody>
     <tr>
@@ -128,13 +126,13 @@ In a future version the Notifications API can be used to notify Consumers of the
       <td><span class="field-name">publisher</span></td>
       <td><span class="field-type">string</span></td>
       <td><span class="badge-v">V</span></td>
-      <td><span class="schema-desc">Name of the organisation supplying and providing the product: the `Leermiddelenaanbieder`.</span></td>
+      <td><span class="schema-desc">Name of the organisation supplying and providing the product: the <code>Leermiddelenaanbieder</code>.</span></td>
       <td><span class="schema-desc"></span></td>
     </tr>    <tr>
       <td><span class="field-name">reseller</span></td>
       <td><span class="field-type">string</span></td>
       <td><span class="badge-o">O</span></td>
-      <td><span class="schema-desc">Name of the organisation reselling the product: the `Leermiddelenverkoper`. This field is only mandatory when this Catalogue API is provided by the reseller.</span></td>
+      <td><span class="schema-desc">Name of the organisation reselling the product: the <code>Leermiddelenverkoper</code>. This field is only mandatory when this Catalogue API is provided by the reseller.</span></td>
       <td><span class="schema-desc">Verplicht zodra de Catalogue API wordt aangeboden door een Leermiddelenverkoper.</span></td>
     </tr>    <tr>
       <td><span class="field-name">type</span></td>
@@ -158,13 +156,13 @@ In a future version the Notifications API can be used to notify Consumers of the
       <td><span class="field-name">saleUnitSize</span></td>
       <td><span class="field-type">integer</span></td>
       <td><span class="badge-v">V</span></td>
-      <td><span class="schema-desc">The number of units within this product. For example this value is 5 for a set of five physical books.</span></td>
+      <td><span class="schema-desc">The number of units within this product. For example this value is 5 for a set of five physical books.</span><div class="enum-list">minimum: <span class="enum-val">1</span></div></td>
       <td><span class="schema-desc">Waarde >= 1</span></td>
     </tr>    <tr>
       <td><span class="field-name">isConsumptionProduct</span></td>
       <td><span class="field-type">boolean</span></td>
       <td><span class="badge-o">O</span></td>
-      <td><span class="schema-desc">True if the product is `verbruiksmateriaal`.</span></td>
+      <td><span class="schema-desc">True if the product is <code>verbruiksmateriaal</code>.</span></td>
       <td><span class="schema-desc">Voor digitaal materiaal met licentie voor bepaalde tijd: True. Voor onbepaalde tijd: False.</span></td>
     </tr>    <tr>
       <td><span class="field-name">name</span></td>
@@ -248,7 +246,7 @@ In a future version the Notifications API can be used to notify Consumers of the
       <td><span class="field-name">infoLink</span></td>
       <td><span class="field-type">string</span></td>
       <td><span class="badge-o">O</span></td>
-      <td><span class="schema-desc">URL to the information about the product. Contains the same value as `infoLink` in ProductInfo for the same productId.</span></td>
+      <td><span class="schema-desc">URL to the information about the product. Contains the same value as <code>infoLink</code> in ProductInfo for the same productId.</span></td>
       <td><span class="schema-desc"></span></td>
     </tr>    <tr>
       <td><span class="field-name">trialAccessUrl</span></td>
@@ -272,7 +270,7 @@ In a future version the Notifications API can be used to notify Consumers of the
       <td><span class="field-name">shortDescription</span></td>
       <td><span class="field-type">string</span></td>
       <td><span class="badge-v">V</span></td>
-      <td><span class="schema-desc">Short description for display on search pages or other marketing blocks.</span></td>
+      <td><span class="schema-desc">Short description for display on search pages or other marketing blocks.</span><div class="enum-list">minLength: <span class="enum-val">1</span></div><div class="enum-list">maxLength: <span class="enum-val">80</span></div></td>
       <td><span class="schema-desc">Veld is gevuld en heeft tussen de 1 en 80 karakters.</span></td>
     </tr>    <tr>
       <td><span class="field-name">longDescription</span></td>
@@ -284,7 +282,7 @@ In a future version the Notifications API can be used to notify Consumers of the
       <td><span class="field-name">copyrightType</span></td>
       <td><span class="field-type">string</span></td>
       <td><span class="badge-v">V</span></td>
-      <td><span class="schema-desc">Indicator if copyright is applicable to the Product. The Creative Commons licenses are specified according to the [CreativeCommons version 4.0 specification](https://purl.edustandaard.nl/copyrightsandotherrestrictions_nllom_20131202).' In case, another type of copyright is applicable to the product, the value `yes` is used. If no copyright is applicable to the product, the value `no` is used.</span><div class="enum-list">enum: <span class="enum-val">cc-by-40</span> <span class="enum-val">cc-by-sa-40</span> <span class="enum-val">cc-by-nc-40</span> <span class="enum-val">cc-by-nc-sa-40</span> <span class="enum-val">cc-by-nd-40</span> <span class="enum-val">cc-by-nc-nd-40</span> <span class="enum-val">cc-by-30</span> <span class="enum-val">cc-by-sa-30</span> <span class="enum-val">cc-by-nc-30</span> <span class="enum-val">cc-by-nc-sa-30</span> <span class="enum-val">cc-by-nd-30</span> <span class="enum-val">cc-by-nc-nd-30</span> <span class="enum-val">yes</span> <span class="enum-val">no</span></div></td>
+      <td><span class="schema-desc">Indicator if copyright is applicable to the Product. The Creative Commons licenses are specified according to the <a href="https://purl.edustandaard.nl/copyrightsandotherrestrictions_nllom_20131202" target="_blank">CreativeCommons version 4.0 specification</a>.&#x27; In case, another type of copyright is applicable to the product, the value <code>yes</code> is used. If no copyright is applicable to the product, the value <code>no</code> is used.</span><div class="enum-list">enum: <span class="enum-val">cc-by-40</span> <span class="enum-val">cc-by-sa-40</span> <span class="enum-val">cc-by-nc-40</span> <span class="enum-val">cc-by-nc-sa-40</span> <span class="enum-val">cc-by-nd-40</span> <span class="enum-val">cc-by-nc-nd-40</span> <span class="enum-val">cc-by-30</span> <span class="enum-val">cc-by-sa-30</span> <span class="enum-val">cc-by-nc-30</span> <span class="enum-val">cc-by-nc-sa-30</span> <span class="enum-val">cc-by-nd-30</span> <span class="enum-val">cc-by-nc-nd-30</span> <span class="enum-val">yes</span> <span class="enum-val">no</span></div></td>
       <td><span class="schema-desc">Vulling volgens CreativeCommons v4.0 NL LOM voorschrift. "yes": er zitten auteursrechten op die niet gelijk zijn aan een Creative Commons licentie. "no": geen auteursrechten van toepassing.</span></td>
     </tr>    <tr>
       <td><span class="field-name">authors</span></td>
@@ -320,7 +318,7 @@ In a future version the Notifications API can be used to notify Consumers of the
       <td><span class="field-name">physicalInfo</span></td>
       <td><span class="ref-link">→ Product.physicalInfo</span></td>
       <td><span class="badge-o">O</span></td>
-      <td><span class="schema-desc">Physical characteristics of the product for fulfillment parties, e.g. to determine the shipping box and for return checks. Mandatory field for products of type `physical`. Not used for products of type `digital` and `combi`; the physical parts of a combi product are available as separate products via `bundledProducts`.</span></td>
+      <td><span class="schema-desc">Physical characteristics of the product for fulfillment parties, e.g. to determine the shipping box and for return checks. Mandatory field for products of type <code>physical</code>. Not used for products of type <code>digital</code> and <code>combi</code>; the physical parts of a combi product are available as separate products via <code>bundledProducts</code>.</span></td>
       <td><span class="schema-desc">Verplicht bij type physical.</span></td>
     </tr>    <tr>
       <td><span class="field-name">firstPublishedDate</span></td>
@@ -344,13 +342,13 @@ In a future version the Notifications API can be used to notify Consumers of the
       <td><span class="field-name">supportedUntilDate</span></td>
       <td><span class="field-type">string (date)</span></td>
       <td><span class="badge-o">O</span></td>
-      <td><span class="schema-desc">Date after which the product can no longer be ordered or sold, format: YYYY-MM-DD (according to RFC3339). Mandatory field for the status: `no-longer-available` and `not-available-or-usable`.</span></td>
+      <td><span class="schema-desc">Date after which the product can no longer be ordered or sold, format: YYYY-MM-DD (according to RFC3339). Mandatory field for the status: <code>no-longer-available</code> and <code>not-available-or-usable</code>.</span></td>
       <td><span class="schema-desc">Conform vullingsregels data passend bij status uit levenscyclus van Leermiddel (zie pagina Producten, Aanspraken en Licenties). [OPEN PUNT: zie deprecationDate.]</span></td>
     </tr>    <tr>
       <td><span class="field-name">endOfLifeDate</span></td>
       <td><span class="field-type">string (date)</span></td>
       <td><span class="badge-o">O</span></td>
-      <td><span class="schema-desc">Date after which the product is no longer available, format: YYYY-MM-DD (according to RFC3339). Mandatory field for the status: `no-longer-available` and `not-available-or-usable`.</span></td>
+      <td><span class="schema-desc">Date after which the product is no longer available, format: YYYY-MM-DD (according to RFC3339). Mandatory field for the status: <code>no-longer-available</code> and <code>not-available-or-usable</code>.</span></td>
       <td><span class="schema-desc">Conform vullingsregels data passend bij status uit levenscyclus van Leermiddel (zie pagina Producten, Aanspraken en Licenties). [OPEN PUNT: zie deprecationDate.]</span></td>
     </tr>    <tr>
       <td><span class="field-name">isYearBound</span></td>
@@ -400,7 +398,7 @@ In a future version the Notifications API can be used to notify Consumers of the
       <td><span class="field-name">priceCurrency</span></td>
       <td><span class="field-type">string</span></td>
       <td><span class="badge-v">V</span></td>
-      <td><span class="schema-desc">The applicable currency according to ISO4217 currency codes, see: https://en.wikipedia.org/wiki/ISO_4217.</span><div class="enum-list">default: <span class="enum-val">EUR</span></div></td>
+      <td><span class="schema-desc">The applicable currency according to ISO4217 currency codes, see: https://en.wikipedia.org/wiki/ISO_4217.</span><div class="enum-list">pattern: <span class="enum-val">[A-Z]{3}$</span></div><div class="enum-list">default: <span class="enum-val">EUR</span></div></td>
       <td><span class="schema-desc">Conform ISO 4217 currency codes</span></td>
     </tr>    <tr>
       <td><span class="field-name">validFrom</span></td>
@@ -418,20 +416,20 @@ In a future version the Notifications API can be used to notify Consumers of the
       <td><span class="field-name">schoolSizePricing</span></td>
       <td><span class="field-type">array[SchoolSizePrice]</span></td>
       <td><span class="badge-o">O</span></td>
-      <td><span class="schema-desc">Array of schoolSizePrice objects. Only applicable when priceType is `schoolSize`.</span></td>
+      <td><span class="schema-desc">Array of schoolSizePrice objects. Only applicable when priceType is <code>schoolSize</code>.</span></td>
       <td><span class="schema-desc">Zie object SchoolSizePrice</span></td>
     </tr>    <tr>
       <td><span class="field-name">tierPricing</span></td>
       <td><span class="field-type">array[TierPrice]</span></td>
       <td><span class="badge-o">O</span></td>
-      <td><span class="schema-desc">Array of tierPrice objects. Only applicable when priceType is `tier`.</span></td>
+      <td><span class="schema-desc">Array of tierPrice objects. Only applicable when priceType is <code>tier</code>.</span></td>
       <td><span class="schema-desc">Zie object TierPrice</span></td>
     </tr>
   </tbody>
 </table>
 <h3>Product.licensePeriod</h3>
-<p class="description">Duration of the license period. Mandatory field for digital products</p><div class="toelichting">Duur van de licentieperiode op het product. Verplicht veld voor digitale producten.</div>
-<table class="schema-table">
+<div class="description"><p>Duration of the license period. Mandatory field for digital products</p></div><div class="toelichting">Duur van de licentieperiode op het product. Verplicht veld voor digitale producten.</div>
+<div class="toelichting">Indien licenseVariant = days: verplicht: licenseDays</div><table class="schema-table">
   <thead><tr><th>Veld</th><th>Type</th><th>V/O</th><th>Omschrijving</th><th>Vullingsregel</th></tr></thead>
   <tbody>
     <tr>
@@ -444,14 +442,14 @@ In a future version the Notifications API can be used to notify Consumers of the
       <td><span class="field-name">licenseDays</span></td>
       <td><span class="field-type">integer</span></td>
       <td><span class="badge-o">O</span></td>
-      <td><span class="schema-desc">Number of days. Mandatory field for licenseVariant `days`.</span></td>
+      <td><span class="schema-desc">Number of days. Mandatory field for licenseVariant <code>days</code>.</span></td>
       <td><span class="schema-desc">Verplicht als licenseVariant `days` is gekozen.</span></td>
     </tr>
   </tbody>
 </table>
 <h3>Product.activationPeriod</h3>
-<p class="description">Prescribes the way the activationUntilDate can be calculated.</p><div class="toelichting">Beschrijft de wijze waarop de Leermiddelenshop de activationUntilDate kan berekenen. Verplicht veld voor digitale producten.</div>
-<table class="schema-table">
+<div class="description"><p>Prescribes the way the activationUntilDate can be calculated.</p></div><div class="toelichting">Beschrijft de wijze waarop de Leermiddelenshop de activationUntilDate kan berekenen. Verplicht veld voor digitale producten.</div>
+<div class="toelichting">Indien activationVariant = days: verplicht: activationDays</div><div class="toelichting">Indien activationVariant = date: verplicht: activationUntilDate</div><table class="schema-table">
   <thead><tr><th>Veld</th><th>Type</th><th>V/O</th><th>Omschrijving</th><th>Vullingsregel</th></tr></thead>
   <tbody>
     <tr>
@@ -464,7 +462,7 @@ In a future version the Notifications API can be used to notify Consumers of the
       <td><span class="field-name">activationDays</span></td>
       <td><span class="field-type">integer</span></td>
       <td><span class="badge-o">O</span></td>
-      <td><span class="schema-desc">Number of days. Mandatory field for activationDays `days`.</span></td>
+      <td><span class="schema-desc">Number of days. Mandatory field for activationDays <code>days</code>.</span></td>
       <td><span class="schema-desc">Verplicht als activationVariant `days` is gekozen.</span></td>
     </tr>    <tr>
       <td><span class="field-name">activationUntilDate</span></td>
@@ -542,7 +540,7 @@ In a future version the Notifications API can be used to notify Consumers of the
   </tbody>
 </table>
 <h3>Product.media</h3>
-<p class="description">A collection of media for use in product pages.</p>
+<div class="description"><p>A collection of media for use in product pages.</p></div>
 <table class="schema-table">
   <thead><tr><th>Veld</th><th>Type</th><th>V/O</th><th>Omschrijving</th></tr></thead>
   <tbody>
@@ -586,7 +584,7 @@ In a future version the Notifications API can be used to notify Consumers of the
   </tbody>
 </table>
 <h3>Product.physicalInfo</h3>
-<p class="description">Physical characteristics of the product for fulfillment parties, e.g. to determine the shipping box and for return checks. Mandatory field for products of type `physical`. Not used for products of type `digital` and `combi`; the physical parts of a combi product are available as separate products via `bundledProducts`.</p>
+<div class="description"><p>Physical characteristics of the product for fulfillment parties, e.g. to determine the shipping box and for return checks. Mandatory field for products of type <code>physical</code>. Not used for products of type <code>digital</code> and <code>combi</code>; the physical parts of a combi product are available as separate products via <code>bundledProducts</code>.</p></div>
 <table class="schema-table">
   <thead><tr><th>Veld</th><th>Type</th><th>V/O</th><th>Omschrijving</th></tr></thead>
   <tbody>
@@ -594,7 +592,7 @@ In a future version the Notifications API can be used to notify Consumers of the
       <td><span class="field-name">numberOfPages</span></td>
       <td><span class="field-type">integer</span></td>
       <td><span class="badge-o">O</span></td>
-      <td><span class="schema-desc">Exact number of pages.</span></td>
+      <td><span class="schema-desc">Exact number of pages.</span><div class="enum-list">minimum: <span class="enum-val">1</span></div></td>
       
     </tr>    <tr>
       <td><span class="field-name">dimensions</span></td>
@@ -606,13 +604,13 @@ In a future version the Notifications API can be used to notify Consumers of the
       <td><span class="field-name">weight</span></td>
       <td><span class="field-type">integer</span></td>
       <td><span class="badge-v">V</span></td>
-      <td><span class="schema-desc">Weight in grams.</span></td>
+      <td><span class="schema-desc">Weight in grams.</span><div class="enum-list">minimum: <span class="enum-val">1</span></div></td>
       
     </tr>    <tr>
       <td><span class="field-name">productForm</span></td>
       <td><span class="field-type">string</span></td>
       <td><span class="badge-v">V</span></td>
-      <td><span class="schema-desc">Product form (including binding) of the product. Values according to ONIX codelist 150 Product form, e.g. BB (hardback), BC (paperback / softback), BE (spiral bound), see: https://ns.editeur.org/onix/en/150.</span></td>
+      <td><span class="schema-desc">Product form (including binding) of the product. Values according to ONIX codelist 150 Product form, e.g. BB (hardback), BC (paperback / softback), BE (spiral bound), see: https://ns.editeur.org/onix/en/150.</span><div class="enum-list">pattern: <span class="enum-val">^[A-Z0-9]{2}$</span></div></td>
       
     </tr>    <tr>
       <td><span class="field-name">productFormDetail</span></td>
@@ -624,7 +622,7 @@ In a future version the Notifications API can be used to notify Consumers of the
   </tbody>
 </table>
 <h3>Product.physicalInfo.dimensions</h3>
-<p class="description">Dimensions of the product in millimetres, aligned with ONIX Measure (codelist 48), see: https://ns.editeur.org/onix/en/48.</p>
+<div class="description"><p>Dimensions of the product in millimetres, aligned with ONIX Measure (codelist 48), see: https://ns.editeur.org/onix/en/48.</p></div>
 <table class="schema-table">
   <thead><tr><th>Veld</th><th>Type</th><th>V/O</th><th>Omschrijving</th></tr></thead>
   <tbody>
@@ -632,26 +630,26 @@ In a future version the Notifications API can be used to notify Consumers of the
       <td><span class="field-name">height</span></td>
       <td><span class="field-type">integer</span></td>
       <td><span class="badge-v">V</span></td>
-      <td><span class="schema-desc">Height in mm.</span></td>
+      <td><span class="schema-desc">Height in mm.</span><div class="enum-list">minimum: <span class="enum-val">1</span></div></td>
       
     </tr>    <tr>
       <td><span class="field-name">width</span></td>
       <td><span class="field-type">integer</span></td>
       <td><span class="badge-v">V</span></td>
-      <td><span class="schema-desc">Width in mm.</span></td>
+      <td><span class="schema-desc">Width in mm.</span><div class="enum-list">minimum: <span class="enum-val">1</span></div></td>
       
     </tr>    <tr>
       <td><span class="field-name">thickness</span></td>
       <td><span class="field-type">integer</span></td>
       <td><span class="badge-v">V</span></td>
-      <td><span class="schema-desc">Thickness in mm.</span></td>
+      <td><span class="schema-desc">Thickness in mm.</span><div class="enum-list">minimum: <span class="enum-val">1</span></div></td>
       
     </tr>
   </tbody>
 </table>
 
 <h3>ProductInfo</h3>
-<p class="description">Product info for the `Leermiddelenportaal` and `Onderwijsleeromgeving`. This entity includes name, product lifecycle status and dates, media information, studies and subject metadata and the AccessUrl.</p><div class="toelichting">Product info for the `Leermiddelenportaal` and `Onderwijsleeromgeving`. This entity includes name, product lifecycle status and dates, media information, studies and subject metadata and the AccessUrl.</div>
+<div class="description"><p>Product info for the <code>Leermiddelenportaal</code> and <code>Onderwijsleeromgeving</code>. This entity includes name, product lifecycle status and dates, media information, studies and subject metadata and the AccessUrl.</p></div><div class="toelichting">Product info for the <code>Leermiddelenportaal</code> and <code>Onderwijsleeromgeving</code>. This entity includes name, product lifecycle status and dates, media information, studies and subject metadata and the AccessUrl.</div>
 <table class="schema-table">
   <thead><tr><th>Veld</th><th>Type</th><th>V/O</th><th>Omschrijving</th><th>Vullingsregel</th></tr></thead>
   <tbody>
@@ -665,7 +663,7 @@ In a future version the Notifications API can be used to notify Consumers of the
       <td><span class="field-name">publisher</span></td>
       <td><span class="field-type">string</span></td>
       <td><span class="badge-v">V</span></td>
-      <td><span class="schema-desc">Name of the organisation supplying and providing the product: the `Leermiddelenaanbieder`.</span></td>
+      <td><span class="schema-desc">Name of the organisation supplying and providing the product: the <code>Leermiddelenaanbieder</code>.</span></td>
       <td><span class="schema-desc"></span></td>
     </tr>    <tr>
       <td><span class="field-name">type</span></td>
@@ -713,7 +711,7 @@ In a future version the Notifications API can be used to notify Consumers of the
       <td><span class="field-name">infoLink</span></td>
       <td><span class="field-type">string</span></td>
       <td><span class="badge-o">O</span></td>
-      <td><span class="schema-desc">URL to the information about the product. Contains the same value as `infoLink` in Product for the same productId.</span></td>
+      <td><span class="schema-desc">URL to the information about the product. Contains the same value as <code>infoLink</code> in Product for the same productId.</span></td>
       <td><span class="schema-desc"></span></td>
     </tr>    <tr>
       <td><span class="field-name">trialAccessUrl</span></td>
@@ -773,13 +771,13 @@ In a future version the Notifications API can be used to notify Consumers of the
       <td><span class="field-name">supportedUntilDate</span></td>
       <td><span class="field-type">string (date)</span></td>
       <td><span class="badge-o">O</span></td>
-      <td><span class="schema-desc">Date after which the product can no longer be ordered or sold, format: YYYY-MM-DD (according to RFC3339). Mandatory field for the status: `no-longer-available` and `not-available-or-usable`.</span></td>
+      <td><span class="schema-desc">Date after which the product can no longer be ordered or sold, format: YYYY-MM-DD (according to RFC3339). Mandatory field for the status: <code>no-longer-available</code> and <code>not-available-or-usable</code>.</span></td>
       <td><span class="schema-desc">Conform vullingsregels data passend bij status uit levenscyclus van Leermiddel (zie pagina Producten, Aanspraken en Licenties). [OPEN PUNT: zie deprecationDate.]</span></td>
     </tr>    <tr>
       <td><span class="field-name">endOfLifeDate</span></td>
       <td><span class="field-type">string (date)</span></td>
       <td><span class="badge-o">O</span></td>
-      <td><span class="schema-desc">Date after which the product is no longer available, format: YYYY-MM-DD (according to RFC3339). Mandatory field for the status: `no-longer-available` and `not-available-or-usable`.</span></td>
+      <td><span class="schema-desc">Date after which the product is no longer available, format: YYYY-MM-DD (according to RFC3339). Mandatory field for the status: <code>no-longer-available</code> and <code>not-available-or-usable</code>.</span></td>
       <td><span class="schema-desc">Conform vullingsregels data passend bij status uit levenscyclus van Leermiddel (zie pagina Producten, Aanspraken en Licenties). [OPEN PUNT: zie deprecationDate.]</span></td>
     </tr>    <tr>
       <td><span class="field-name">dateCreated</span></td>
@@ -817,7 +815,7 @@ In a future version the Notifications API can be used to notify Consumers of the
   </tbody>
 </table>
 <h3>ProductInfo.media</h3>
-<p class="description">A collection of media for use in product pages.</p>
+<div class="description"><p>A collection of media for use in product pages.</p></div>
 <table class="schema-table">
   <thead><tr><th>Veld</th><th>Type</th><th>V/O</th><th>Omschrijving</th></tr></thead>
   <tbody>
@@ -838,9 +836,7 @@ In a future version the Notifications API can be used to notify Consumers of the
 </table>
 
 <h3>CourseReference</h3>
-<p class="description">A reference to the content of the products.
-The details of the content can be retrieved via the Course API.
-A product gives access to one or more courses. A course can be referenced by one or more Products.</p>
+<div class="description"><p>A reference to the content of the products.<br>The details of the content can be retrieved via the Course API.<br>A product gives access to one or more courses. A course can be referenced by one or more Products.</p></div>
 <table class="schema-table">
   <thead><tr><th>Veld</th><th>Type</th><th>V/O</th><th>Omschrijving</th><th>Vullingsregel</th></tr></thead>
   <tbody>
@@ -867,7 +863,7 @@ A product gives access to one or more courses. A course can be referenced by one
 </table>
 
 <h3>Study</h3>
-<p class="description">A study where this product is targeted at.</p>
+<div class="description"><p>A study where this product is targeted at.</p></div>
 <table class="schema-table">
   <thead><tr><th>Veld</th><th>Type</th><th>V/O</th><th>Omschrijving</th><th>Vullingsregel</th></tr></thead>
   <tbody>
@@ -875,19 +871,19 @@ A product gives access to one or more courses. A course can be referenced by one
       <td><span class="field-name">studyName</span></td>
       <td><span class="field-type">string</span></td>
       <td><span class="badge-v">V</span></td>
-      <td><span class="schema-desc">Official name of the study. - primary education: the `po-opleidingseenheden in RIO korte naam` name as specified in [Waardenlijsten RIO-po, schooljaar 2026-2027](https://www.edustandaard.nl/standaard_werkgroepen/beheergroep-waardenlijsten-rio/) is used. - secondary education: the `korte naam` as specified in [Waardenlijst Opleidingen en opleidingsgroepen vo, schooljaar 2026-2027, v1.01](https://www.edustandaard.nl/standaard_werkgroepen/beheergroep-waardenlijsten-rio/), tab `Opleidingseenheden (volledig)`, is used. - vocational education: the `kwalificatienaam` as specified in [Register kwalificatiestructuur SBB](https://kwalificatie-mijn.s-bb.nl) is used.</span></td>
+      <td><span class="schema-desc">Official name of the study. - primary education: the <code>po-opleidingseenheden in RIO korte naam</code> name as specified in <a href="https://www.edustandaard.nl/standaard_werkgroepen/beheergroep-waardenlijsten-rio/" target="_blank">Waardenlijsten RIO-po, schooljaar 2026-2027</a> is used. - secondary education: the <code>korte naam</code> as specified in <a href="https://www.edustandaard.nl/standaard_werkgroepen/beheergroep-waardenlijsten-rio/" target="_blank">Waardenlijst Opleidingen en opleidingsgroepen vo, schooljaar 2026-2027, v1.01</a>, tab <code>Opleidingseenheden (volledig)</code>, is used. - vocational education: the <code>kwalificatienaam</code> as specified in <a href="https://kwalificatie-mijn.s-bb.nl" target="_blank">Register kwalificatiestructuur SBB</a> is used.</span></td>
       <td><span class="schema-desc">PO: erkende opleiding conform Waardenlijsten RIO-po 2026-2027. VO: korte naam conform Waardenlijst Opleidingen en opleidingsgroepen vo 2026-2027 v1.01, tabblad Opleidingseenheden (volledig). MBO: kwalificatienaam conform Register kwalificatiestructuur SBB.</span></td>
     </tr>    <tr>
       <td><span class="field-name">studyCode</span></td>
       <td><span class="field-type">string</span></td>
       <td><span class="badge-o">O</span></td>
-      <td><span class="schema-desc">Official code of the study. - primary education: the `opleidingseenheidcode` as specified in [Waardenlijsten RIO-po, schooljaar 2026-2027](https://www.edustandaard.nl/standaard_werkgroepen/beheergroep-waardenlijsten-rio/) is used. - secondary education: the `opleidingseenheidcode` (O-code, format 9999O9999, e.g. 1002O2254) as specified in [Waardenlijst Opleidingen en opleidingsgroepen vo, schooljaar 2026-2027, v1.01](https://www.edustandaard.nl/standaard_werkgroepen/beheergroep-waardenlijsten-rio/), tab `Opleidingseenheden (volledig)`, column A, is used. - vocational education: the `crebocode` as specified in [Register kwalificatiestructuur SBB](https://kwalificatie-mijn.s-bb.nl) is used.</span></td>
+      <td><span class="schema-desc">Official code of the study. - primary education: the <code>opleidingseenheidcode</code> as specified in <a href="https://www.edustandaard.nl/standaard_werkgroepen/beheergroep-waardenlijsten-rio/" target="_blank">Waardenlijsten RIO-po, schooljaar 2026-2027</a> is used. - secondary education: the <code>opleidingseenheidcode</code> (O-code, format 9999O9999, e.g. 1002O2254) as specified in <a href="https://www.edustandaard.nl/standaard_werkgroepen/beheergroep-waardenlijsten-rio/" target="_blank">Waardenlijst Opleidingen en opleidingsgroepen vo, schooljaar 2026-2027, v1.01</a>, tab <code>Opleidingseenheden (volledig)</code>, column A, is used. - vocational education: the <code>crebocode</code> as specified in <a href="https://kwalificatie-mijn.s-bb.nl" target="_blank">Register kwalificatiestructuur SBB</a> is used.</span></td>
       <td><span class="schema-desc">PO: opleidingseenheidcode conform Waardenlijsten RIO-po 2026-2027. VO: opleidingseenheidcode (O-code) conform Waardenlijst Opleidingen en opleidingsgroepen vo 2026-2027 v1.01, tabblad Opleidingseenheden (volledig), kolom A. MBO: crebocode conform Register kwalificatiestructuur SBB.</span></td>
     </tr>    <tr>
       <td><span class="field-name">studyLevels</span></td>
       <td><span class="ref-link">→ array[Study.studyLevels]</span></td>
       <td><span class="badge-o">O</span></td>
-      <td><span class="schema-desc">Official levels of the study. Primary and secondary education studyLevels are based on the `Niveau` as specified in [SLO curriculum 2026](https://opendata.slo.nl/curriculum/2026/api/v1/niveau/) For Vocational Education Edu-V extended this list as documented on [Waardelijst onderwijsniveaus en leerjaren](https://edu-v.atlassian.net/wiki/spaces/AFSPRAKENS/pages/179470347/Waardelijst+onderwijsniveaus+en+leerjaren).</span></td>
+      <td><span class="schema-desc">Official levels of the study. Primary and secondary education studyLevels are based on the <code>Niveau</code> as specified in <a href="https://opendata.slo.nl/curriculum/2026/api/v1/niveau/" target="_blank">SLO curriculum 2026</a> For Vocational Education Edu-V extended this list as documented on <a href="https://edu-v.atlassian.net/wiki/spaces/AFSPRAKENS/pages/179470347/Waardelijst+onderwijsniveaus+en+leerjaren" target="_blank">Waardelijst onderwijsniveaus en leerjaren</a>.</span></td>
       <td><span class="schema-desc"></span></td>
     </tr>
   </tbody>
@@ -901,13 +897,13 @@ A product gives access to one or more courses. A course can be referenced by one
       <td><span class="field-name">studyLevelId</span></td>
       <td><span class="field-type">string</span></td>
       <td><span class="badge-v">V</span></td>
-      <td><span class="schema-desc">The uuid of the level.</span></td>
+      <td><span class="schema-desc">The uuid of the level.</span><div class="enum-list">pattern: <span class="enum-val">^[a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{12}$</span></div></td>
       
     </tr>    <tr>
       <td><span class="field-name">studyLevelPrefix</span></td>
       <td><span class="field-type">string</span></td>
       <td><span class="badge-v">V</span></td>
-      <td><span class="schema-desc">The prefix of the level</span></td>
+      <td><span class="schema-desc">The prefix of the level</span><div class="enum-list">pattern: <span class="enum-val">^[0-9]*$</span></div><div class="enum-list">minLength: <span class="enum-val">4</span></div><div class="enum-list">maxLength: <span class="enum-val">4</span></div></td>
       
     </tr>    <tr>
       <td><span class="field-name">studyLevelName</span></td>
@@ -920,7 +916,7 @@ A product gives access to one or more courses. A course can be referenced by one
 </table>
 
 <h3>Subject</h3>
-<p class="description">A subject where this product is targeted at.</p>
+<div class="description"><p>A subject where this product is targeted at.</p></div>
 <table class="schema-table">
   <thead><tr><th>Veld</th><th>Type</th><th>V/O</th><th>Omschrijving</th><th>Vullingsregel</th></tr></thead>
   <tbody>
@@ -928,13 +924,13 @@ A product gives access to one or more courses. A course can be referenced by one
       <td><span class="field-name">subjectPrefix</span></td>
       <td><span class="field-type">string</span></td>
       <td><span class="badge-v">V</span></td>
-      <td><span class="schema-desc">Prefix of the subject, for primary and secondary education: the `Prefix` as specified in [Waardenlijst Vakken en leergebieden po en vo, schooljaar 2026-2027, v1.01](https://www.edustandaard.nl/standaard_werkgroepen/beheergroep-waardenlijsten-rio/), tab `Leermiddelenketen`, column C. Some prefixes are used for more than one subject; a subject is always identified by subjectPrefix and subjectName.</span></td>
+      <td><span class="schema-desc">Prefix of the subject, for primary and secondary education: the <code>Prefix</code> as specified in <a href="https://www.edustandaard.nl/standaard_werkgroepen/beheergroep-waardenlijsten-rio/" target="_blank">Waardenlijst Vakken en leergebieden po en vo, schooljaar 2026-2027, v1.01</a>, tab <code>Leermiddelenketen</code>, column C. Some prefixes are used for more than one subject; a subject is always identified by subjectPrefix and subjectName.</span></td>
       <td><span class="schema-desc">Prefix (kolom C) conform Waardenlijst Vakken en leergebieden po en vo 2026-2027 v1.01, tabblad Leermiddelenketen (PO/VO). Een vak altijd identificeren met prefix en naam.</span></td>
     </tr>    <tr>
       <td><span class="field-name">subjectName</span></td>
       <td><span class="field-type">string</span></td>
       <td><span class="badge-v">V</span></td>
-      <td><span class="schema-desc">Name of the subject, for primary and secondary education: the `Vaknaam` as specified in [Waardenlijst Vakken en leergebieden po en vo, schooljaar 2026-2027, v1.01](https://www.edustandaard.nl/standaard_werkgroepen/beheergroep-waardenlijsten-rio/), tab `Leermiddelenketen`, column B.</span></td>
+      <td><span class="schema-desc">Name of the subject, for primary and secondary education: the <code>Vaknaam</code> as specified in <a href="https://www.edustandaard.nl/standaard_werkgroepen/beheergroep-waardenlijsten-rio/" target="_blank">Waardenlijst Vakken en leergebieden po en vo, schooljaar 2026-2027, v1.01</a>, tab <code>Leermiddelenketen</code>, column B.</span></td>
       <td><span class="schema-desc">Vaknaam (kolom B) conform Waardenlijst Vakken en leergebieden po en vo 2026-2027 v1.01, tabblad Leermiddelenketen (PO/VO).</span></td>
     </tr>
   </tbody>
@@ -995,7 +991,7 @@ A product gives access to one or more courses. A course can be referenced by one
 </table>
 
 <h3>Media</h3>
-<p class="description">A reference to a media object.</p>
+<div class="description"><p>A reference to a media object.</p></div>
 <table class="schema-table">
   <thead><tr><th>Veld</th><th>Type</th><th>V/O</th><th>Omschrijving</th></tr></thead>
   <tbody>
@@ -1027,16 +1023,27 @@ A product gives access to one or more courses. A course can be referenced by one
   </tbody>
 </table>
 
+<h3>ProductID</h3>
+<p class="description">Een van (anyOf):</p>
+<table class="schema-table">
+  <thead><tr><th>Variant</th><th>Pattern</th><th>Omschrijving</th></tr></thead>
+  <tbody>
+    <tr><td>string</td><td><span class="schema-desc">^[a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{12}$</span></td><td><span class="schema-desc">uuid</span></td></tr>
+    <tr><td>string</td><td><span class="schema-desc">^[0-9]{13}$</span></td><td><span class="schema-desc">isbn</span></td></tr>
+    <tr><td>string</td><td><span class="schema-desc">^[0-9]{13}$</span></td><td><span class="schema-desc">ean</span></td></tr>
+  </tbody>
+</table>
+
 <h3>StatusResponse</h3>
-<p class="description">Functional status code and status message.</p>
+<div class="description"><p>Functional status code and status message.</p></div>
 <table class="schema-table">
   <thead><tr><th>Veld</th><th>Type</th><th>V/O</th><th>Omschrijving</th></tr></thead>
   <tbody>
     <tr>
       <td><span class="field-name">status</span></td>
-      <td><span class="field-type">string</span></td>
+      <td><span class="field-type">integer</span></td>
       <td><span class="badge-v">V</span></td>
-      <td><span class="schema-desc">Functional status code, as defined in "Status- en foutcodes 1.0.0". Codes are 4-character strings; leading zeros are significant.  Algemeen (00xx) - applies to every API:   * `0000` - OK: Bevraging succesvol (HTTP 200).   * `0001` - Created: Bericht heeft geleid tot registratie van een nieuwe entiteit (HTTP 201).   * `0002` - Accepted: Bericht geaccepteerd (HTTP 202).   * `0011` - Schema incorrect: Schemavalidatie niet succesvol (HTTP 400).   * `0012` - schemaVersion not supported: De ontvanger kan de gehanteerde schemaVersion niet verwerken (HTTP 400).   * `0021` - scope required: Leverancier is niet geautoriseerd voor scope (HTTP 401).   * `0022` - consent required: Informatieobject van classificatie IV zonder geactiveerde gegevensdienst (HTTP 403).   * `0023` - school unknown: De client communiceert in de context van een Onderwijsorganisatie die niet bekend is bij de server (HTTP 400).   * `0099` - Overige reden: Vullingsregel: neem in statusMessage een beschrijving van de reden op.  Catalogue API (30xx):   * `3001` - Product unknown: De identifier van het Product is onbekend.</span><div class="enum-list">enum: <span class="enum-val">0000</span> <span class="enum-val">0001</span> <span class="enum-val">0002</span> <span class="enum-val">0011</span> <span class="enum-val">0012</span> <span class="enum-val">0021</span> <span class="enum-val">0022</span> <span class="enum-val">0023</span> <span class="enum-val">0099</span> <span class="enum-val">3001</span></div></td>
+      <td><span class="schema-desc">Functional status code, as defined in &quot;Status- en foutcodes 1.0.0&quot;. Codes are sent as integers without leading zeros (0011 = 11).  Algemeen (00xx) - applies to every API:   * <code>0000</code> - OK: Bevraging succesvol (HTTP 200).   * <code>0001</code> - Created: Bericht heeft geleid tot registratie van een nieuwe entiteit (HTTP 201).   * <code>0002</code> - Accepted: Bericht geaccepteerd (HTTP 202).   * <code>0011</code> - Schema incorrect: Schemavalidatie niet succesvol (HTTP 400).   * <code>0012</code> - schemaVersion not supported: De ontvanger kan de gehanteerde schemaVersion niet verwerken (HTTP 400).   * <code>0021</code> - scope required: Leverancier is niet geautoriseerd voor scope (HTTP 401).   * <code>0022</code> - consent required: Informatieobject van classificatie IV zonder geactiveerde gegevensdienst (HTTP 403).   * <code>0023</code> - school unknown: De client communiceert in de context van een Onderwijsorganisatie die niet bekend is bij de server (HTTP 400).   * <code>0099</code> - Overige reden: Vullingsregel: neem in statusMessage een beschrijving van de reden op.  Catalogue API (30xx):   * <code>3001</code> - Product unknown: De identifier van het Product is onbekend.</span></td>
       
     </tr>    <tr>
       <td><span class="field-name">statusMessage</span></td>
