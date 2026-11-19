@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <title>Delivery API | Edu-V</title>
+  <style>
+    body { font-family: Arial, sans-serif; font-size: 13px; margin: 40px; color: #222; background: white; max-width: 1100px; }
+    h1 { font-size: 20px; margin-bottom: 4px; color: #8B4513; }
+    h2 { font-size: 15px; margin-top: 36px; margin-bottom: 6px; border-bottom: 2px solid #8B4513; padding-bottom: 4px; color: #8B4513; }
+    h3 { font-size: 13px; margin-top: 24px; margin-bottom: 4px; color: #444; }
+    .meta { color: #888; font-size: 11px; margin-bottom: 8px; }
+    .version-badge { display: inline-block; background: #8B4513; color: white; border-radius: 4px; padding: 2px 10px; font-size: 11px; font-weight: bold; margin-bottom: 12px; }
+    .status-badge { display: inline-block; background: #e8f4ea; color: #1a7a4a; border: 1px solid #b0d8b8; border-radius: 3px; padding: 2px 9px; font-size: 11px; font-weight: bold; margin-left: 6px; }
+    .status-beta { background: #fef3e2; color: #b7691a; border-color: #f0c090; }
+    .status-candidate { background: #e8f0fe; color: #2176c7; border-color: #b0c8f0; }
+    .status-draft { background: #f0f0f0; color: #666; border-color: #ccc; }
+    .description { font-size: 12px; color: #444; line-height: 1.6; max-width: 820px; margin-bottom: 24px; }
+    .description p, .description ul { margin: 0 0 10px; } .description h4 { font-size: 12px; margin: 14px 0 4px; }
+    .description code, .schema-desc code, .toelichting code { font-family: monospace; background: #f2f2f2; padding: 0 3px; border-radius: 3px; }
+
+    /* Metadatatabel */
+    .meta-table { width: 100%; border-collapse: collapse; margin-bottom: 24px; font-size: 12px; }
+    .meta-table td { padding: 7px 12px; border: 1px solid #e0e0e0; vertical-align: top; }
+    .meta-table td:first-child { width: 150px; background: #f7f7f7; font-weight: bold; color: #555; }
+    .meta-tag { display: inline-block; background: #f0f0f0; border-radius: 3px; padding: 1px 7px; margin: 2px 2px 2px 0; font-size: 11px; }
+
+    /* Toelichting blok */
+    .toelichting { background-color: #f9f4ee; border-left: 3px solid #8B4513; padding: 9px 13px; margin-bottom: 12px; font-size: 12px; line-height: 1.6; color: #555; }
+
+    /* Endpoints tabel */
+    .endpoints-table { width: 100%; border-collapse: collapse; margin-bottom: 32px; font-size: 12px; }
+    .endpoints-table th { background: #8B4513; color: white; text-align: left; padding: 8px 12px; }
+    .endpoints-table td { padding: 7px 12px; border-bottom: 1px solid #eee; vertical-align: top; }
+    .endpoints-table tr:hover { background: #f9f9f9; }
+    .method { font-weight: bold; font-family: monospace; font-size: 11px; padding: 2px 6px; border-radius: 3px; }
+    .method-put { background: #fef3e2; color: #b7691a; }
+    .method-get { background: #e8f4ea; color: #1a7a4a; }
+    .method-post { background: #e8f0fe; color: #2176c7; }
+    .method-delete { background: #fde8e6; color: #c0392b; }
+    .path { font-family: monospace; font-size: 11px; color: #333; }
+
+    /* Schema veldentabel */
+    .schema-table { width: 100%; border-collapse: collapse; margin-bottom: 28px; font-size: 12px; }
+    .schema-table th { background: #f0f0f0; text-align: left; padding: 7px 10px; border-bottom: 2px solid #ccc; font-size: 11px; }
+    .schema-table td { padding: 6px 10px; border-bottom: 1px solid #eee; vertical-align: top; }
+    .schema-table tr:hover { background: #fafafa; }
+    .field-name { font-family: monospace; font-weight: bold; color: #8B4513; font-size: 11px; }
+    .field-type { font-family: monospace; font-size: 10px; color: #666; }
+    .badge-v { background: #fde8e6; color: #c0392b; font-size: 10px; font-weight: bold; padding: 1px 5px; border-radius: 3px; }
+    .badge-o { background: #e8f0fe; color: #2176c7; font-size: 10px; padding: 1px 5px; border-radius: 3px; }
+    .enum-list { font-family: monospace; font-size: 10px; color: #666; margin-top: 3px; }
+    .enum-val { display: inline-block; background: #f0f0f0; padding: 1px 4px; border-radius: 2px; margin: 1px 2px 1px 0; }
+    .ref-link { font-family: monospace; font-size: 10px; color: #8B4513; }
+    .schema-desc { font-size: 11px; color: #555; line-height: 1.4; }
+
+    /* Contact footer */
+    .footer { margin-top: 48px; font-size: 11px; color: #aaa; border-top: 1px solid #eee; padding-top: 12px; }
+  </style>
+</head>
+<body>
+
+<h1>Delivery API</h1>
+<div class="meta">Edu-V Afsprakenstelsel &nbsp;|&nbsp; Gegenereerd op 19 November 2026 &nbsp;|&nbsp; Bron: delivery-api.yaml</div>
+<div style="margin-bottom:20px;">
+  <span class="version-badge">v2.1.0-rc.1</span><span class="status-badge status-candidate">Release Candidate</span>
+</div>
+
+<table class="meta-table">
+<tr><td>Status</td><td><span class="status-badge status-candidate">Release Candidate</span></td></tr>
+<tr><td>Versie</td><td>2.1.0-rc.1</td></tr>
+<tr><td>Afkorting</td><td>DEL</td></tr>
+<tr><td>Beheer</td><td>Werkgroep Verwerven en in gebruik nemen</td></tr>
+<tr><td>Ingangsdatum</td><td>2027-01-14</td></tr>
+<tr><td>Gegevensdienst</td><td>Leveringsorders</td></tr>
+<tr><td>Bron</td><td><span class="meta-tag">Bestelomgeving leermiddelen</span></td></tr>
+<tr><td>Afnemers</td><td><span class="meta-tag">Leermiddelendashboard</span> <span class="meta-tag">Leermiddelenportaal</span> <span class="meta-tag">Licentieregistratie</span></td></tr>
+</table>
+
+<h2>Beschrijving</h2>
+<div class="description"><p>The Delivery API is implemented by the <code>Bestelomgeving leermiddelen</code> and the <code>Aanspraakmanager</code>.<br>The Delivery API is used to share all the information required for the digital delivery of digital learning materials.<br>The <code>Aanspraakmanager</code> is responsible for this delivery process. The <code>Bestelomgeving leermiddelen</code> gives a DeliveryOrder to the <code>Aanspraakmanager</code>.</p><p>DeliveryOrders are send and received via several asynchronous transactions.<br>Therefore the <code>Aanspraakmanager</code> needs to implement endpoints to receive data.<br>Moreover the <code>Bestelomgeving leermiddelen</code> needs to implement confirmation endpoints to receive confirmations from the <code>Aanspraakmanager</code> that DeliveryOrders have been processed.</p><p>The <code>Bestelomgeving leermiddelen</code> is the source of DeliveryOrder information and provides GET endpoints to receive the latest state.<br>These GET endpoints are available to the <code>Aanspraakmanager</code> and the <code>Licentieregistratie</code> involved in the delivery process.<br>Moreover a school can provide information to a <code>Leermiddelendashboard</code> or a <code>Leermiddelenportaal</code>. A school should give consent for the exchange of information to these two reference components.</p></div>
+<h2>Endpoints</h2>
+<table class="endpoints-table">
+  <thead><tr><th>Methode</th><th>Pad</th><th>Omschrijving</th><th>Tag</th><th>Foutcodes</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><span class="method method-get">GET</span></td>
+      <td><span class="path">/deliveryorders/{id}</span></td>
+      <td>Get DeliveryOrder</td>
+      <td style="font-size:10px;color:#888;">Bestelomgeving leermiddelen</td>
+      <td style="font-size:11px;">4111</td>
+    </tr>    <tr>
+      <td><span class="method method-get">GET</span></td>
+      <td><span class="path">/deliveryorders/school</span></td>
+      <td>Get DeliveryOrders for School</td>
+      <td style="font-size:10px;color:#888;">Bestelomgeving leermiddelen</td>
+      <td style="font-size:11px;">4131, 4132</td>
+    </tr>    <tr>
+      <td><span class="method method-post">POST</span></td>
+      <td><span class="path">/deliveryorders/school/user</span></td>
+      <td>Get DeliveryOrders for User at School</td>
+      <td style="font-size:10px;color:#888;">Bestelomgeving leermiddelen</td>
+      <td style="font-size:11px;">4131, 4132, 4133, 4134</td>
+    </tr>    <tr>
+      <td><span class="method method-get">GET</span></td>
+      <td><span class="path">/deliveryorders/contracts/{id}</span></td>
+      <td>Get DeliveryOrders by Contract</td>
+      <td style="font-size:10px;color:#888;">Bestelomgeving leermiddelen</td>
+      <td style="font-size:11px;">4141</td>
+    </tr>    <tr>
+      <td><span class="method method-put">PUT</span></td>
+      <td><span class="path">/deliveryorders</span></td>
+      <td>Accept DeliveryOrder from Bestelomgeving leermiddelen</td>
+      <td style="font-size:10px;color:#888;">Aanspraakmanager</td>
+      <td style="font-size:11px;">4101, 4103, 4121, 4131, 4133, 4135, 4137, 4139</td>
+    </tr>    <tr>
+      <td><span class="method method-put">PUT</span></td>
+      <td><span class="path">/deliveryorders/confirmations</span></td>
+      <td>Confirm DeliveryOrder to Bestelomgeving leermiddelen</td>
+      <td style="font-size:10px;color:#888;">Bestelomgeving leermiddelen</td>
+      <td style="font-size:11px;">4101, 4102, 4104, 4105, 4111</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2>Schemas</h2>
+<h3>DeliveryOrderRequest</h3>
+<div class="description"><p>A new or updated DeliveryOrder is send from the <code>Bestelomgeving leermiddelen</code> to the <code>Aanspraakmanager</code>.<br>The <code>Aanspraakmanager</code> replies with a DeliveryOrderConfirmation to confirm this message.<br>The DeliveryOrder is always send with its latest status. Many fields cannot be changed after initial &quot;ordered&quot; status. just the state can change or quantity be lowered.<br>The request should always be processed once, the deliveryOrderReferenceId is unique.</p></div><div class="toelichting">Het DeliveryOrderRequest object wordt door de Bestelomgeving leermiddelen verstuurd naar de Aanspraakmanager. In de object is een requestReferenceId opgenomen die wordt bepaald door de Bestelomgeving leermiddelen. Dit stelt de Bestelomgeving leermiddelen in staat om het bevestigingsbericht van de Aanspraakmanager terug te relateren aan het verstuurde DeliveryOrderRequest bericht.</div>
+<table class="schema-table">
+  <thead><tr><th>Veld</th><th>Type</th><th>V/O</th><th>Omschrijving</th><th>Voorbeeld</th><th>Vullingsregel</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><span class="field-name">deliveryOrderReferenceId</span></td>
+      <td><span class="field-type">string (uuid)</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">Unique deliveryOrderReferenceId for this request. This referenceId is used by the Event Mediator of the <code>Bestelomgeving leermiddelen</code> to match the deliveryOrderConfirmation conformation message(s) send by the <code>Aanspraakmanager</code>. If a party receives another request with the same deliveryOrderReferenceId value, the receiving party should not process the event again. It should send the confirmation again.</span></td>
+      <td><span class="schema-desc">eacb81ef-c9d5-4bd8-a624-4088bee04b73</span></td><td><span class="schema-desc">Dit nummer wordt gebruikt door de event mediator om een logboek bij te houden van verzonden en ontvangen meldingen en terugmeldingen met betrekking tot een unieke deliveryOrderId.</span></td>
+    </tr>    <tr>
+      <td><span class="field-name">deliveryOrder</span></td>
+      <td><span class="ref-link">→ DeliveryOrder</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc"></span></td>
+      <td><span class="schema-desc"></span></td><td><span class="schema-desc"></span></td>
+    </tr>
+  </tbody>
+</table>
+
+<h3>DeliveryOrder</h3>
+<div class="description"><p>The core object that expresses information about a product that a Buyer (School or Customer) has ordered at the <code>Bestelomgeving leermiddelen</code>.<br>The DeliveryOrder can include different delivery variants, implying different authorization rules for Students or Employees to activate and license the Product. These include:</p><p>| DeliveryType | Buyer | Authorization rule | Authorization variant |<br>|---|---|---|---|<br>| school-all | School | All students from the School | Open |<br>| school-admin | School | Officials within the educational institution, such as administrative staff or coordinators. | Open |<br>| school-studies | School | All students enrolled in the specified studies | Open |<br>| school-subjects | School | All students enrolled in the specified subjects | Open |<br>| school-groups | School | All students rostered in the specified groups | Open |<br>| school-students | School | All specified students | Individual |<br>| school-employees | School | All specified employees Individual |<br>| school-activationcodes | School | All specified activaton codes | Individual |<br>| customer-student | Customer | The specified student | Individual |<br>| customer-activationcode | Customer | The specified activation code | Individual |</p></div><div class="toelichting">Het object deliveryOrder beschrijft de leveringsorder van een bestelling die bij een Bestelomgeving is geplaatst. Hierbij wordt onderscheid gemaakt tussen de School of de Particulier (Individual) als Besteller. In de leveringsorder wordt de relatie gelegd tussen het product, de Besteller en conform de aanspraakvariant de specificatie van de autorisatieregels. Daarnaast heeft iedere leveringsorder een status. De waarden uit een leveringsorder mogen niet gewijzigd worden (ook niet voor foutcorrecties). Indien de leveringsorder niet correct is dan wordt deze geannuleerd en wordt er een nieuwe leveringsorder gestuurd.</div>
+<table class="schema-table">
+  <thead><tr><th>Veld</th><th>Type</th><th>V/O</th><th>Omschrijving</th><th>Voorbeeld</th><th>Vullingsregel</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><span class="field-name">deliveryOrderId</span></td>
+      <td><span class="field-type">string (uuid)</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">The deliveryOrderId for the DeliveryOrder.</span></td>
+      <td><span class="schema-desc"></span></td><td><span class="schema-desc">Waarde mag niet gewijzigd worden</span></td>
+    </tr>    <tr>
+      <td><span class="field-name">contractId</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">An optional unique identifier for a contract between the supplier that is responsible for the <code>Bestelomgeving leermiddelen</code> and the supplier of the learning materials. The DeliveryOrder should be handled according to the business rules of the contract.</span></td>
+      <td><span class="schema-desc">2022-12-v1</span></td><td><span class="schema-desc">Waarde mag niet gewijzigd worden.</span></td>
+    </tr>    <tr>
+      <td><span class="field-name">buyer</span></td>
+      <td><span class="ref-link">→ Buyer</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc"></span></td>
+      <td><span class="schema-desc"></span></td><td><span class="schema-desc">Waarde mag niet gewijzigd worden. Betreft een verwijzing naar een onderwijsorganisatie of een particulier.</span></td>
+    </tr>    <tr>
+      <td><span class="field-name">productId</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">Unique identifier of a Product. The productId can be retrieved from the Catalogue API of supplier of the learning materials.</span></td>
+      <td><span class="schema-desc">8717927130834</span></td><td><span class="schema-desc">Een leveringsorder verwijst naar exact 1 Product-Beschrijving Waarde mag niet gewijzigd worden</span></td>
+    </tr>    <tr>
+      <td><span class="field-name">deliveryType</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">The delivery type specifies the variant of the authorization rule an <code>Aanspraakmanager</code> should apply to manage activation and licensing of the Product.</span><div class="enum-list">enum: <span class="enum-val">school-all</span> <span class="enum-val">school-admin</span> <span class="enum-val">school-studies</span> <span class="enum-val">school-subjects</span> <span class="enum-val">school-groups</span> <span class="enum-val">school-students</span> <span class="enum-val">school-employees</span> <span class="enum-val">school-activationcodes</span> <span class="enum-val">customer-user</span> <span class="enum-val">customer-activatoncode</span></div></td>
+      <td><span class="schema-desc"></span></td><td><span class="schema-desc">Waarde mag niet gewijzigd worden.</span></td>
+    </tr>    <tr>
+      <td><span class="field-name">deliverySpecification</span></td>
+      <td><span class="ref-link">→ DeliverySpecification</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc"></span></td>
+      <td><span class="schema-desc"></span></td><td><span class="schema-desc">deliverySpecification is afhankelijk van de gekozen levervariant. Waarde mag niet gewijzigd worden.</span></td>
+    </tr>    <tr>
+      <td><span class="field-name">portals</span></td>
+      <td><span class="field-type">array[string]</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc"><code>Leermiddelenportaal</code> applications where the accessUrl needs to be processed.</span></td>
+      <td><span class="schema-desc"></span></td><td><span class="schema-desc"></span></td>
+    </tr>    <tr>
+      <td><span class="field-name">startDate</span></td>
+      <td><span class="field-type">string (date)</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">Date from which the product can be activated by the Users. The startDate marks the start of the activation period.  Format: YYYY-MM-DD (according to RFC3339).</span></td>
+      <td><span class="schema-desc">2022-08-01</span></td><td><span class="schema-desc">Waarde mag niet gewijzigd worden</span></td>
+    </tr>    <tr>
+      <td><span class="field-name">activationUntilDate</span></td>
+      <td><span class="field-type">string (date)</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">Date on which the product can no longer be activated by the Users. The activationUntilDate marks the end of the activation period. This does not imply the product can not be used by Licensees who have activated the product during the activation period.  Format: YYYY-MM-DD (according to RFC3339).</span></td>
+      <td><span class="schema-desc">2023-07-31</span></td><td><span class="schema-desc">Waarde mag niet gewijzigd worden</span></td>
+    </tr>    <tr>
+      <td><span class="field-name">endDate</span></td>
+      <td><span class="field-type">string (date)</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">Date this DeliveryOrder was cancelled. Mandatory field when the status changes to <code>cancelled</code>.  Format: YYYY-MM-DD (according to RFC3339).</span></td>
+      <td><span class="schema-desc">2022-09-28</span></td><td><span class="schema-desc">De endDate wordt gevuld zodra de status wijzigt naar Cancelled. Waarde mag niet gewijzigd worden</span></td>
+    </tr>    <tr>
+      <td><span class="field-name">status</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">The status of the deliveryOrder. - Ordered: the delivery order is send to the <code>Aanspraakmanager</code> - Processed: the delivery order is processed by the <code>Aanspraakmanager</code> - Licensed: the product has been activated by at least one user. - Cancelled: the delivery order is cancelled by the <code>Bestelomgeving leermiddelen</code></span><div class="enum-list">enum: <span class="enum-val">created</span> <span class="enum-val">ordered</span> <span class="enum-val">processed</span> <span class="enum-val">licensed</span> <span class="enum-val">cancelled</span></div><div class="enum-list">default: <span class="enum-val">created</span></div></td>
+      <td><span class="schema-desc"></span></td><td><span class="schema-desc">Status wordt toegekend conform de levenscyclus van de leveringsorder en het bijbehorende proces.</span></td>
+    </tr>    <tr>
+      <td><span class="field-name">dateCreated</span></td>
+      <td><span class="field-type">string (date-time)</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">Indicates the date and time the object was first created. Format: Conform openapi in ZULU time zoals gespecificeerd in RFC 3339, section 5.6.</span></td>
+      <td><span class="schema-desc"></span></td><td><span class="schema-desc"></span></td>
+    </tr>    <tr>
+      <td><span class="field-name">dateLastModified</span></td>
+      <td><span class="field-type">string (date-time)</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">Indicates the date and time the object was last modified. Format: Conform openapi in ZULU time zoals gespecificeerd in RFC 3339, section 5.6.</span></td>
+      <td><span class="schema-desc"></span></td><td><span class="schema-desc"></span></td>
+    </tr>
+  </tbody>
+</table>
+
+<h3>DeliveryOrderConfirmation</h3>
+<div class="description"><p>The confirmation that is send back when the <code>Bestelomgeving leermiddelen</code> sends a DeliveryOrderRequest message to the <code>Aanspraakmanager</code>.</p><p>The deliveryOrderReferenceId, deliveryOrderId are echoed back to the <code>Bestelomgeving leermiddelen</code>, with a new deliveryOrderReceiveId.</p><p>Requests are only handled once. If a request with a similar deliveryOrderReferenceId is received, the processing is only done the first time.<br>The confirmation may be send multiple times, but always with the same deliveryOrderReceiveId. In this way the <code>Bestelomgeving leermiddelen</code> can validate that the response is processed only once.</p><p>Functional status codes and messages are described in the Documentation.</p></div><div class="toelichting">Een Aanspraakmanager reageert op een DeliveryOrderRequest bericht met een DeliveryOrderConfirmation bevestigingsbericht. In dit bevestigingsbericht wordt de requestReferenceId die door de Bestelomgeving leermiddelen is aangemaakt opgenomen. In aanvulling hierop wordt optioneel de informatie uit de delivery order ook bevestigd. Door een tijdstempel op te nemen kan dit bevestigingsbericht worden gezien als een formele afspraak tussen beide leveranciers.
+
+De Aanspraakmanager verstuurt voor iedere stap die is uitgevoerd een nieuwe DeliveryOrderConfirmation naar de Bestelomgeving leermiddelen. In deze reeks van berichten wijzigt de status van orderen naar entitled naar provisioned naar link-ready en licensed. Indien tussentijds de DeliveryOrder wordt geannuleerd of geblokkeerd dan verandert de status naar respectievelijk cancelled en blocked.</div>
+<table class="schema-table">
+  <thead><tr><th>Veld</th><th>Type</th><th>V/O</th><th>Omschrijving</th><th>Voorbeeld</th><th>Vullingsregel</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><span class="field-name">deliveryOrderReferenceId</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">The deliveryOrderReferenceId that was send by the <code>Bestelomgeving leermiddelen</code> as part of the DeliveryOrder request</span></td>
+      <td><span class="schema-desc">eacb81ef-c9d5-4bd8-a624-4088bee04b73</span></td><td><span class="schema-desc"></span></td>
+    </tr>    <tr>
+      <td><span class="field-name">deliveryOrderReceiveId</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">A reference to this confirmation message send by the <code>Aanspraakmanager</code> to the <code>Bestelomgeving leermiddelen</code>.</span></td>
+      <td><span class="schema-desc">3437e98f-855d-4f29-9092-7ba311228920</span></td><td><span class="schema-desc"></span></td>
+    </tr>    <tr>
+      <td><span class="field-name">deliveryOrderId</span></td>
+      <td><span class="field-type">string (uuid)</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">The deliveryOrderId which was part of the DeliveryOrder request send by the <code>Bestelomgeving leermiddelen</code>.</span></td>
+      <td><span class="schema-desc">24e39454-5360-4ba4-819f-03e59b8dd679</span></td><td><span class="schema-desc"></span></td>
+    </tr>    <tr>
+      <td><span class="field-name">productId</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">The productId which was part of the DeliveryOrder request send by the <code>Bestelomgeving leermiddelen</code></span></td>
+      <td><span class="schema-desc">8717927130834</span></td><td><span class="schema-desc"></span></td>
+    </tr>    <tr>
+      <td><span class="field-name">processedTimestamp</span></td>
+      <td><span class="field-type">string (date-time)</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">The moment that the DeliveryOrder request was processed by the <code>Aanspraakmanager</code> and the change became effective. As requests and confirmation messages are send asynchronous, this is not the moment the confirmation message was send by the <code>Aanspraakmanager</code> to the <code>Bestelomgeving leermiddelen</code>.  Format: Conform openapi in ZULU time as specified in RFC 3339, section 5.6</span></td>
+      <td><span class="schema-desc"></span></td><td><span class="schema-desc"></span></td>
+    </tr>    <tr>
+      <td><span class="field-name">newStatus</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">Confirmation of the next proposed status.  Example: as a reply to a ordered status in a DeliveryOrder Event, the <code>Aanspraakmanager</code> can reply with a processed status to the <code>Bestelomgeving leermiddelen</code>.</span><div class="enum-list">enum: <span class="enum-val">ordered</span> <span class="enum-val">processed</span> <span class="enum-val">licensed</span> <span class="enum-val">cancelled</span></div></td>
+      <td><span class="schema-desc"></span></td><td><span class="schema-desc">De status wordt gekozen afhankelijk van de stap in het leverproces.</span></td>
+    </tr>    <tr>
+      <td><span class="field-name">newTotalQuantity</span></td>
+      <td><span class="field-type">integer</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc"><code>Aanspraakmanager</code> can confirm the new total quantity, as provided in the DeliveryOrder request by the <code>Bestelomgeving leermiddelen</code> to the <code>Aanspraakmanager</code>.</span></td>
+      <td><span class="schema-desc">90</span></td><td><span class="schema-desc">Deze waarde wordt door de Aanspraakmanager gevuld indien de waarde van de leveringsorder is gewijzigd door de Bestelomgeving leermiddelen.</span></td>
+    </tr>    <tr>
+      <td><span class="field-name">success</span></td>
+      <td><span class="field-type">boolean</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">Boolean indicating the DeliveryOrder request was processed successfully. When the <code>Aanspraakmanager</code> disagrees with a certain change (e.g. status cancelled) a false will be returned, along with a status code and a status message.</span></td>
+      <td><span class="schema-desc"></span></td><td><span class="schema-desc">False indien de Ontvanger niet akkoord is of er een fout is opgetreden.</span></td>
+    </tr>    <tr>
+      <td><span class="field-name">status</span></td>
+      <td><span class="field-type">integer</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">Functional status code, as defined in &quot;Status- en foutcodes 1.0.0&quot;. Codes are sent as integers without leading zeros (0011 = 11).  Algemeen (00xx) - applies to every API:   * <code>0000</code> - OK: Bevraging succesvol (HTTP 200).   * <code>0001</code> - Created: Bericht heeft geleid tot registratie van een nieuwe entiteit (HTTP 201).   * <code>0002</code> - Accepted: Bericht geaccepteerd (HTTP 202).   * <code>0011</code> - Schema incorrect: Schemavalidatie niet succesvol (HTTP 400).   * <code>0012</code> - schemaVersion not supported: De ontvanger kan de gehanteerde schemaVersion niet verwerken (HTTP 400).   * <code>0021</code> - scope required: Leverancier is niet geautoriseerd voor scope (HTTP 401).   * <code>0022</code> - consent required: Informatieobject van classificatie IV zonder geactiveerde gegevensdienst (HTTP 403).   * <code>0023</code> - school unknown: De client communiceert in de context van een Onderwijsorganisatie die niet bekend is bij de server (HTTP 400).   * <code>0099</code> - Overige reden: Vullingsregel: neem in statusMessage een beschrijving van de reden op.  Delivery API (41xx):   * <code>4101</code> - deliveryOrderReferenceId missing: Het deliveryOrderReferenceId ontbreekt.   * <code>4102</code> - deliveryOrderReferenceId unknown: Het deliveryOrderReferenceId is onbekend.   * <code>4103</code> - deliveryOrderReferenceId already used: Het deliveryOrderReferenceId is al eerder gebruikt.   * <code>4104</code> - deliveryOrderReceiveId missing: Het deliveryOrderReceiveId ontbreekt.   * <code>4105</code> - deliveryOrderReceiveId already used: Het deliveryOrderReceiveId is al eerder gebruikt.   * <code>4111</code> - deliveryOrderId unknown: Het deliveryOrderId is onbekend.   * <code>4121</code> - productId missing: Specificatie van Product ontbreekt   * <code>4122</code> - productId unknown: Gespecificeerd Product onbekend bij Ontvanger   * <code>4123</code> - Product not yet for sale: Gespecificeerd Product is nog niet in de verkoop   * <code>4124</code> - Product not available: Gespecificeerd Product is niet beschikbaar.   * <code>4125</code> - Product no longer for sale: Gespecificeerd Product is niet langer in de verkoop   * <code>4131</code> - School missing: Onderwijsorganisatie is niet gespecificeerd   * <code>4132</code> - School unknown: Gespecificeerde Onderwijsorganisatie is niet bekend bij Ontvanger   * <code>4133</code> - User missing: Specificatie van entitlees of activatiecodes niet volledig   * <code>4134</code> - User unknown: Gespecificeerde entitlees zijn niet bekend bij Ontvanger   * <code>4135</code> - StudyYears missing: Specificatie van opleidingsjaren ontbreekt   * <code>4136</code> - StudyYears unknown: Gespecificeerde opleidingsjaren zijn niet bekend bij Ontvanger   * <code>4137</code> - Subjects missing: Specificatie van vakken ontbreekt   * <code>4138</code> - Subjects unknown: Gespecificeerde vakken zijn niet bekend bij Ontvanger   * <code>4139</code> - Groups missing: Specificatie van groepen ontbreekt   * <code>4140</code> - Groups unknown: Gespecificeerde groepen zijn niet bekend bij Ontvanger   * <code>4141</code> - contractId unknown: Gespecificeerd contractId is onbekend bij de ontvangende Licentieregistratie   * <code>4142</code> - Contract restrictions: Bericht niet toegestaan als gevolg van contractuele afspraken tussen de leverancier van het leermiddel en de leverancier die de verwerving faciliteert.   * <code>4151</code> - startDate before firstPublishedDate: Gespecificeerde startdatum van de activatieperiode ligt voor de datum dat het product op de markt verschijnt   * <code>4152</code> - Quantity at least 1: Het gespecificeerde aantal voor open School aanspraken is minimaal 1   * <code>4153</code> - newAmount is not allowed: lager te zijn dan het huidige aantal of hoger te zijn dan het aantal geactiveerde licenties   * <code>4161</code> - DeliveryOrder is licensed: Indien een Bestelomgeving leermiddelen een leveringsorder wil annuleren dan mag er geen licentie geregistreerd zijn op een aanspraak van de leveringsorder   * <code>4171</code> - activationCode unknown: Gespecificeerde activatiecode is onbekend bij de ontvangende Licentieregistratie   * <code>4172</code> - activationCode already used: Gespecificeerde activatiecode is reeds gebruikt voor een aanspraak   * <code>4173</code> - activationCode revoked: Gespecificeerde activatiecode is ingetrokken</span></td>
+      <td><span class="schema-desc"></span></td><td><span class="schema-desc">Zie status en foutcodes</span></td>
+    </tr>    <tr>
+      <td><span class="field-name">statusMessage</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">See functional status messages within the Documentation.</span></td>
+      <td><span class="schema-desc"></span></td><td><span class="schema-desc">Zie status en foutcodes</span></td>
+    </tr>
+  </tbody>
+</table>
+
+<h3>Buyer</h3>
+<div class="description"><p>A school organisation or a B2C customer that acquired the product.</p></div><div class="toelichting">Het object Buyer bevat informatie over de Besteller van de leermiddelen. In het Edu-V afsprakenstelsel hanteren we twee bestellers: onderwijsorganisaties en particulieren. Het object wordt dan ook gevuld met een referentie naar een onderwijsorganisatie of een particulier.
+
+De referentie naar een onderwijsorganisatie is uniform gespecificeerd voor alle APIs en terug te vinden op de pagina Technische specificatie digitale identiteiten – referentie onderwijsorganisatie.
+
+De referentie naar een particulier is uitgewerkt in onderstaande tabel.</div><p class="description">Een van (oneOf):</p>
+<table class="schema-table">
+  <thead><tr><th>Variant</th><th>Pattern</th><th>Omschrijving</th></tr></thead>
+  <tbody>
+    <tr><td>SchoolReference</td><td><span class="schema-desc"></span></td><td><span class="schema-desc"></span></td></tr>
+    <tr><td>CustomerReference</td><td><span class="schema-desc"></span></td><td><span class="schema-desc"></span></td></tr>
+  </tbody>
+</table>
+
+<h3>SchoolReference</h3>
+<div class="description"><p>A reference to a School organisation.</p></div>
+<div class="toelichting">Indien organisationMasterIdentifier gevuld: niet toegestaan: organisationIds; anders verplicht: organisationIds</div><table class="schema-table">
+  <thead><tr><th>Veld</th><th>Type</th><th>V/O</th><th>Omschrijving</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><span class="field-name">organisationMasterIdentifier</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">The primary identifier for a School. For Schools the <code>OnderwijsaanbiederId</code> is used. (exactly one of organisationMasterIdentifier or organisationIds must be present)</span></td>
+      
+    </tr>    <tr>
+      <td><span class="field-name">organisationIds</span></td>
+      <td><span class="ref-link">→ array[SchoolReference.organisationIds]</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">A secondary identifier for the School. This value is used whenever the primary identifier is not available. (exactly one of organisationMasterIdentifier or organisationIds must be present)</span></td>
+      
+    </tr>
+  </tbody>
+</table>
+<h3>SchoolReference.organisationIds</h3>
+
+<table class="schema-table">
+  <thead><tr><th>Veld</th><th>Type</th><th>V/O</th><th>Omschrijving</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><span class="field-name">organisationId</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc"></span></td>
+      
+    </tr>    <tr>
+      <td><span class="field-name">organisationIdType</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc"></span><div class="enum-list">enum: <span class="enum-val">OIE_CODE</span> <span class="enum-val">BP_ID</span> <span class="enum-val">DD_ID</span> <span class="enum-val">AS_ID</span></div></td>
+      
+    </tr>
+  </tbody>
+</table>
+
+<h3>CustomerReference</h3>
+<div class="description"><p>Information about a B2C Customer who acquired the product.</p></div>
+<table class="schema-table">
+  <thead><tr><th>Veld</th><th>Type</th><th>V/O</th><th>Omschrijving</th><th>Voorbeeld</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><span class="field-name">displayName</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">The name of the Customer.</span></td>
+      <td><span class="schema-desc">Jan Janssen</span></td>
+    </tr>    <tr>
+      <td><span class="field-name">email</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">The email address of the Customer.</span></td>
+      <td><span class="schema-desc">jan@janssen.nl</span></td>
+    </tr>
+  </tbody>
+</table>
+
+<h3>DeliverySpecification</h3>
+<div class="description"><p>The specification an <code>Aanspraakmanager</code> can use to create entitlements. The specification applies to the the deliveryType.</p></div><p class="description">Een van (oneOf):</p>
+<table class="schema-table">
+  <thead><tr><th>Variant</th><th>Pattern</th><th>Omschrijving</th></tr></thead>
+  <tbody>
+    <tr><td>SchoolAllSpecification</td><td><span class="schema-desc"></span></td><td><span class="schema-desc"></span></td></tr>
+    <tr><td>SchoolAdminSpecification</td><td><span class="schema-desc"></span></td><td><span class="schema-desc"></span></td></tr>
+    <tr><td>SchoolStudiesSpecification</td><td><span class="schema-desc"></span></td><td><span class="schema-desc"></span></td></tr>
+    <tr><td>SchoolSubjectsSpecification</td><td><span class="schema-desc"></span></td><td><span class="schema-desc"></span></td></tr>
+    <tr><td>SchoolGroupsSpecification</td><td><span class="schema-desc"></span></td><td><span class="schema-desc"></span></td></tr>
+    <tr><td>SchoolStudentsSpecification</td><td><span class="schema-desc"></span></td><td><span class="schema-desc"></span></td></tr>
+    <tr><td>SchoolEmployeesSpecification</td><td><span class="schema-desc"></span></td><td><span class="schema-desc"></span></td></tr>
+    <tr><td>SchoolActivationCodesSpecification</td><td><span class="schema-desc"></span></td><td><span class="schema-desc"></span></td></tr>
+    <tr><td>CustomerStudentSpecification</td><td><span class="schema-desc"></span></td><td><span class="schema-desc"></span></td></tr>
+    <tr><td>CustomerActivationCodeSpecification</td><td><span class="schema-desc"></span></td><td><span class="schema-desc"></span></td></tr>
+  </tbody>
+</table>
+
+<h3>SchoolAllSpecification</h3>
+<div class="description"><p>The product is bought by a school organisation and all students from the school are allowed to activate and license the product.</p></div>
+<table class="schema-table">
+  <thead><tr><th>Veld</th><th>Type</th><th>V/O</th><th>Omschrijving</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><span class="field-name">school</span></td>
+      <td><span class="ref-link">→ SchoolReference</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc"></span></td>
+      
+    </tr>    <tr>
+      <td><span class="field-name">totalQuantity</span></td>
+      <td><span class="field-type">integer</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">Total quantity for this DeliveryOrder.</span></td>
+      
+    </tr>
+  </tbody>
+</table>
+
+<h3>SchoolAdminSpecification</h3>
+<div class="description"><p>The product is purchased by a school organisation, and distribution will be carried out by officials within the educational institution, such as administrative staff or coordinators.</p></div>
+<table class="schema-table">
+  <thead><tr><th>Veld</th><th>Type</th><th>V/O</th><th>Omschrijving</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><span class="field-name">school</span></td>
+      <td><span class="ref-link">→ SchoolReference</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc"></span></td>
+      
+    </tr>    <tr>
+      <td><span class="field-name">totalQuantity</span></td>
+      <td><span class="field-type">integer</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">Total quantity for this DeliveryOrder.</span></td>
+      
+    </tr>
+  </tbody>
+</table>
+
+<h3>SchoolStudiesSpecification</h3>
+<div class="description"><p>The product is bought by a school organisation and all students enrolled in the specified studies are allowed to activate and license the product.</p></div>
+<table class="schema-table">
+  <thead><tr><th>Veld</th><th>Type</th><th>V/O</th><th>Omschrijving</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><span class="field-name">school</span></td>
+      <td><span class="ref-link">→ SchoolReference</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc"></span></td>
+      
+    </tr>    <tr>
+      <td><span class="field-name">studyYears</span></td>
+      <td><span class="ref-link">→ array[SchoolStudiesSpecification.studyYears]</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">The identifiers of the StudyYear objects which are provisioned by the SIS API.</span></td>
+      
+    </tr>    <tr>
+      <td><span class="field-name">totalQuantity</span></td>
+      <td><span class="field-type">integer</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">Total quantity for this DeliveryOrder.</span></td>
+      
+    </tr>
+  </tbody>
+</table>
+<h3>SchoolStudiesSpecification.studyYears</h3>
+
+<table class="schema-table">
+  <thead><tr><th>Veld</th><th>Type</th><th>V/O</th><th>Omschrijving</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><span class="field-name">studyYearId</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">Unique identifier for a StudyYear offered by the School. Value can be retrieved from the SIS API.</span></td>
+      
+    </tr>    <tr>
+      <td><span class="field-name">quantity</span></td>
+      <td><span class="field-type">integer</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">Optional quantity selected or purchased for this study. The sum of all specified quantities equals the total quantity for this DeliveryOrder.</span></td>
+      
+    </tr>
+  </tbody>
+</table>
+
+<h3>SchoolSubjectsSpecification</h3>
+<div class="description"><p>The product is bought by a school organisation and all students enrolled in the specified subjects are allowed to activate and license the product.</p></div>
+<table class="schema-table">
+  <thead><tr><th>Veld</th><th>Type</th><th>V/O</th><th>Omschrijving</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><span class="field-name">school</span></td>
+      <td><span class="ref-link">→ SchoolReference</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc"></span></td>
+      
+    </tr>    <tr>
+      <td><span class="field-name">subjects</span></td>
+      <td><span class="ref-link">→ array[SchoolSubjectsSpecification.subjects]</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">The identifiers of the Subject objects which are provisioned by the SIS API.</span></td>
+      
+    </tr>    <tr>
+      <td><span class="field-name">totalQuantity</span></td>
+      <td><span class="field-type">integer</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">Total quantity for this DeliveryOrder.</span></td>
+      
+    </tr>
+  </tbody>
+</table>
+<h3>SchoolSubjectsSpecification.subjects</h3>
+
+<table class="schema-table">
+  <thead><tr><th>Veld</th><th>Type</th><th>V/O</th><th>Omschrijving</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><span class="field-name">subjectId</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">Unique identifier for a Subject offered by the School. Value can be retrieved from the SIS API.</span></td>
+      
+    </tr>    <tr>
+      <td><span class="field-name">quantity</span></td>
+      <td><span class="field-type">integer</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">Optional quantity selected or purchased for this subject. The sum of all specified quantities equals the total quantity for this DeliveryOrder.</span></td>
+      
+    </tr>
+  </tbody>
+</table>
+
+<h3>SchoolGroupsSpecification</h3>
+<div class="description"><p>The product is bought by a school organisation and all students rostered in the specified groups are allowed to activate and license the product.</p></div>
+<table class="schema-table">
+  <thead><tr><th>Veld</th><th>Type</th><th>V/O</th><th>Omschrijving</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><span class="field-name">school</span></td>
+      <td><span class="ref-link">→ SchoolReference</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc"></span></td>
+      
+    </tr>    <tr>
+      <td><span class="field-name">groups</span></td>
+      <td><span class="ref-link">→ array[SchoolGroupsSpecification.groups]</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">The identifiers of the Group objects which are provisioned by the SIS API.</span></td>
+      
+    </tr>    <tr>
+      <td><span class="field-name">totalQuantity</span></td>
+      <td><span class="field-type">integer</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">Total quantity for this DeliveryOrder.</span></td>
+      
+    </tr>
+  </tbody>
+</table>
+<h3>SchoolGroupsSpecification.groups</h3>
+
+<table class="schema-table">
+  <thead><tr><th>Veld</th><th>Type</th><th>V/O</th><th>Omschrijving</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><span class="field-name">groupId</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">Unique identifier for a Group offered by the School. Value can be retrieved from the SIS API.</span></td>
+      
+    </tr>    <tr>
+      <td><span class="field-name">quantity</span></td>
+      <td><span class="field-type">integer</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">Optional quantity selected or purchased for this group. The sum of all specified quantities equals the total quantity for this DeliveryOrder.</span></td>
+      
+    </tr>
+  </tbody>
+</table>
+
+<h3>SchoolStudentsSpecification</h3>
+<div class="description"><p>The product is bought by a school organisation and all specified students are allowed to activate and license the product.</p></div>
+<table class="schema-table">
+  <thead><tr><th>Veld</th><th>Type</th><th>V/O</th><th>Omschrijving</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><span class="field-name">school</span></td>
+      <td><span class="ref-link">→ SchoolReference</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc"></span></td>
+      
+    </tr>    <tr>
+      <td><span class="field-name">students</span></td>
+      <td><span class="field-type">array[UserReference]</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">The identifiers of the Students which are provisioned by the SIS API.</span></td>
+      
+    </tr>
+  </tbody>
+</table>
+
+<h3>SchoolEmployeesSpecification</h3>
+<div class="description"><p>The product is bought by a school organisation and all specified employees are allowed to activate and license the product.</p></div>
+<table class="schema-table">
+  <thead><tr><th>Veld</th><th>Type</th><th>V/O</th><th>Omschrijving</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><span class="field-name">school</span></td>
+      <td><span class="ref-link">→ SchoolReference</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc"></span></td>
+      
+    </tr>    <tr>
+      <td><span class="field-name">employees</span></td>
+      <td><span class="field-type">array[UserReference]</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">The identifiers of the Employees which are provisioned by the SIS API.</span></td>
+      
+    </tr>
+  </tbody>
+</table>
+
+<h3>SchoolActivationCodesSpecification</h3>
+<div class="description"><p>The product is bought by a school organisation and all specified activation codes can be used to activate and license the product.</p></div>
+<table class="schema-table">
+  <thead><tr><th>Veld</th><th>Type</th><th>V/O</th><th>Omschrijving</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><span class="field-name">school</span></td>
+      <td><span class="ref-link">→ SchoolReference</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc"></span></td>
+      
+    </tr>    <tr>
+      <td><span class="field-name">activationCodes</span></td>
+      <td><span class="field-type">array[string]</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">The activation codes, the school can use to activate and license the product. Activation codes can be requested from the <code>Licentieregistratie</code></span></td>
+      
+    </tr>
+  </tbody>
+</table>
+
+<h3>CustomerStudentSpecification</h3>
+<div class="description"><p>The product is bought by a customer and the specified student is allowed to activate and license the product.</p></div>
+<table class="schema-table">
+  <thead><tr><th>Veld</th><th>Type</th><th>V/O</th><th>Omschrijving</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><span class="field-name">student</span></td>
+      <td><span class="ref-link">→ UserReference</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc"></span></td>
+      
+    </tr>
+  </tbody>
+</table>
+
+<h3>CustomerActivationCodeSpecification</h3>
+<div class="description"><p>The product is bought by a customer and a user is allowed to activate and license the product using the ActivationCode.</p></div>
+<table class="schema-table">
+  <thead><tr><th>Veld</th><th>Type</th><th>V/O</th><th>Omschrijving</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><span class="field-name">activationCode</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">The activation codes, the school can use to activate and license the product. Activation codes can be requested from the <code>Licentieregistratie</code></span></td>
+      
+    </tr>
+  </tbody>
+</table>
+
+<h3>UserReference</h3>
+
+<div class="toelichting">Indien userMasterIdentifier leeg: verplicht: userIds</div><table class="schema-table">
+  <thead><tr><th>Veld</th><th>Type</th><th>V/O</th><th>Omschrijving</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><span class="field-name">userMasterIdentifier</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">The primary identifier for a User. For Students the ECK iD is used. For Employees this value is empty. There is no primary identifier for Employees. (either userMasterIdentifier or userIds is required)</span></td>
+      
+    </tr>    <tr>
+      <td><span class="field-name">userIds</span></td>
+      <td><span class="ref-link">→ array[UserReference.userIds]</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">A secondary identifier for a User. This value is used whenever the primary identifier is not available. For Employees this value is mandatory. (either userMasterIdentifier or userIds is required)</span></td>
+      
+    </tr>
+  </tbody>
+</table>
+<h3>UserReference.userIds</h3>
+
+<table class="schema-table">
+  <thead><tr><th>Veld</th><th>Type</th><th>V/O</th><th>Omschrijving</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><span class="field-name">userId</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc"></span></td>
+      
+    </tr>    <tr>
+      <td><span class="field-name">userIdType</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc"></span><div class="enum-list">enum: <span class="enum-val">NEPPI</span> <span class="enum-val">BPI</span> <span class="enum-val">eduID</span> <span class="enum-val">NEPRI</span> <span class="enum-val">ASI</span> <span class="enum-val">eckId</span></div></td>
+      
+    </tr>
+  </tbody>
+</table>
+
+<h3>StatusResponse</h3>
+<div class="description"><p>Functional status code and status message.</p></div>
+<table class="schema-table">
+  <thead><tr><th>Veld</th><th>Type</th><th>V/O</th><th>Omschrijving</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><span class="field-name">status</span></td>
+      <td><span class="field-type">integer</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">Functional status code, as defined in &quot;Status- en foutcodes 1.0.0&quot;. Codes are sent as integers without leading zeros (0011 = 11).  Algemeen (00xx) - applies to every API:   * <code>0000</code> - OK: Bevraging succesvol (HTTP 200).   * <code>0001</code> - Created: Bericht heeft geleid tot registratie van een nieuwe entiteit (HTTP 201).   * <code>0002</code> - Accepted: Bericht geaccepteerd (HTTP 202).   * <code>0011</code> - Schema incorrect: Schemavalidatie niet succesvol (HTTP 400).   * <code>0012</code> - schemaVersion not supported: De ontvanger kan de gehanteerde schemaVersion niet verwerken (HTTP 400).   * <code>0021</code> - scope required: Leverancier is niet geautoriseerd voor scope (HTTP 401).   * <code>0022</code> - consent required: Informatieobject van classificatie IV zonder geactiveerde gegevensdienst (HTTP 403).   * <code>0023</code> - school unknown: De client communiceert in de context van een Onderwijsorganisatie die niet bekend is bij de server (HTTP 400).   * <code>0099</code> - Overige reden: Vullingsregel: neem in statusMessage een beschrijving van de reden op.  Delivery API (41xx):   * <code>4101</code> - deliveryOrderReferenceId missing: Het deliveryOrderReferenceId ontbreekt.   * <code>4102</code> - deliveryOrderReferenceId unknown: Het deliveryOrderReferenceId is onbekend.   * <code>4103</code> - deliveryOrderReferenceId already used: Het deliveryOrderReferenceId is al eerder gebruikt.   * <code>4104</code> - deliveryOrderReceiveId missing: Het deliveryOrderReceiveId ontbreekt.   * <code>4105</code> - deliveryOrderReceiveId already used: Het deliveryOrderReceiveId is al eerder gebruikt.   * <code>4111</code> - deliveryOrderId unknown: Het deliveryOrderId is onbekend.   * <code>4121</code> - productId missing: Specificatie van Product ontbreekt   * <code>4122</code> - productId unknown: Gespecificeerd Product onbekend bij Ontvanger   * <code>4123</code> - Product not yet for sale: Gespecificeerd Product is nog niet in de verkoop   * <code>4124</code> - Product not available: Gespecificeerd Product is niet beschikbaar.   * <code>4125</code> - Product no longer for sale: Gespecificeerd Product is niet langer in de verkoop   * <code>4131</code> - School missing: Onderwijsorganisatie is niet gespecificeerd   * <code>4132</code> - School unknown: Gespecificeerde Onderwijsorganisatie is niet bekend bij Ontvanger   * <code>4133</code> - User missing: Specificatie van entitlees of activatiecodes niet volledig   * <code>4134</code> - User unknown: Gespecificeerde entitlees zijn niet bekend bij Ontvanger   * <code>4135</code> - StudyYears missing: Specificatie van opleidingsjaren ontbreekt   * <code>4136</code> - StudyYears unknown: Gespecificeerde opleidingsjaren zijn niet bekend bij Ontvanger   * <code>4137</code> - Subjects missing: Specificatie van vakken ontbreekt   * <code>4138</code> - Subjects unknown: Gespecificeerde vakken zijn niet bekend bij Ontvanger   * <code>4139</code> - Groups missing: Specificatie van groepen ontbreekt   * <code>4140</code> - Groups unknown: Gespecificeerde groepen zijn niet bekend bij Ontvanger   * <code>4141</code> - contractId unknown: Gespecificeerd contractId is onbekend bij de ontvangende Licentieregistratie   * <code>4142</code> - Contract restrictions: Bericht niet toegestaan als gevolg van contractuele afspraken tussen de leverancier van het leermiddel en de leverancier die de verwerving faciliteert.   * <code>4151</code> - startDate before firstPublishedDate: Gespecificeerde startdatum van de activatieperiode ligt voor de datum dat het product op de markt verschijnt   * <code>4152</code> - Quantity at least 1: Het gespecificeerde aantal voor open School aanspraken is minimaal 1   * <code>4153</code> - newAmount is not allowed: lager te zijn dan het huidige aantal of hoger te zijn dan het aantal geactiveerde licenties   * <code>4161</code> - DeliveryOrder is licensed: Indien een Bestelomgeving leermiddelen een leveringsorder wil annuleren dan mag er geen licentie geregistreerd zijn op een aanspraak van de leveringsorder   * <code>4171</code> - activationCode unknown: Gespecificeerde activatiecode is onbekend bij de ontvangende Licentieregistratie   * <code>4172</code> - activationCode already used: Gespecificeerde activatiecode is reeds gebruikt voor een aanspraak   * <code>4173</code> - activationCode revoked: Gespecificeerde activatiecode is ingetrokken</span></td>
+      
+    </tr>    <tr>
+      <td><span class="field-name">statusMessage</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">See functional status messages within the Documentation.</span></td>
+      
+    </tr>
+  </tbody>
+</table>
+
+
+<div class="footer">
+  Edu-V &nbsp;|&nbsp; <a href="https://www.edu-v.org/afsprakenstelsel" style="color:#aaa;">www.edu-v.org/afsprakenstelsel</a> &nbsp;|&nbsp; info@edu-v.org
+</div>
+
+</body>
+</html>
