@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <title>Employees API | Edu-V</title>
+  <style>
+    body { font-family: Arial, sans-serif; font-size: 13px; margin: 40px; color: #222; background: white; max-width: 1100px; }
+    h1 { font-size: 20px; margin-bottom: 4px; color: #555; }
+    h2 { font-size: 15px; margin-top: 36px; margin-bottom: 6px; border-bottom: 2px solid #555; padding-bottom: 4px; color: #555; }
+    h3 { font-size: 13px; margin-top: 24px; margin-bottom: 4px; color: #444; }
+    .meta { color: #888; font-size: 11px; margin-bottom: 8px; }
+    .version-badge { display: inline-block; background: #555; color: white; border-radius: 4px; padding: 2px 10px; font-size: 11px; font-weight: bold; margin-bottom: 12px; }
+    .status-badge { display: inline-block; background: #e8f4ea; color: #1a7a4a; border: 1px solid #b0d8b8; border-radius: 3px; padding: 2px 9px; font-size: 11px; font-weight: bold; margin-left: 6px; }
+    .status-beta { background: #fef3e2; color: #b7691a; border-color: #f0c090; }
+    .status-candidate { background: #e8f0fe; color: #2176c7; border-color: #b0c8f0; }
+    .status-draft { background: #f0f0f0; color: #666; border-color: #ccc; }
+    .description { font-size: 12px; color: #444; line-height: 1.6; max-width: 820px; margin-bottom: 24px; }
+    .description p, .description ul { margin: 0 0 10px; } .description h4 { font-size: 12px; margin: 14px 0 4px; }
+    .description code, .schema-desc code, .toelichting code { font-family: monospace; background: #f2f2f2; padding: 0 3px; border-radius: 3px; }
+
+    /* Metadatatabel */
+    .meta-table { width: 100%; border-collapse: collapse; margin-bottom: 24px; font-size: 12px; }
+    .meta-table td { padding: 7px 12px; border: 1px solid #e0e0e0; vertical-align: top; }
+    .meta-table td:first-child { width: 150px; background: #f7f7f7; font-weight: bold; color: #555; }
+    .meta-tag { display: inline-block; background: #f0f0f0; border-radius: 3px; padding: 1px 7px; margin: 2px 2px 2px 0; font-size: 11px; }
+
+    /* Toelichting blok */
+    .toelichting { background-color: #f9f4ee; border-left: 3px solid #555; padding: 9px 13px; margin-bottom: 12px; font-size: 12px; line-height: 1.6; color: #555; }
+
+    /* Endpoints tabel */
+    .endpoints-table { width: 100%; border-collapse: collapse; margin-bottom: 32px; font-size: 12px; }
+    .endpoints-table th { background: #555; color: white; text-align: left; padding: 8px 12px; }
+    .endpoints-table td { padding: 7px 12px; border-bottom: 1px solid #eee; vertical-align: top; }
+    .endpoints-table tr:hover { background: #f9f9f9; }
+    .method { font-weight: bold; font-family: monospace; font-size: 11px; padding: 2px 6px; border-radius: 3px; }
+    .method-put { background: #fef3e2; color: #b7691a; }
+    .method-get { background: #e8f4ea; color: #1a7a4a; }
+    .method-post { background: #e8f0fe; color: #2176c7; }
+    .method-delete { background: #fde8e6; color: #c0392b; }
+    .path { font-family: monospace; font-size: 11px; color: #333; }
+
+    /* Schema veldentabel */
+    .schema-table { width: 100%; border-collapse: collapse; margin-bottom: 28px; font-size: 12px; }
+    .schema-table th { background: #f0f0f0; text-align: left; padding: 7px 10px; border-bottom: 2px solid #ccc; font-size: 11px; }
+    .schema-table td { padding: 6px 10px; border-bottom: 1px solid #eee; vertical-align: top; }
+    .schema-table tr:hover { background: #fafafa; }
+    .field-name { font-family: monospace; font-weight: bold; color: #555; font-size: 11px; }
+    .field-type { font-family: monospace; font-size: 10px; color: #666; }
+    .badge-v { background: #fde8e6; color: #c0392b; font-size: 10px; font-weight: bold; padding: 1px 5px; border-radius: 3px; }
+    .badge-o { background: #e8f0fe; color: #2176c7; font-size: 10px; padding: 1px 5px; border-radius: 3px; }
+    .enum-list { font-family: monospace; font-size: 10px; color: #666; margin-top: 3px; }
+    .enum-val { display: inline-block; background: #f0f0f0; padding: 1px 4px; border-radius: 2px; margin: 1px 2px 1px 0; }
+    .ref-link { font-family: monospace; font-size: 10px; color: #555; }
+    .schema-desc { font-size: 11px; color: #555; line-height: 1.4; }
+
+    /* Contact footer */
+    .footer { margin-top: 48px; font-size: 11px; color: #aaa; border-top: 1px solid #eee; padding-top: 12px; }
+  </style>
+</head>
+<body>
+
+<h1>Employees API</h1>
+<div class="meta">Edu-V Afsprakenstelsel &nbsp;|&nbsp; Gegenereerd op 19 November 2026 &nbsp;|&nbsp; Bron: employees-api.yaml</div>
+<div style="margin-bottom:20px;">
+  <span class="version-badge">v1.2.0-rc.1</span><span class="status-badge status-candidate">Release Candidate</span>
+</div>
+
+<table class="meta-table">
+<tr><td>Status</td><td><span class="status-badge status-candidate">Release Candidate</span></td></tr>
+<tr><td>Versie</td><td>1.2.0-rc.1</td></tr>
+<tr><td>Afkorting</td><td>EMP</td></tr>
+<tr><td>Beheer</td><td>Werkgroep Doorgifte Administratie</td></tr>
+<tr><td>Ingangsdatum</td><td>2027-01-14</td></tr>
+<tr><td>Gegevensdienst</td><td>Onderwijsmedewerker</td></tr>
+<tr><td>Bron</td><td><span class="meta-tag">Administratiesysteem onderwijsmedewerker</span></td></tr>
+<tr><td>Afnemers</td><td><span class="meta-tag">employee.basic/communication: Administratiesysteem onderwijsdeelnemer</span> <span class="meta-tag">employee.basic/communication: Bestelomgeving leermiddelen</span> <span class="meta-tag">employee.basic/communication: Dienst met SSO</span> <span class="meta-tag">employee.basic/communication: Authenticerende Dienst</span> <span class="meta-tag">employee.basic/communication: Authenticerende Identity Provider</span> <span class="meta-tag">employee.basic/communication: Delegerende Identity Provider</span> <span class="meta-tag">employee.roles: nog geen afnemers</span></td></tr>
+</table>
+
+<h2>Beschrijving</h2>
+<div class="description"><p>The Employees API is implemented by the <code>Administratiesysteem onderwijsmedewerker</code>.</p><p>Employee data is split into the following objects with corresponding attributes:</p><ul><li>Basic data: identifiers and name</li><li>Communication: email, phone, and mobile</li><li>Roles: organisation roles of the employee within the school</li></ul><p>Not all Employee attributes are available to all consuming reference components.<br>All objects have a different security scope which allows the <code>Administratiesysteem onderwijsmedewerker</code> to share the attributes only with the reference components that are allowed to receive the attributes.</p><p>All consuming reference components require consent to request data from the Employees API.<br>The Notifications API can be used by consuming reference components to receive notifications about new, modified, or deleted entities within the Employees API.</p><p>The Employees API has a scope of primary and secondary education. Vocational education is out of scope. For Vocational Education we advise to use the <a href="https://openonderwijsapi.nl/" target="_blank">Open Education API (OOAPI)</a>.</p></div>
+<h2>Endpoints</h2>
+<table class="endpoints-table">
+  <thead><tr><th>Methode</th><th>Pad</th><th>Omschrijving</th><th>Tag</th><th>Foutcodes</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><span class="method method-post">POST</span></td>
+      <td><span class="path">/employees</span></td>
+      <td>Search Employee</td>
+      <td style="font-size:10px;color:#888;">Administratiesysteem onderwijsmedewerker</td>
+      <td style="font-size:11px;">2001, 2005</td>
+    </tr>    <tr>
+      <td><span class="method method-get">GET</span></td>
+      <td><span class="path">/employees/school</span></td>
+      <td>Get Employees for School</td>
+      <td style="font-size:10px;color:#888;">Administratiesysteem onderwijsmedewerker</td>
+      <td style="font-size:11px;">2001, 2008</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2>Schemas</h2>
+<h3>Employee</h3>
+<div class="description"><p>The Employee object with its identifiers and name information.</p><p>Based on the scopes additional attributes can be included in this object.</p><h4>employee.communication</h4><p>Communication data of the Employee. For Employees this is the <code>e-mail</code> address, <code>phone</code> number or <code>mobile</code> phone number as provided by the School.</p><h4>employee.roles</h4><p><code>organisationRoles</code> of the Employee within the school.</p></div><div class="toelichting">Het object Employee beschrijft de identifiers, de namen van de onderwijsmedewerker en overige kenmerken. Dit object is beschikbaar vanuit de scope employee.basic.</div>
+<table class="schema-table">
+  <thead><tr><th>Veld</th><th>Type</th><th>V/O</th><th>Omschrijving</th><th>Vullingsregel</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><span class="field-name">userMasterIdentifier</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">The primary identifier for a User. For Students the ECK iD is used. For Employees this value is always empty: there is currently no primary identifier for Employees, only secondary identifiers (userIds) are used.</span></td>
+      <td><span class="schema-desc">De werkingsregel is dat de primaire identifier wordt gehanteerd in het object. Er is nog geen primaire identifier voor onderwijsmedewerkers: enkel secundaire identifiers (userIds) worden gehanteerd.</span></td>
+    </tr>    <tr>
+      <td><span class="field-name">userIds</span></td>
+      <td><span class="ref-link">→ array[Employee.userIds]</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">A secondary identifier for a User. This value is used whenever the primary identifier is not available. For Employees this value is mandatory.</span></td>
+      <td><span class="schema-desc">Zodra een secundaire identifier voor een uitzonderingssituatie gehanteerd wordt dan wordt naast het Id ook het Type gespecificeerd. Zie de pagina Identiteiten voor de toegestane secundaire identifiers.</span></td>
+    </tr>    <tr>
+      <td><span class="field-name">givenName</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc"></span></td>
+      <td><span class="schema-desc"></span></td>
+    </tr>    <tr>
+      <td><span class="field-name">preferredFirstName</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc"></span></td>
+      <td><span class="schema-desc"></span></td>
+    </tr>    <tr>
+      <td><span class="field-name">familyName</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc"></span></td>
+      <td><span class="schema-desc"></span></td>
+    </tr>    <tr>
+      <td><span class="field-name">familyNamePrefix</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc"></span></td>
+      <td><span class="schema-desc"></span></td>
+    </tr>    <tr>
+      <td><span class="field-name">email</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">E-mail address hosted by school (e.g. L123456@school.nl).</span></td>
+      <td><span class="schema-desc"></span></td>
+    </tr>    <tr>
+      <td><span class="field-name">phone</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">Phone number as provided by the school.</span></td>
+      <td><span class="schema-desc"></span></td>
+    </tr>    <tr>
+      <td><span class="field-name">mobile</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">Mobile phone number as provided by the school.</span></td>
+      <td><span class="schema-desc"></span></td>
+    </tr>    <tr>
+      <td><span class="field-name">organisationRoles</span></td>
+      <td><span class="ref-link">→ array[Employee.organisationRoles]</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">The organisation roles the Employee has within the organisation.</span></td>
+      <td><span class="schema-desc">Organisatiefuncties zijn een optioneel onderdeel van de Employees API. Op basis van expliciete behoeften in ketenprocessen kunnen deze functies worden benut.</span></td>
+    </tr>    <tr>
+      <td><span class="field-name">alias</span></td>
+      <td><span class="field-type">string (string)</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">An additional field to distinct employees on screen who carry the same name.</span></td>
+      <td><span class="schema-desc"></span></td>
+    </tr>    <tr>
+      <td><span class="field-name">status</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">The status field gives an indication to Consumers about the status of an object. Consumers can delete objects that are flagged <code>tobedeleted</code>  as such if they wish.  The status attribute is based on the <a href="https://www.imsglobal.org/sites/default/files/spec/oneroster/v1p2/rostering-informationmodel/OneRosterv1p2RosteringService_InfoModelv1p0.html#Data_Base" target="_blank">Base Class from OneRoster</a>.</span><div class="enum-list">enum: <span class="enum-val">active</span> <span class="enum-val">tobedeleted</span></div></td>
+      <td><span class="schema-desc"></span></td>
+    </tr>    <tr>
+      <td><span class="field-name">dateCreated</span></td>
+      <td><span class="field-type">string (date-time)</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">Indicates the date and time the object was first created. Format: Conform openapi in ZULU time zoals gespecificeerd in RFC 3339, section 5.6.</span></td>
+      <td><span class="schema-desc"></span></td>
+    </tr>    <tr>
+      <td><span class="field-name">dateLastModified</span></td>
+      <td><span class="field-type">string (date-time)</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">Indicates the date and time the object was last modified. Format: Conform openapi in ZULU time zoals gespecificeerd in RFC 3339, section 5.6.</span></td>
+      <td><span class="schema-desc"></span></td>
+    </tr>
+  </tbody>
+</table>
+<h3>Employee.userIds</h3>
+
+<table class="schema-table">
+  <thead><tr><th>Veld</th><th>Type</th><th>V/O</th><th>Omschrijving</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><span class="field-name">userId</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc"></span></td>
+      
+    </tr>    <tr>
+      <td><span class="field-name">userIdType</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc"></span><div class="enum-list">enum: <span class="enum-val">NEPPI</span> <span class="enum-val">BPI</span> <span class="enum-val">eduID</span> <span class="enum-val">NEPRI</span> <span class="enum-val">ASI</span> <span class="enum-val">eckId</span></div></td>
+      
+    </tr>
+  </tbody>
+</table>
+<h3>Employee.organisationRoles</h3>
+
+<table class="schema-table">
+  <thead><tr><th>Veld</th><th>Type</th><th>V/O</th><th>Omschrijving</th><th>Vullingsregel</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><span class="field-name">organisation</span></td>
+      <td><span class="ref-link">→ SchoolReference</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc"></span></td>
+      <td><span class="schema-desc"></span></td>
+    </tr>    <tr>
+      <td><span class="field-name">organisationRole</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">The organisation role the Employee has within the organisation.</span><div class="enum-list">enum: <span class="enum-val">administratief-medewerker</span> <span class="enum-val">applicatiebeheerder</span> <span class="enum-val">begeleider</span> <span class="enum-val">invalkracht</span> <span class="enum-val">ibp-er</span> <span class="enum-val">leermiddelencoordinator</span> <span class="enum-val">leraar</span> <span class="enum-val">mentor</span> <span class="enum-val">onderwijsbestuurder</span> <span class="enum-val">onderwijsdirecteur</span> <span class="enum-val">stagiair</span></div></td>
+      <td><span class="schema-desc">Er dient één organisatiefunctie gekozen te worden. De organisatiefuncties zijn gebaseerd op de functies zoals beschreven op de pagina Onderwijsorganisaties en actoren.</span></td>
+    </tr>    <tr>
+      <td><span class="field-name">beginDate</span></td>
+      <td><span class="field-type">string (date)</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">The start date on which the role becomes active (inclusive). Format: YYYY-MM-DD (according to RFC3339).</span></td>
+      <td><span class="schema-desc"></span></td>
+    </tr>    <tr>
+      <td><span class="field-name">endDate</span></td>
+      <td><span class="field-type">string (date)</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">The end date on which the role becomes inactive (exclusive). Format: YYYY-MM-DD (according to RFC3339).</span></td>
+      <td><span class="schema-desc"></span></td>
+    </tr>
+  </tbody>
+</table>
+
+<h3>UserReference</h3>
+
+<table class="schema-table">
+  <thead><tr><th>Veld</th><th>Type</th><th>V/O</th><th>Omschrijving</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><span class="field-name">userMasterIdentifier</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">The primary identifier for a User. For Students the ECK iD is used. For Employees this value is always empty: there is currently no primary identifier for Employees, only secondary identifiers (userIds) are used.</span></td>
+      
+    </tr>    <tr>
+      <td><span class="field-name">userIds</span></td>
+      <td><span class="ref-link">→ array[UserReference.userIds]</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">A secondary identifier for a User. This value is used whenever the primary identifier is not available. For Employees this value is mandatory.</span></td>
+      
+    </tr>
+  </tbody>
+</table>
+<h3>UserReference.userIds</h3>
+
+<table class="schema-table">
+  <thead><tr><th>Veld</th><th>Type</th><th>V/O</th><th>Omschrijving</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><span class="field-name">userId</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc"></span></td>
+      
+    </tr>    <tr>
+      <td><span class="field-name">userIdType</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc"></span><div class="enum-list">enum: <span class="enum-val">NEPPI</span> <span class="enum-val">BPI</span> <span class="enum-val">eduID</span> <span class="enum-val">NEPRI</span> <span class="enum-val">ASI</span> <span class="enum-val">eckId</span></div></td>
+      
+    </tr>
+  </tbody>
+</table>
+
+<h3>SchoolReference</h3>
+<div class="description"><p>A reference to a School organisation.</p></div>
+<div class="toelichting">Indien organisationMasterIdentifier gevuld: niet toegestaan: organisationIds; anders verplicht: organisationIds</div><table class="schema-table">
+  <thead><tr><th>Veld</th><th>Type</th><th>V/O</th><th>Omschrijving</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><span class="field-name">organisationMasterIdentifier</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">The primary identifier for a School. For Schools the <code>OnderwijsaanbiederId</code> is used. (exactly one of organisationMasterIdentifier or organisationIds must be present)</span></td>
+      
+    </tr>    <tr>
+      <td><span class="field-name">organisationIds</span></td>
+      <td><span class="ref-link">→ array[SchoolReference.organisationIds]</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">A secondary identifier for the School. This value is used whenever the primary identifier is not available. (exactly one of organisationMasterIdentifier or organisationIds must be present)</span></td>
+      
+    </tr>
+  </tbody>
+</table>
+<h3>SchoolReference.organisationIds</h3>
+
+<table class="schema-table">
+  <thead><tr><th>Veld</th><th>Type</th><th>V/O</th><th>Omschrijving</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><span class="field-name">organisationId</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc"></span></td>
+      
+    </tr>    <tr>
+      <td><span class="field-name">organisationIdType</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc"></span><div class="enum-list">enum: <span class="enum-val">OIE_CODE</span> <span class="enum-val">BP_ID</span> <span class="enum-val">DD_ID</span> <span class="enum-val">AS_ID</span> <span class="enum-val">V_ID</span></div></td>
+      
+    </tr>
+  </tbody>
+</table>
+
+<h3>StatusResponse</h3>
+<div class="description"><p>Functional status code and status message.</p></div>
+<table class="schema-table">
+  <thead><tr><th>Veld</th><th>Type</th><th>V/O</th><th>Omschrijving</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><span class="field-name">status</span></td>
+      <td><span class="field-type">integer</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">Functional status code, as defined in &quot;Status- en foutcodes 1.0.0&quot;. Codes are sent as integers without leading zeros (0011 = 11).  Algemeen (00xx) - applies to every API:   * <code>0000</code> - OK: Bevraging succesvol (HTTP 200).   * <code>0001</code> - Created: Bericht heeft geleid tot registratie van een nieuwe entiteit (HTTP 201).   * <code>0002</code> - Accepted: Bericht geaccepteerd (HTTP 202).   * <code>0011</code> - Schema incorrect: Schemavalidatie niet succesvol (HTTP 400).   * <code>0012</code> - schemaVersion not supported: De ontvanger kan de gehanteerde schemaVersion niet verwerken (HTTP 400).   * <code>0021</code> - scope required: Leverancier is niet geautoriseerd voor scope (HTTP 401).   * <code>0022</code> - consent required: Informatieobject van classificatie IV zonder geactiveerde gegevensdienst (HTTP 403).   * <code>0023</code> - school unknown: De client communiceert in de context van een Onderwijsorganisatie die niet bekend is bij de server (HTTP 400).   * <code>0099</code> - Overige reden: Vullingsregel: neem in statusMessage een beschrijving van de reden op.  Employees API (20xx):   * <code>2001</code> - School unknown: De identifier van de onderwijsorganisatie is onbekend.   * <code>2005</code> - Employee unknown: De identifier van de onderwijsmedewerker is onbekend.   * <code>2008</code> - SchoolPeriod unknown: De identifier van de schoolperiode is onbekend.</span></td>
+      
+    </tr>    <tr>
+      <td><span class="field-name">statusMessage</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">See functional status messages within the Documentation.</span></td>
+      
+    </tr>
+  </tbody>
+</table>
+
+
+<div class="footer">
+  Edu-V &nbsp;|&nbsp; <a href="https://www.edu-v.org/afsprakenstelsel" style="color:#aaa;">www.edu-v.org/afsprakenstelsel</a> &nbsp;|&nbsp; info@edu-v.org
+</div>
+
+</body>
+</html>
