@@ -1,0 +1,714 @@
+openapi: 3.1.1
+info:
+  title: Students API
+  version: 1.2.0-rc.1
+  description: 'The Students API is implemented by the `Administratiesysteem onderwijsdeelnemer`.
+
+
+    Student data is split into the following objects with corresponding attributes:
+
+    - Basic data: identifiers and name
+
+    - Demographics: gender and dateOfBirth
+
+    - Communication: email
+
+    - Accessibility: language and accessibility preferences
+
+    - DeliveryAddress: home address and email addresses
+
+
+    Not all Student attributes are available to all consuming reference components. For example delivery
+    address attributes are only available to the `Bestelomgeving leermiddelen`.
+
+    All objects have a different security scope which allows the `Administratiesysteem onderwijsdeelnemer`
+    to share the attributes only with the reference components that are allowed to receive the attributes.
+
+
+    All consuming reference components require consent to request data from the Student API.
+
+    The Notifications API can be used by consuming reference components to receive notifications about
+    new, modified, or deleted entities within the Students API.
+
+
+    The Students API has a scope of primary and secondary education. Vocational education is out of scope.
+    For Vocational Education we advise to use the [Open Education API (OOAPI)](https://openonderwijsapi.nl/).'
+  contact:
+    name: Edu-V
+    url: www.edu-v.org/afsprakenstelsel
+    email: info@edu-v.org
+  x-afkorting: STU
+  x-status: release-candidate
+  x-beheer: Werkgroep Doorgifte Administratie
+  x-ingangsdatum: '2027-01-14'
+  x-gegevensdienst: Onderwijsdeelnemers; Onderwijsdeelnemers Demografie; Onderwijsdeelnemers Communicatie;
+    Onderwijsdeelnemers Toegankelijkheid; Onderwijsdeelnemers Adresgegevens fijndistributie
+  x-bron:
+  - Administratiesysteem onderwijsdeelnemer
+  x-afnemers:
+  - 'student.basic/communication: Bestelomgeving leermiddelen'
+  - 'student.basic/communication: Dienst met SSO'
+  - 'student.basic/communication: Authenticerende Dienst'
+  - 'student.basic/communication: Authenticerende Identity Provider'
+  - 'student.basic/communication: Delegerende Identity Provider'
+  - 'student.demographics: Digitaal toetssysteem'
+  - 'student.accessibility: nog geen afnemers'
+  - 'student.deliveryaddress: Bestelomgeving leermiddelen'
+components:
+  schemas:
+    schemaVersion:
+      description: 'Schema version of this API using semantic versioning 2.0.0.
+
+        The API version number is communicated in the header.
+
+        The major version is communicated in the URI.
+
+        For more information see the [Edu-V versioning guidelines](https://edu-v.atlassian.net/wiki/spaces/AFSPRAKENS/pages/9437200/Versiebeheer).
+
+        '
+      type: string
+      default: 1.2.0-rc.1
+    Student:
+      title: Student
+      description: 'The Student object with its identifiers and name information.
+
+
+        Based on the scopes additional attributes can be included in this object.
+
+
+        ### student.demographics
+
+        Demographic data of a Student:
+
+        - `dateOfBirth`
+
+        - `gender`
+
+
+        ### student.communication
+
+        Communication data of the Student. For Students this is only the `e-mail` address as provided
+        by the School.
+
+
+        ### student.accessibility
+
+        `accessibility` and `language` preferences for the Student. StudentAccessibility is an optional
+        object for the Students API.
+
+        - As an illustration the accessibility of AdditionalTestingTime is specified within this version.
+
+        - Based on actual requirements from schools and suppliers, this list of preferences can be extended.
+
+        - A possible next candidate might be the [Braille class](https://www.imsglobal.org/sites/default/files/spec/afa/3p0/information_model/imsafa3p0pnp_v1p0_InfoModel.html#Data_Braille).
+
+
+        ### student.deliveryaddress
+
+        Delivery address data of a Student:
+
+        - `address`
+
+        - `emailPrivate`
+
+        - `emailsParents`
+
+        '
+      type: object
+      x-tags:
+      - Student
+      x-toelichting: 'Het Student-object met identifiers en naamgegevens. Op basis van de toegekende scopes
+        kunnen aanvullende attributen in dit object worden opgenomen: student.demographics (dateOfBirth,
+        gender), student.communication (email), student.accessibility (accessibility, language) en student.deliveryaddress
+        (address, emailPrivate, emailsParents).'
+      properties:
+        userMasterIdentifier:
+          type: string
+          description: 'The primary identifier for the Student.
+
+            For Students the ECK iD is used.
+
+            '
+          x-vullingsregel: De werkingsregel is dat de primaire identifier wordt gehanteerd in het object.
+            De primaire identifier voor de onderwijsdeelnemer is het ECKiD.
+        userIds:
+          type: array
+          description: 'A secondary identifier for a User. This value is used whenever the primary identifier
+            is not available.
+
+            (either userMasterIdentifier or userIds is required)
+
+            '
+          items:
+            type: object
+            properties:
+              userId:
+                type: string
+              userIdType:
+                type: string
+                enum:
+                - NEPPI
+                - BPI
+                - eduID
+                - NEPRI
+                - ASI
+            required:
+            - userId
+            - userIdType
+          x-vullingsregel: Zodra een secundaire identifier voor een uitzonderingssituatie gehanteerd wordt,
+            wordt naast het Id ook het Type gespecificeerd. Zie de pagina Identiteiten voor de toegestane
+            secundaire identifiers.
+        givenName:
+          type: string
+        preferredFirstName:
+          type: string
+        familyName:
+          type: string
+        familyNamePrefix:
+          type: string
+        dateOfBirth:
+          type: string
+          description: 'format: YYYY-MM-DD (according to RFC3339)'
+          format: date
+        gender:
+          type: string
+          description: 'The gender of the Student. The following values are used:
+
+            - `female`: gender is Female
+
+            - `male`: gender is Male
+
+            - `other`: gender that is known but which is not either Male or Female.
+
+            - `unspecified`: unspecified as no data entry for this field has been made.
+
+            '
+          enum:
+          - female
+          - male
+          - other
+          - unspecified
+          x-vullingsregel: unspecified dient gekozen te worden indien de data niet beschikbaar is. other
+            dient gekozen te worden indien het geslacht wel bekend is maar geen female of male is.
+        email:
+          type: string
+          description: E-mail address hosted by school (e.g. L123456@school.nl).
+        language:
+          type: string
+          description: 'The language preference of the Student. Format according to [ISO639 Set 3 values](https://www.iso.org/standard/74575.html)
+            for Language tags.
+
+            On [Wikipedia](https://en.wikipedia.org/wiki/List_of_ISO_639_language_codes) an example list
+            can be found.
+
+            '
+          example: nld
+          x-vullingsregel: ISO639 set 3 waardes worden gehanteerd.
+        accessibility:
+          type: array
+          description: Accessibility preferences for this student. Based on [IMS Global Access for All
+            (AfA) Personal Needs and Preferences (PNP) Information model](https://www.imsglobal.org/sites/default/files/spec/afa/3p0/information_model/imsafa3p0pnp_v1p0_InfoModel.html)
+          items:
+            $ref: '#/components/schemas/AccessibilityPreference'
+            description: An IMS Global defined AfA or PNP preference.
+          x-vullingsregel: De voorkeuren worden gevuld op basis van de AfA- of PnP-voorkeuren zoals gedefinieerd
+            door 1EdTech. In de YAML is ter illustratie AdditionalTestingTime uitgewerkt.
+        address:
+          type: object
+          description: The home address of the Student.
+          properties:
+            street:
+              type: string
+            houseNumber:
+              type: integer
+              description: the house number
+            houseNumberSuffix:
+              type: string
+              description: additions to the house number, e.g. A or -104
+            zipCode:
+              type: string
+              x-vullingsregel: Waarde is bij een Nederlands adres volgens het patroon van 4 cijfers en
+                2 letters.
+            city:
+              type: string
+            countryCode:
+              type: string
+              description: According to Alpha-2 code from ISO 3166, e.g. NL
+              x-vullingsregel: Waarde is de Alpha-2 code (2 letters) uit de ISO 3166 standaard die correspondeert
+                met het land zoals aangegeven door het veld country.
+            country:
+              type: string
+          required:
+          - street
+          - houseNumber
+          - zipCode
+          - city
+          - country
+          x-vullingsregel: Optioneel; onderdeel van de student.deliveryaddress-scope.
+        emailPrivate:
+          type: string
+          description: Private e-mail address of the student.
+        emailsParents:
+          type: array
+          items:
+            type: string
+            description: E-mail address of a parent or the legal representative (e.g. guardian) of the
+              Student.
+        alias:
+          type: string
+          description: 'An additional field to distinct students on screen who carry the same name.
+
+            '
+          format: string
+        status:
+          type: string
+          description: 'The status field gives an indication to Consumers about the status of an object.
+
+            Consumers can delete objects that are flagged `tobedeleted`  as such if they wish.
+
+
+            The status attribute is based on the [Base Class from OneRoster](https://www.imsglobal.org/sites/default/files/spec/oneroster/v1p2/rostering-informationmodel/OneRosterv1p2RosteringService_InfoModelv1p0.html#Data_Base).
+
+            '
+          enum:
+          - active
+          - tobedeleted
+        dateCreated:
+          type: string
+          description: 'Indicates the date and time the object was first created. Format: According to
+            openapi in ZULU time as specified in RFC 3339, section 5.6.'
+          format: date-time
+          example: '2017-07-21T17:32:28Z'
+        dateLastModified:
+          type: string
+          description: 'Indicates the date and time the object was last modified. Format: According to
+            openapi in ZULU time as specified in RFC 3339, section 5.6.'
+          format: date-time
+          example: '2022-08-11T15:31:12Z'
+      required:
+      - givenName
+      - preferredFirstName
+      - familyName
+      - status
+      - dateCreated
+      - dateLastModified
+      if:
+        not:
+          required:
+          - userMasterIdentifier
+      then:
+        required:
+        - userIds
+    AccessibilityPreference:
+      x-tags:
+      - StudentAccessibility
+      oneOf:
+      - $ref: '#/components/schemas/AdditionalTestingTime'
+    AdditionalTestingTime:
+      title: AdditionalTestingTime
+      description: The AdditionalTestingTime preference for a Student. Either `time-multiplier`, `fixed-minutes`
+        or `unlimited` is used.
+      type: object
+      x-tags:
+      - StudentAccessibility
+      properties:
+        additionalTestingTime:
+          type: object
+          properties:
+            time-multiplier:
+              type: number
+              description: Providing the additional testing time as a multiplier of the set time.
+              example: 1.5
+            fixed-minutes:
+              type: integer
+              description: Providing the additional testing time as an additional number of minutes.
+              example: 30
+            unlimited:
+              type: string
+              description: Providing the additional testing time as an unlimited time.
+              default: ''
+    UserReference:
+      title: UserReference
+      type: object
+      properties:
+        userMasterIdentifier:
+          type: string
+          description: 'The primary identifier for a User.
+
+            For Students the ECK iD is used.
+
+            (either userMasterIdentifier or userIds is required)
+
+            '
+        userIds:
+          type: array
+          description: 'A secondary identifier for a User. This value is used whenever the primary identifier
+            is not available.
+
+            (either userMasterIdentifier or userIds is required)
+
+            '
+          items:
+            type: object
+            properties:
+              userId:
+                type: string
+              userIdType:
+                type: string
+                enum:
+                - NEPPI
+                - BPI
+                - eduID
+                - NEPRI
+                - ASI
+                - eckId
+            required:
+            - userId
+            - userIdType
+      if:
+        not:
+          required:
+          - userMasterIdentifier
+      then:
+        required:
+        - userIds
+    SchoolReference:
+      title: SchoolReference
+      description: A reference to a School organisation.
+      type: object
+      properties:
+        organisationMasterIdentifier:
+          type: string
+          description: 'The primary identifier for a School. For Schools the `OnderwijsaanbiederId` is
+            used.
+
+            (exactly one of organisationMasterIdentifier or organisationIds must be present)
+
+            '
+          example: 104A158
+        organisationIds:
+          type: array
+          description: 'A secondary identifier for the School. This value is used whenever the primary
+            identifier is not available.
+
+            (exactly one of organisationMasterIdentifier or organisationIds must be present)
+
+            '
+          items:
+            type: object
+            properties:
+              organisationId:
+                type: string
+              organisationIdType:
+                type: string
+                enum:
+                - OIE_CODE
+                - BP_ID
+                - DD_ID
+                - AS_ID
+                - V_ID
+            required:
+            - organisationId
+            - organisationIdType
+      if:
+        required:
+        - organisationMasterIdentifier
+      then:
+        not:
+          required:
+          - organisationIds
+      else:
+        required:
+        - organisationIds
+    StatusResponse:
+      title: StatusResponse
+      description: Functional status code and status message.
+      type: object
+      properties:
+        status:
+          type: integer
+          description: "Functional status code, as defined in \"Status- en foutcodes 1.0.0\".\nCodes are sent as integers without\
+            \ leading zeros (0011 = 11).\n\nAlgemeen (00xx) - applies to every\
+            \ API:\n  * `0000` - OK: Bevraging succesvol (HTTP 200).\n  * `0001` - Created: Bericht heeft\
+            \ geleid tot registratie van een nieuwe entiteit (HTTP 201).\n  * `0002` - Accepted: Bericht\
+            \ geaccepteerd (HTTP 202).\n  * `0011` - Schema incorrect: Schemavalidatie niet succesvol\
+            \ (HTTP 400).\n  * `0012` - schemaVersion not supported: De ontvanger kan de gehanteerde schemaVersion\
+            \ niet verwerken (HTTP 400).\n  * `0021` - scope required: Leverancier is niet geautoriseerd\
+            \ voor scope (HTTP 401).\n  * `0022` - consent required: Informatieobject van classificatie\
+            \ IV zonder geactiveerde gegevensdienst (HTTP 403).\n  * `0023` - school unknown: De client\
+            \ communiceert in de context van een Onderwijsorganisatie die niet bekend is bij de server\
+            \ (HTTP 400).\n  * `0099` - Overige reden: Vullingsregel: neem in statusMessage een beschrijving\
+            \ van de reden op.\n\nStudents API (20xx):\n  * `2001` - School unknown: De identifier van\
+            \ de onderwijsorganisatie is onbekend.\n  * `2002` - SubjectOffering unknown: De identifier\
+            \ van het SchoolVak is onbekend.\n  * `2003` - StudyOffering unknown: De aangeboden opleiding\
+            \ is onbekend.\n  * `2004` - Student unknown: De identifier van de onderwijsdeelnemer is onbekend.\n\
+            \  * `2008` - SchoolPeriod unknown: De identifier van de schoolperiode is onbekend.\n"
+        statusMessage:
+          type: string
+          description: See functional status messages within the Documentation.
+      required:
+      - status
+  responses:
+    BadRequest:
+      description: 'Bad Request - schema validation failed, unsupported schemaVersion, or unknown school
+        (status 0011 / 0012 / 0023).
+
+        '
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/StatusResponse'
+    Unauthorized:
+      description: 'Unauthorized - the supplier is not authorised for the requested scope (status 0021).
+
+        '
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/StatusResponse'
+    Forbidden:
+      description: 'Forbidden - the information object is classification IV and the gegevensdienst has
+        not been activated (status 0022).
+
+        '
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/StatusResponse'
+    NotFound:
+      description: 'Not Found - the endpoint URL is not known.
+
+        '
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/StatusResponse'
+    MethodNotAllowed:
+      description: 'Method Not Allowed - the request method is not permitted for this endpoint.
+
+        '
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/StatusResponse'
+    ServerError:
+      description: 'Internal Server Error - general server-side error.
+
+        '
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/StatusResponse'
+  securitySchemes:
+    OAuth2:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.example.com/oauth2/token
+          refreshUrl: https://api.example.com/oauth2/token
+          scopes:
+            eduv.student.basic: a scope that gives access to student identifiers and name.
+            eduv.student.demographics: a scope that gives access to student demographics attributes.
+            eduv.student.communication: a scope that gives access to student communication attributes.
+            eduv.student.accessibility: a scope that gives access to student accessibility attributes.
+            eduv.student.deliveryaddress: a scope that gives access to student delivery address attributes.
+paths:
+  /students:
+    post:
+      x-eduv-error-codes:
+      - '2001'
+      - '2004'
+      summary: Search Student
+      x-tags:
+      - Student
+      tags:
+      - Administratiesysteem onderwijsdeelnemer
+      operationId: search-student
+      description: Request a Student object for a specified Student at a School.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                school:
+                  $ref: '#/components/schemas/SchoolReference'
+                student:
+                  $ref: '#/components/schemas/UserReference'
+              required:
+              - school
+              - student
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Student'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '405':
+          $ref: '#/components/responses/MethodNotAllowed'
+        '500':
+          $ref: '#/components/responses/ServerError'
+      security:
+      - OAuth2:
+        - eduv.student.basic
+        - eduv.student.demographics
+        - eduv.student.communication
+        - eduv.student.accessibility
+        - eduv.student.deliveryaddress
+  /students/school:
+    parameters:
+    - schema:
+        type: string
+      name: orgMasterId
+      in: query
+      required: false
+      description: 'The organisationMasterIdentifier of the school.
+
+        This parameter is used when the primary identifier for a school (being the `OnderwijsaanbiederId`)
+        is available.
+
+        '
+      x-vullingsregel: Gebruik óf orgMasterId, óf de combinatie orgId + orgIdType, nooit beide in hetzelfde
+        request (zie "Organisatie-identiteiten en filtergedrag").
+    - schema:
+        type: string
+      name: orgId
+      in: query
+      required: false
+      description: 'The organisationIdentifier (secondary identifier) of the school.
+
+        This parameter is used in combination with the orgIdType when the organisationMasterIdentifier
+        is not available.
+
+        '
+      x-vullingsregel: Gebruik óf orgMasterId, óf de combinatie orgId + orgIdType, nooit beide in hetzelfde
+        request (zie "Organisatie-identiteiten en filtergedrag").
+    - schema:
+        type: string
+        example: DD_ID
+        enum:
+        - OIE_CODE
+        - BP_ID
+        - DD_ID
+        - AS_ID
+        - V_ID
+      name: orgIdType
+      in: query
+      required: false
+      description: 'The type of the organisationIdentifier.
+
+        This parameter is used in combination with the orgId when the organisationMasterIdentifier is
+        not available.
+
+
+        The following values are supported:
+
+        - `OIE_CODE`: OnderwijsInstellingserkenningcode
+
+        - `BP_ID`: Basispoort-generated identifier for the school
+
+        - `DD_ID`: DigiDeliveryId generated by the Central Registration of Edu-iX
+
+        - `AS_ID`: LAS-generated identifier (LAS-Key) for the school
+
+        - `V_ID`: VestigingsId – BRIN6-format identifier, including dummy locations
+
+        '
+      x-vullingsregel: Gebruik óf orgMasterId, óf de combinatie orgId + orgIdType, nooit beide in hetzelfde
+        request (zie "Organisatie-identiteiten en filtergedrag").
+    - schema:
+        type: boolean
+      name: filterByOrgId
+      in: query
+      required: false
+      description: "Controls whether the response is filtered to only include Students belonging to the\n\
+        specific organisation identified by `orgId` and `orgIdType`, or whether all Students\nof the associated\
+        \ Onderwijsaanbieder are returned.\n\n- `true`: Only Students belonging to the specified secondary\
+        \ identifier are returned.\n- `false`: All Students of the associated Onderwijsaanbieder are returned\
+        \ (to the extent authorisations have been configured).\n\nWhen omitted, a sector-specific default\
+        \ applies:\n- **PO (primary education):** defaults to `true` – response is filtered to the specified\
+        \ identifier.\n- **VO (secondary education):** defaults to `false` – response covers the full\
+        \ Onderwijsaanbieder scope.\n\nThis parameter is only relevant in combination with `orgId` and\
+        \ `orgIdType`.\n  When `orgMasterId` is used, this parameter must be absent or `false`.\n\nIt\
+        \ is the responsibility of the consuming party to verify whether the Source supports\nfiltering\
+        \ via this parameter before using it.\n"
+    - schema:
+        type: string
+      name: schoolPeriodId
+      in: query
+      required: false
+      description: Optional filter to request all Student objects enrolled in a specified SchoolPeriod
+        and its corresponding schoolPeriodId.
+    - schema:
+        type: string
+      name: studyOfferingId
+      in: query
+      required: false
+      description: Optional filter to request all Student objects enrolled in a StudyOffering and its
+        corresponding studyOfferingId.
+    - schema:
+        type: string
+      name: subjectOfferingId
+      in: query
+      required: false
+      description: Optional filter to request Student objects enrolled in a SubjectOffering and its corresponding
+        subjectOfferingId.
+    get:
+      x-eduv-error-codes:
+      - '2001'
+      - '2002'
+      - '2003'
+      - '2008'
+      summary: Get Students for School
+      x-tags:
+      - Student
+      tags:
+      - Administratiesysteem onderwijsdeelnemer
+      operationId: get-students-for-school
+      description: Request all Student objects including basic information (identifiers and names) for
+        a specified school.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Student'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '405':
+          $ref: '#/components/responses/MethodNotAllowed'
+        '500':
+          $ref: '#/components/responses/ServerError'
+      security:
+      - OAuth2:
+        - eduv.student.basic
+        - eduv.student.demographics
+        - eduv.student.communication
+        - eduv.student.accessibility
+        - eduv.student.deliveryaddress
+x-tags:
+- name: Student
+- name: StudentDemographics
+- name: StudentCommunication
+- name: StudentAccessibility
+- name: StudentDeliveryAddress

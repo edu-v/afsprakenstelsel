@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <title>Students API | Edu-V</title>
+  <style>
+    body { font-family: Arial, sans-serif; font-size: 13px; margin: 40px; color: #222; background: white; max-width: 1100px; }
+    h1 { font-size: 20px; margin-bottom: 4px; color: #2176c7; }
+    h2 { font-size: 15px; margin-top: 36px; margin-bottom: 6px; border-bottom: 2px solid #2176c7; padding-bottom: 4px; color: #2176c7; }
+    h3 { font-size: 13px; margin-top: 24px; margin-bottom: 4px; color: #444; }
+    .meta { color: #888; font-size: 11px; margin-bottom: 8px; }
+    .version-badge { display: inline-block; background: #2176c7; color: white; border-radius: 4px; padding: 2px 10px; font-size: 11px; font-weight: bold; margin-bottom: 12px; }
+    .status-badge { display: inline-block; background: #e8f4ea; color: #1a7a4a; border: 1px solid #b0d8b8; border-radius: 3px; padding: 2px 9px; font-size: 11px; font-weight: bold; margin-left: 6px; }
+    .status-beta { background: #fef3e2; color: #b7691a; border-color: #f0c090; }
+    .status-candidate { background: #e8f0fe; color: #2176c7; border-color: #b0c8f0; }
+    .status-draft { background: #f0f0f0; color: #666; border-color: #ccc; }
+    .description { font-size: 12px; color: #444; line-height: 1.6; max-width: 820px; margin-bottom: 24px; }
+    .description p, .description ul { margin: 0 0 10px; } .description h4 { font-size: 12px; margin: 14px 0 4px; }
+    .description code, .schema-desc code, .toelichting code { font-family: monospace; background: #f2f2f2; padding: 0 3px; border-radius: 3px; }
+
+    /* Metadatatabel */
+    .meta-table { width: 100%; border-collapse: collapse; margin-bottom: 24px; font-size: 12px; }
+    .meta-table td { padding: 7px 12px; border: 1px solid #e0e0e0; vertical-align: top; }
+    .meta-table td:first-child { width: 150px; background: #f7f7f7; font-weight: bold; color: #555; }
+    .meta-tag { display: inline-block; background: #f0f0f0; border-radius: 3px; padding: 1px 7px; margin: 2px 2px 2px 0; font-size: 11px; }
+
+    /* Toelichting blok */
+    .toelichting { background-color: #f9f4ee; border-left: 3px solid #2176c7; padding: 9px 13px; margin-bottom: 12px; font-size: 12px; line-height: 1.6; color: #555; }
+
+    /* Endpoints tabel */
+    .endpoints-table { width: 100%; border-collapse: collapse; margin-bottom: 32px; font-size: 12px; }
+    .endpoints-table th { background: #2176c7; color: white; text-align: left; padding: 8px 12px; }
+    .endpoints-table td { padding: 7px 12px; border-bottom: 1px solid #eee; vertical-align: top; }
+    .endpoints-table tr:hover { background: #f9f9f9; }
+    .method { font-weight: bold; font-family: monospace; font-size: 11px; padding: 2px 6px; border-radius: 3px; }
+    .method-put { background: #fef3e2; color: #b7691a; }
+    .method-get { background: #e8f4ea; color: #1a7a4a; }
+    .method-post { background: #e8f0fe; color: #2176c7; }
+    .method-delete { background: #fde8e6; color: #c0392b; }
+    .path { font-family: monospace; font-size: 11px; color: #333; }
+
+    /* Schema veldentabel */
+    .schema-table { width: 100%; border-collapse: collapse; margin-bottom: 28px; font-size: 12px; }
+    .schema-table th { background: #f0f0f0; text-align: left; padding: 7px 10px; border-bottom: 2px solid #ccc; font-size: 11px; }
+    .schema-table td { padding: 6px 10px; border-bottom: 1px solid #eee; vertical-align: top; }
+    .schema-table tr:hover { background: #fafafa; }
+    .field-name { font-family: monospace; font-weight: bold; color: #2176c7; font-size: 11px; }
+    .field-type { font-family: monospace; font-size: 10px; color: #666; }
+    .badge-v { background: #fde8e6; color: #c0392b; font-size: 10px; font-weight: bold; padding: 1px 5px; border-radius: 3px; }
+    .badge-o { background: #e8f0fe; color: #2176c7; font-size: 10px; padding: 1px 5px; border-radius: 3px; }
+    .enum-list { font-family: monospace; font-size: 10px; color: #666; margin-top: 3px; }
+    .enum-val { display: inline-block; background: #f0f0f0; padding: 1px 4px; border-radius: 2px; margin: 1px 2px 1px 0; }
+    .ref-link { font-family: monospace; font-size: 10px; color: #2176c7; }
+    .schema-desc { font-size: 11px; color: #555; line-height: 1.4; }
+
+    /* Contact footer */
+    .footer { margin-top: 48px; font-size: 11px; color: #aaa; border-top: 1px solid #eee; padding-top: 12px; }
+  </style>
+</head>
+<body>
+
+<h1>Students API</h1>
+<div class="meta">Edu-V Afsprakenstelsel &nbsp;|&nbsp; Gegenereerd op 19 November 2026 &nbsp;|&nbsp; Bron: students-api.yaml</div>
+<div style="margin-bottom:20px;">
+  <span class="version-badge">v1.2.0-rc.1</span><span class="status-badge status-candidate">Release Candidate</span>
+</div>
+
+<table class="meta-table">
+<tr><td>Status</td><td><span class="status-badge status-candidate">Release Candidate</span></td></tr>
+<tr><td>Versie</td><td>1.2.0-rc.1</td></tr>
+<tr><td>Afkorting</td><td>STU</td></tr>
+<tr><td>Beheer</td><td>Werkgroep Doorgifte Administratie</td></tr>
+<tr><td>Ingangsdatum</td><td>2027-01-14</td></tr>
+<tr><td>Gegevensdienst</td><td>Onderwijsdeelnemers; Onderwijsdeelnemers Demografie; Onderwijsdeelnemers Communicatie; Onderwijsdeelnemers Toegankelijkheid; Onderwijsdeelnemers Adresgegevens fijndistributie</td></tr>
+<tr><td>Bron</td><td><span class="meta-tag">Administratiesysteem onderwijsdeelnemer</span></td></tr>
+<tr><td>Afnemers</td><td><span class="meta-tag">student.basic/communication: Bestelomgeving leermiddelen</span> <span class="meta-tag">student.basic/communication: Dienst met SSO</span> <span class="meta-tag">student.basic/communication: Authenticerende Dienst</span> <span class="meta-tag">student.basic/communication: Authenticerende Identity Provider</span> <span class="meta-tag">student.basic/communication: Delegerende Identity Provider</span> <span class="meta-tag">student.demographics: Digitaal toetssysteem</span> <span class="meta-tag">student.accessibility: nog geen afnemers</span> <span class="meta-tag">student.deliveryaddress: Bestelomgeving leermiddelen</span></td></tr>
+</table>
+
+<h2>Beschrijving</h2>
+<div class="description"><p>The Students API is implemented by the <code>Administratiesysteem onderwijsdeelnemer</code>.</p><p>Student data is split into the following objects with corresponding attributes:</p><ul><li>Basic data: identifiers and name</li><li>Demographics: gender and dateOfBirth</li><li>Communication: email</li><li>Accessibility: language and accessibility preferences</li><li>DeliveryAddress: home address and email addresses</li></ul><p>Not all Student attributes are available to all consuming reference components. For example delivery address attributes are only available to the <code>Bestelomgeving leermiddelen</code>.<br>All objects have a different security scope which allows the <code>Administratiesysteem onderwijsdeelnemer</code> to share the attributes only with the reference components that are allowed to receive the attributes.</p><p>All consuming reference components require consent to request data from the Student API.<br>The Notifications API can be used by consuming reference components to receive notifications about new, modified, or deleted entities within the Students API.</p><p>The Students API has a scope of primary and secondary education. Vocational education is out of scope. For Vocational Education we advise to use the <a href="https://openonderwijsapi.nl/" target="_blank">Open Education API (OOAPI)</a>.</p></div>
+<h2>Endpoints</h2>
+<table class="endpoints-table">
+  <thead><tr><th>Methode</th><th>Pad</th><th>Omschrijving</th><th>Tag</th><th>Foutcodes</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><span class="method method-post">POST</span></td>
+      <td><span class="path">/students</span></td>
+      <td>Search Student</td>
+      <td style="font-size:10px;color:#888;">Administratiesysteem onderwijsdeelnemer</td>
+      <td style="font-size:11px;">2001, 2004</td>
+    </tr>    <tr>
+      <td><span class="method method-get">GET</span></td>
+      <td><span class="path">/students/school</span></td>
+      <td>Get Students for School</td>
+      <td style="font-size:10px;color:#888;">Administratiesysteem onderwijsdeelnemer</td>
+      <td style="font-size:11px;">2001, 2002, 2003, 2008</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2>Schemas</h2>
+<h3>Student</h3>
+<div class="description"><p>The Student object with its identifiers and name information.</p><p>Based on the scopes additional attributes can be included in this object.</p><h4>student.demographics</h4><p>Demographic data of a Student:</p><ul><li><code>dateOfBirth</code></li><li><code>gender</code></li></ul><h4>student.communication</h4><p>Communication data of the Student. For Students this is only the <code>e-mail</code> address as provided by the School.</p><h4>student.accessibility</h4><p><code>accessibility</code> and <code>language</code> preferences for the Student. StudentAccessibility is an optional object for the Students API.</p><ul><li>As an illustration the accessibility of AdditionalTestingTime is specified within this version.</li><li>Based on actual requirements from schools and suppliers, this list of preferences can be extended.</li><li>A possible next candidate might be the <a href="https://www.imsglobal.org/sites/default/files/spec/afa/3p0/information_model/imsafa3p0pnp_v1p0_InfoModel.html#Data_Braille" target="_blank">Braille class</a>.</li></ul><h4>student.deliveryaddress</h4><p>Delivery address data of a Student:</p><ul><li><code>address</code></li><li><code>emailPrivate</code></li><li><code>emailsParents</code></li></ul></div><div class="toelichting">Het Student-object met identifiers en naamgegevens. Op basis van de toegekende scopes kunnen aanvullende attributen in dit object worden opgenomen: student.demographics (dateOfBirth, gender), student.communication (email), student.accessibility (accessibility, language) en student.deliveryaddress (address, emailPrivate, emailsParents).</div>
+<div class="toelichting">Indien userMasterIdentifier leeg: verplicht: userIds</div><table class="schema-table">
+  <thead><tr><th>Veld</th><th>Type</th><th>V/O</th><th>Omschrijving</th><th>Vullingsregel</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><span class="field-name">userMasterIdentifier</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">The primary identifier for the Student. For Students the ECK iD is used.</span></td>
+      <td><span class="schema-desc">De werkingsregel is dat de primaire identifier wordt gehanteerd in het object. De primaire identifier voor de onderwijsdeelnemer is het ECKiD.</span></td>
+    </tr>    <tr>
+      <td><span class="field-name">userIds</span></td>
+      <td><span class="ref-link">→ array[Student.userIds]</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">A secondary identifier for a User. This value is used whenever the primary identifier is not available. (either userMasterIdentifier or userIds is required)</span></td>
+      <td><span class="schema-desc">Zodra een secundaire identifier voor een uitzonderingssituatie gehanteerd wordt, wordt naast het Id ook het Type gespecificeerd. Zie de pagina Identiteiten voor de toegestane secundaire identifiers.</span></td>
+    </tr>    <tr>
+      <td><span class="field-name">givenName</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc"></span></td>
+      <td><span class="schema-desc"></span></td>
+    </tr>    <tr>
+      <td><span class="field-name">preferredFirstName</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc"></span></td>
+      <td><span class="schema-desc"></span></td>
+    </tr>    <tr>
+      <td><span class="field-name">familyName</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc"></span></td>
+      <td><span class="schema-desc"></span></td>
+    </tr>    <tr>
+      <td><span class="field-name">familyNamePrefix</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc"></span></td>
+      <td><span class="schema-desc"></span></td>
+    </tr>    <tr>
+      <td><span class="field-name">dateOfBirth</span></td>
+      <td><span class="field-type">string (date)</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">format: YYYY-MM-DD (according to RFC3339)</span></td>
+      <td><span class="schema-desc"></span></td>
+    </tr>    <tr>
+      <td><span class="field-name">gender</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">The gender of the Student. The following values are used: - <code>female</code>: gender is Female - <code>male</code>: gender is Male - <code>other</code>: gender that is known but which is not either Male or Female. - <code>unspecified</code>: unspecified as no data entry for this field has been made.</span><div class="enum-list">enum: <span class="enum-val">female</span> <span class="enum-val">male</span> <span class="enum-val">other</span> <span class="enum-val">unspecified</span></div></td>
+      <td><span class="schema-desc">unspecified dient gekozen te worden indien de data niet beschikbaar is. other dient gekozen te worden indien het geslacht wel bekend is maar geen female of male is.</span></td>
+    </tr>    <tr>
+      <td><span class="field-name">email</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">E-mail address hosted by school (e.g. L123456@school.nl).</span></td>
+      <td><span class="schema-desc"></span></td>
+    </tr>    <tr>
+      <td><span class="field-name">language</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">The language preference of the Student. Format according to <a href="https://www.iso.org/standard/74575.html" target="_blank">ISO639 Set 3 values</a> for Language tags. On <a href="https://en.wikipedia.org/wiki/List_of_ISO_639_language_codes" target="_blank">Wikipedia</a> an example list can be found.</span></td>
+      <td><span class="schema-desc">ISO639 set 3 waardes worden gehanteerd.</span></td>
+    </tr>    <tr>
+      <td><span class="field-name">accessibility</span></td>
+      <td><span class="field-type">array[AccessibilityPreference]</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">Accessibility preferences for this student. Based on <a href="https://www.imsglobal.org/sites/default/files/spec/afa/3p0/information_model/imsafa3p0pnp_v1p0_InfoModel.html" target="_blank">IMS Global Access for All (AfA) Personal Needs and Preferences (PNP) Information model</a></span></td>
+      <td><span class="schema-desc">De voorkeuren worden gevuld op basis van de AfA- of PnP-voorkeuren zoals gedefinieerd door 1EdTech. In de YAML is ter illustratie AdditionalTestingTime uitgewerkt.</span></td>
+    </tr>    <tr>
+      <td><span class="field-name">address</span></td>
+      <td><span class="ref-link">→ Student.address</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">The home address of the Student.</span></td>
+      <td><span class="schema-desc">Optioneel; onderdeel van de student.deliveryaddress-scope.</span></td>
+    </tr>    <tr>
+      <td><span class="field-name">emailPrivate</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">Private e-mail address of the student.</span></td>
+      <td><span class="schema-desc"></span></td>
+    </tr>    <tr>
+      <td><span class="field-name">emailsParents</span></td>
+      <td><span class="field-type">array[string]</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc"></span></td>
+      <td><span class="schema-desc"></span></td>
+    </tr>    <tr>
+      <td><span class="field-name">alias</span></td>
+      <td><span class="field-type">string (string)</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">An additional field to distinct students on screen who carry the same name.</span></td>
+      <td><span class="schema-desc"></span></td>
+    </tr>    <tr>
+      <td><span class="field-name">status</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">The status field gives an indication to Consumers about the status of an object. Consumers can delete objects that are flagged <code>tobedeleted</code>  as such if they wish.  The status attribute is based on the <a href="https://www.imsglobal.org/sites/default/files/spec/oneroster/v1p2/rostering-informationmodel/OneRosterv1p2RosteringService_InfoModelv1p0.html#Data_Base" target="_blank">Base Class from OneRoster</a>.</span><div class="enum-list">enum: <span class="enum-val">active</span> <span class="enum-val">tobedeleted</span></div></td>
+      <td><span class="schema-desc"></span></td>
+    </tr>    <tr>
+      <td><span class="field-name">dateCreated</span></td>
+      <td><span class="field-type">string (date-time)</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">Indicates the date and time the object was first created. Format: According to openapi in ZULU time as specified in RFC 3339, section 5.6.</span></td>
+      <td><span class="schema-desc"></span></td>
+    </tr>    <tr>
+      <td><span class="field-name">dateLastModified</span></td>
+      <td><span class="field-type">string (date-time)</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">Indicates the date and time the object was last modified. Format: According to openapi in ZULU time as specified in RFC 3339, section 5.6.</span></td>
+      <td><span class="schema-desc"></span></td>
+    </tr>
+  </tbody>
+</table>
+<h3>Student.userIds</h3>
+
+<table class="schema-table">
+  <thead><tr><th>Veld</th><th>Type</th><th>V/O</th><th>Omschrijving</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><span class="field-name">userId</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc"></span></td>
+      
+    </tr>    <tr>
+      <td><span class="field-name">userIdType</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc"></span><div class="enum-list">enum: <span class="enum-val">NEPPI</span> <span class="enum-val">BPI</span> <span class="enum-val">eduID</span> <span class="enum-val">NEPRI</span> <span class="enum-val">ASI</span></div></td>
+      
+    </tr>
+  </tbody>
+</table>
+<h3>Student.address</h3>
+<div class="description"><p>The home address of the Student.</p></div>
+<table class="schema-table">
+  <thead><tr><th>Veld</th><th>Type</th><th>V/O</th><th>Omschrijving</th><th>Vullingsregel</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><span class="field-name">street</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc"></span></td>
+      <td><span class="schema-desc"></span></td>
+    </tr>    <tr>
+      <td><span class="field-name">houseNumber</span></td>
+      <td><span class="field-type">integer</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">the house number</span></td>
+      <td><span class="schema-desc"></span></td>
+    </tr>    <tr>
+      <td><span class="field-name">houseNumberSuffix</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">additions to the house number, e.g. A or -104</span></td>
+      <td><span class="schema-desc"></span></td>
+    </tr>    <tr>
+      <td><span class="field-name">zipCode</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc"></span></td>
+      <td><span class="schema-desc">Waarde is bij een Nederlands adres volgens het patroon van 4 cijfers en 2 letters.</span></td>
+    </tr>    <tr>
+      <td><span class="field-name">city</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc"></span></td>
+      <td><span class="schema-desc"></span></td>
+    </tr>    <tr>
+      <td><span class="field-name">countryCode</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">According to Alpha-2 code from ISO 3166, e.g. NL</span></td>
+      <td><span class="schema-desc">Waarde is de Alpha-2 code (2 letters) uit de ISO 3166 standaard die correspondeert met het land zoals aangegeven door het veld country.</span></td>
+    </tr>    <tr>
+      <td><span class="field-name">country</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc"></span></td>
+      <td><span class="schema-desc"></span></td>
+    </tr>
+  </tbody>
+</table>
+
+<h3>AccessibilityPreference</h3>
+<p class="description">Een van (oneOf):</p>
+<table class="schema-table">
+  <thead><tr><th>Variant</th><th>Pattern</th><th>Omschrijving</th></tr></thead>
+  <tbody>
+    <tr><td>AdditionalTestingTime</td><td><span class="schema-desc"></span></td><td><span class="schema-desc"></span></td></tr>
+  </tbody>
+</table>
+
+<h3>AdditionalTestingTime</h3>
+<div class="description"><p>The AdditionalTestingTime preference for a Student. Either <code>time-multiplier</code>, <code>fixed-minutes</code> or <code>unlimited</code> is used.</p></div>
+<table class="schema-table">
+  <thead><tr><th>Veld</th><th>Type</th><th>V/O</th><th>Omschrijving</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><span class="field-name">additionalTestingTime</span></td>
+      <td><span class="ref-link">→ AdditionalTestingTime.additionalTestingTime</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc"></span></td>
+      
+    </tr>
+  </tbody>
+</table>
+<h3>AdditionalTestingTime.additionalTestingTime</h3>
+
+<table class="schema-table">
+  <thead><tr><th>Veld</th><th>Type</th><th>V/O</th><th>Omschrijving</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><span class="field-name">time-multiplier</span></td>
+      <td><span class="field-type">number</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">Providing the additional testing time as a multiplier of the set time.</span></td>
+      
+    </tr>    <tr>
+      <td><span class="field-name">fixed-minutes</span></td>
+      <td><span class="field-type">integer</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">Providing the additional testing time as an additional number of minutes.</span></td>
+      
+    </tr>    <tr>
+      <td><span class="field-name">unlimited</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">Providing the additional testing time as an unlimited time.</span><div class="enum-list">default: <span class="enum-val"></span></div></td>
+      
+    </tr>
+  </tbody>
+</table>
+
+<h3>UserReference</h3>
+
+<div class="toelichting">Indien userMasterIdentifier leeg: verplicht: userIds</div><table class="schema-table">
+  <thead><tr><th>Veld</th><th>Type</th><th>V/O</th><th>Omschrijving</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><span class="field-name">userMasterIdentifier</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">The primary identifier for a User. For Students the ECK iD is used. (either userMasterIdentifier or userIds is required)</span></td>
+      
+    </tr>    <tr>
+      <td><span class="field-name">userIds</span></td>
+      <td><span class="ref-link">→ array[UserReference.userIds]</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">A secondary identifier for a User. This value is used whenever the primary identifier is not available. (either userMasterIdentifier or userIds is required)</span></td>
+      
+    </tr>
+  </tbody>
+</table>
+<h3>UserReference.userIds</h3>
+
+<table class="schema-table">
+  <thead><tr><th>Veld</th><th>Type</th><th>V/O</th><th>Omschrijving</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><span class="field-name">userId</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc"></span></td>
+      
+    </tr>    <tr>
+      <td><span class="field-name">userIdType</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc"></span><div class="enum-list">enum: <span class="enum-val">NEPPI</span> <span class="enum-val">BPI</span> <span class="enum-val">eduID</span> <span class="enum-val">NEPRI</span> <span class="enum-val">ASI</span> <span class="enum-val">eckId</span></div></td>
+      
+    </tr>
+  </tbody>
+</table>
+
+<h3>SchoolReference</h3>
+<div class="description"><p>A reference to a School organisation.</p></div>
+<div class="toelichting">Indien organisationMasterIdentifier gevuld: niet toegestaan: organisationIds; anders verplicht: organisationIds</div><table class="schema-table">
+  <thead><tr><th>Veld</th><th>Type</th><th>V/O</th><th>Omschrijving</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><span class="field-name">organisationMasterIdentifier</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">The primary identifier for a School. For Schools the <code>OnderwijsaanbiederId</code> is used. (exactly one of organisationMasterIdentifier or organisationIds must be present)</span></td>
+      
+    </tr>    <tr>
+      <td><span class="field-name">organisationIds</span></td>
+      <td><span class="ref-link">→ array[SchoolReference.organisationIds]</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">A secondary identifier for the School. This value is used whenever the primary identifier is not available. (exactly one of organisationMasterIdentifier or organisationIds must be present)</span></td>
+      
+    </tr>
+  </tbody>
+</table>
+<h3>SchoolReference.organisationIds</h3>
+
+<table class="schema-table">
+  <thead><tr><th>Veld</th><th>Type</th><th>V/O</th><th>Omschrijving</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><span class="field-name">organisationId</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc"></span></td>
+      
+    </tr>    <tr>
+      <td><span class="field-name">organisationIdType</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc"></span><div class="enum-list">enum: <span class="enum-val">OIE_CODE</span> <span class="enum-val">BP_ID</span> <span class="enum-val">DD_ID</span> <span class="enum-val">AS_ID</span> <span class="enum-val">V_ID</span></div></td>
+      
+    </tr>
+  </tbody>
+</table>
+
+<h3>StatusResponse</h3>
+<div class="description"><p>Functional status code and status message.</p></div>
+<table class="schema-table">
+  <thead><tr><th>Veld</th><th>Type</th><th>V/O</th><th>Omschrijving</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><span class="field-name">status</span></td>
+      <td><span class="field-type">integer</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">Functional status code, as defined in &quot;Status- en foutcodes 1.0.0&quot;. Codes are sent as integers without leading zeros (0011 = 11).  Algemeen (00xx) - applies to every API:   * <code>0000</code> - OK: Bevraging succesvol (HTTP 200).   * <code>0001</code> - Created: Bericht heeft geleid tot registratie van een nieuwe entiteit (HTTP 201).   * <code>0002</code> - Accepted: Bericht geaccepteerd (HTTP 202).   * <code>0011</code> - Schema incorrect: Schemavalidatie niet succesvol (HTTP 400).   * <code>0012</code> - schemaVersion not supported: De ontvanger kan de gehanteerde schemaVersion niet verwerken (HTTP 400).   * <code>0021</code> - scope required: Leverancier is niet geautoriseerd voor scope (HTTP 401).   * <code>0022</code> - consent required: Informatieobject van classificatie IV zonder geactiveerde gegevensdienst (HTTP 403).   * <code>0023</code> - school unknown: De client communiceert in de context van een Onderwijsorganisatie die niet bekend is bij de server (HTTP 400).   * <code>0099</code> - Overige reden: Vullingsregel: neem in statusMessage een beschrijving van de reden op.  Students API (20xx):   * <code>2001</code> - School unknown: De identifier van de onderwijsorganisatie is onbekend.   * <code>2002</code> - SubjectOffering unknown: De identifier van het SchoolVak is onbekend.   * <code>2003</code> - StudyOffering unknown: De aangeboden opleiding is onbekend.   * <code>2004</code> - Student unknown: De identifier van de onderwijsdeelnemer is onbekend.   * <code>2008</code> - SchoolPeriod unknown: De identifier van de schoolperiode is onbekend.</span></td>
+      
+    </tr>    <tr>
+      <td><span class="field-name">statusMessage</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">See functional status messages within the Documentation.</span></td>
+      
+    </tr>
+  </tbody>
+</table>
+
+
+<div class="footer">
+  Edu-V &nbsp;|&nbsp; <a href="https://www.edu-v.org/afsprakenstelsel" style="color:#aaa;">www.edu-v.org/afsprakenstelsel</a> &nbsp;|&nbsp; info@edu-v.org
+</div>
+
+</body>
+</html>
