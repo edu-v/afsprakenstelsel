@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   title: Students API
-  version: '1.1.0'
+  version: '1.1.1-rc.1'
   description: |-
     The Students API is implemented by the `Administratiesysteem onderwijsdeelnemer`.
 
@@ -33,7 +33,7 @@ components:
         The API version number is communicated in the header.
         The major version is communicated in the URI.
         For more information see the [Edu-V versioning guidelines](https://edu-v.atlassian.net/wiki/spaces/AFSPRAKENS/pages/9437200/Versiebeheer).
-      default: 1.1.0
+      default: 1.1.1-rc.1
 
     Student:
       title: Student
