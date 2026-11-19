@@ -124,14 +124,14 @@ components:
           type: string
           description: |
             Official name of the study.
-            - primary education: the `po-opleidingseenheden in RIO korte naam` name as specified in [Waardenlijst Opleidingseenheden po](https://www.edustandaard.nl/standaard_werkgroepen/beheergroep-waardenlijsten-rio/) is used.
-            - secondary education: the `vo-opleidingseenheden in RIO korte naam` name as specified in [Waardenlijst Opleidingseenheden vo](https://www.edustandaard.nl/standaard_werkgroepen/beheergroep-waardenlijsten-rio/) is used.
+            - primary education: the `po-opleidingseenheden in RIO korte naam` name as specified in [Waardenlijsten RIO-po, schooljaar 2026-2027](https://www.edustandaard.nl/standaard_werkgroepen/beheergroep-waardenlijsten-rio/) is used.
+            - secondary education: the `korte naam` as specified in [Waardenlijst Opleidingen en opleidingsgroepen vo, schooljaar 2026-2027, v1.01](https://www.edustandaard.nl/standaard_werkgroepen/beheergroep-waardenlijsten-rio/), tab `Opleidingseenheden (volledig)`, is used.
         studyCode:
           type: string
           description: |
             Accepteert 4 cijfers (0011) of 4 cijfers, een 'O', en weer 4 cijfers (1000O0020).
-            Primair onderwijs (BO & SO): opleidingseenheid code (9 karakters) conform waardelijst RIO po https://www.edustandaard.nl/standaard_werkgroepen/beheergroep-waardenlijsten-rio/
-            Voortgezet onderwijs (VO & VSO): erkende opleidingscode (4 karakters) conform Regeling Codetabellen VO, VSO en MBO https://wetten.overheid.nl/BWBR0048579/2025-08-28/?g=2025-08-28&z=2025-08-28#BijlageIa
+            Primair onderwijs (BO & SO): opleidingseenheid code (9 karakters) conform [Waardenlijsten RIO-po, schooljaar 2026-2027](https://www.edustandaard.nl/standaard_werkgroepen/beheergroep-waardenlijsten-rio/)
+            Voortgezet onderwijs (VO & VSO): opleidingseenheidcode (O-code, 9 karakters, bv. 1002O2254) conform [Waardenlijst Opleidingen en opleidingsgroepen vo, schooljaar 2026-2027, v1.01](https://www.edustandaard.nl/standaard_werkgroepen/beheergroep-waardenlijsten-rio/), tabblad `Opleidingseenheden (volledig)`, kolom A
           example: "1000O0020"
           pattern: '^(\d{4}|\d{4}O\d{4})$'
         studyCharacteristics:
@@ -146,7 +146,7 @@ components:
           type: object
           description: |
             Official level of the study.
-            Primary and secondary education studyLevels are based on the `Niveau` as specified in [SLO curriculum](https://opendata.slo.nl/curriculum/2023/api/v1/niveau/)
+            Primary and secondary education studyLevels are based on the `Niveau` as specified in [SLO curriculum 2026](https://opendata.slo.nl/curriculum/2026/api/v1/niveau/)
           properties:
             studyLevelId:
               type: string
@@ -228,10 +228,8 @@ components:
           type: string
           description: |
             Official code of the subject.
-            - primary education: the `vakcode` as specified in [Waardenlijst Vakken po](https://www.edustandaard.nl/standaard_werkgroepen/beheergroep-waardenlijsten-rio/) is used.
-            - secondary education: the `vakcode` as specified in [Waardenlijst Vakken vo](https://www.edustandaard.nl/standaard_werkgroepen/beheergroep-waardenlijsten-rio/) is used.
-
-            Note: The value list is not yet available. As Edu-V we are working on a standardized list of subject codes in cooperation with the Edustandaard working committee.
+            For primary and secondary education: the `Prefix` as specified in [Waardenlijst Vakken en leergebieden po en vo, schooljaar 2026-2027, v1.01](https://www.edustandaard.nl/standaard_werkgroepen/beheergroep-waardenlijsten-rio/), tab `Leermiddelenketen`, column C, is used.
+            Note: a Prefix can belong to more than one subject, so the subjectCode does not always identify a single subject.
         studyOfferings:
           type: array
           items:
