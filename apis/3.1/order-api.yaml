@@ -1,0 +1,1033 @@
+openapi: 3.1.1
+info:
+  title: Order API
+  version: 1.1.0-rc.1
+  description: 'The Order API is implemented by the reference components `Bestelomgeving leermiddelen`
+    and `Ordersysteem leermiddelen`.
+
+
+    The `Bestelomgeving leermiddelen` is able to send an OrderRequest or CreditOrderRequest to the `Ordersysteem
+    leermiddelen`.
+
+
+    Requests are send and received via asynchronous transactions. Therefore the `Ordersysteem leermiddelen`
+    need to implement endpoints to receive requests. Moreover the `Bestelomgeving leermiddelen` needs
+    to implement confirmation endpoints to receive confirmations from the `Ordersysteem leermiddelen`
+    that requests have been processed.'
+  contact:
+    name: Edu-V
+    url: www.edu-v.org/afsprakenstelsel
+    email: info@edu-v.org
+  x-afkorting: ORD
+  x-status: release-candidate
+  x-beheer: Werkgroep Verwerven en in gebruik nemen
+  x-ingangsdatum: '2027-01-14'
+  x-gegevensdienst: Leermiddelorders
+  x-bron:
+  - Bestelomgeving leermiddelen
+  x-afnemers:
+  - Ordersysteem leermiddelen
+components:
+  schemas:
+    schemaVersion:
+      description: 'Schema version of this API using semantic versioning 2.0.0.
+
+        The API version number is communicated in the header.
+
+        The major version is communicated in the URI.
+
+        For more information see the [Edu-V versioning guidelines](https://edu-v.atlassian.net/wiki/spaces/AFSPRAKENS/pages/9437200/Versiebeheer).
+
+        '
+      type: string
+      default: 1.1.0-rc.1
+    OrderRequest:
+      title: OrderRequest
+      description: 'Request send by the `Bestelomgeving leermiddelen` to the `Ordersysteem leermiddelen`
+        to place an order with a quantity for a single Product.
+
+        '
+      type: object
+      x-tags:
+      - Order
+      x-toelichting: Het OrderRequest bericht wordt door de Bestelomgeving leermiddelen van een leermiddelenverkoper
+        verstuurd naar het Ordersysteem leermiddelen van een leermiddelenaanbieder. In de berichtspecificatie
+        is een requestReferenceId opgenomen die wordt bepaald door de Bestelomgeving leermiddelen. Dit
+        stelt de Bestelomgeving leermiddelen in staat om het bevestigingsbericht van het Ordersysteem
+        leermiddelen terug te relateren aan het verstuurde OrderRequest bericht.
+      properties:
+        requestReferenceId:
+          type: string
+          description: 'Unique requestReferenceId for this request. This referenceId is used by the Event
+            Mediator of the `Bestelomgeving leermiddelen` to match the OrderConfirmation confirmation
+            message(s) send by the `Ordersysteem leermiddelen`.
+
+            If a party receives another request with the same requestReferenceId value, the receiving
+            party should not process the request again. It should send the confirmation again.
+
+            '
+          format: uuid
+          x-voorbeeld: eacb81ef-c9d5-4bd8-a624-4088bee04b73
+          x-vullingsregel: Dit nummer wordt gebruikt door de event mediator van de Bestelomgeving leermiddelen
+            om een logboek bij te houden van verzonden en ontvangen meldingen met betrekking tot een unieke
+            aanvraag.
+        purchaseOrderId:
+          type: string
+          description: Purchase order number as defined by the `Bestelomgeving leermiddelen`. This number
+            is linked to the financial system of the `Bestelomgeving leermiddelen`.
+          x-voorbeeld: OW1234
+          x-vullingsregel: Waarde mag niet gewijzigd worden
+        purchaseOrderType:
+          type: string
+          description: Optional orderType field which can be used by suppliers to optimize processing
+            of requests and confirmations.
+          example: Tender
+          x-voorbeeld: VSO
+          x-vullingsregel: In het voorbeeld staat VSO voor voor seizoensorder.
+        contractId:
+          type: string
+          description: An optional unique identifier for a contract between `Ordersysteem leermiddelen`
+            and `Bestelomgeving leermiddelen` where this request belongs to.
+          x-voorbeeld: 2022-12-v1
+          x-vullingsregel: Waarde mag niet gewijzigd worden.
+        deliveryLocation:
+          type: object
+          description: An optional address at which warehouse location the Product (physical learning
+            materials) should be delivered
+          properties:
+            name:
+              type: string
+              description: To the attention of...
+            street:
+              type: string
+              x-voorbeeld: Rijnkade
+            houseNumber:
+              type: integer
+              description: the house number
+              x-voorbeeld: '12'
+              x-vullingsregel: Huisnummer is verplicht.
+            houseNumberSuffix:
+              type: string
+              description: additions to the house number, e.g. A or -104
+              x-voorbeeld: a
+              x-vullingsregel: Toevoeging is optioneel.
+            zipCode:
+              type: string
+              x-voorbeeld: 1000 AA
+              x-vullingsregel: Waarde is bij een Nederlands adres volgens het patroon van 4 cijfers en
+                2 letters
+            city:
+              type: string
+              x-voorbeeld: Arnhem
+            countryCode:
+              type: string
+              description: According to Alpha-2 code from ISO 3166, e.g. NL
+              x-voorbeeld: NL
+              x-vullingsregel: Waarde is de Alpha-2 code (2 letters) uit de ISO 3166 standaard dat correspondeert
+                met het land zoals aangegeven door het veld Country
+            country:
+              type: string
+              x-voorbeeld: Nederland
+          required:
+          - street
+          - houseNumber
+          - zipCode
+          - city
+          - country
+          x-tags:
+          - Order
+          x-toelichting: Alle adresgegevens zijn samengevoegd in een blok. Dit adres kan in Nederland
+            en ook in het buitenland zijn.
+        deliveryDate:
+          type: string
+          description: 'Optional desired deliveryDate for delivery of the Product (physical learning materials).
+            Format: YYYY-MM-DD (according to RFC3339).'
+          format: date
+          example: '2022-07-31'
+          x-voorbeeld: '2024-03-11'
+        deliveryType:
+          $ref: '#/components/schemas/DeliveryType'
+        schoolBuyer:
+          type: object
+          description: Optional object with the school buyer, for the delivery of digital orders.
+          properties:
+            displayName:
+              type: string
+              description: Weergavenaam van de contactpersoon van de onderwijsorganisatie.
+              example: Jan Jansen
+            email:
+              type: string
+              description: E-mailadres van de contactpersoon van de onderwijsorganisatie.
+              format: email
+              example: j.jansen@deregenboog.nl
+            organisationMasterIdentifier:
+              type: string
+              description: 'The primary identifier for a School. For Schools the `OnderwijsaanbiederId`
+                is used.
+
+                (exactly one of organisationMasterIdentifier or organisationIds must be present)
+
+                '
+              example: 104A158
+              x-vullingsregel: Minimaal één van organisationMasterIdentifier of organisationIds moet ingevuld
+                zijn.
+            organisationIds:
+              type: array
+              description: 'A secondary identifier for the School.
+
+                (exactly one of organisationMasterIdentifier or organisationIds must be present)
+
+                '
+              items:
+                type: object
+                properties:
+                  organisationId:
+                    type: string
+                  organisationIdType:
+                    type: string
+                    enum:
+                    - OIE_CODE
+                    - BP_ID
+                    - DD_ID
+                    - AS_ID
+                required:
+                - organisationId
+                - organisationIdType
+              x-vullingsregel: Minimaal één van organisationMasterIdentifier of organisationIds moet ingevuld
+                zijn.
+          required:
+          - displayName
+          - email
+          x-tags:
+          - Order
+          x-toelichting: Het object schoolBuyer bevat informatie over een onderwijsorganisatie die leermiddelen
+            bestelt. De referentie naar een onderwijsorganisatie is uniform gespecificeerd voor alle APIs
+            en terug te vinden op de pagina Technische specificatie digitale identiteiten - referentie
+            onderwijsorganisatie. Aangevuld met contactgegevens (displayName en email).
+          if:
+            required:
+            - organisationMasterIdentifier
+          then:
+            not:
+              required:
+              - organisationIds
+          else:
+            required:
+            - organisationIds
+        orderLines:
+          type: array
+          items:
+            type: object
+            description: A line of the OrderRequest with the Product to order and its quantity.
+            properties:
+              purchaseOrderLineId:
+                type: string
+                description: Optional line item identifier.
+                x-voorbeeld: OW1234-2
+                x-vullingsregel: Waarde mag niet gewijzigd worden
+              productId:
+                type: string
+                description: The Product the `Bestelomgeving leermiddelen` orders. The productId can be
+                  retrieved from the Catalogue API from the `Ordersysteem leermiddelen`.
+                x-voorbeeld: 871792713 0834
+                x-vullingsregel: Een Order verwijst naar exact 1 Product-Beschrijving (Leermiddel- of
+                  Setbeschrijving). Waarde mag niet gewijzigd worden
+              quantity:
+                type: integer
+                description: The quantity of the Product the `Bestelomgeving leermiddelen` orders.
+                example: 1
+                x-voorbeeld: '100'
+                x-vullingsregel: Waarde mag niet gewijzigd worden.
+            required:
+            - productId
+            - quantity
+            x-tags:
+            - Order
+            x-toelichting: Een OrderLine bevat een referentie naar het te bestellen product en het gewenste
+              aantal.
+      required:
+      - requestReferenceId
+      - purchaseOrderId
+      - orderLines
+    OrderConfirmation:
+      title: OrderConfirmation
+      description: "The confirmation that is send back by the `Ordersysteem leermiddelen` as an asynchronous\
+        \ reply to the request of the `Bestelomgeving leermiddelen`.\n\nThe `Ordersysteem leermiddelen`\
+        \ will send a confirmation message back to the `Bestelomgeving leermiddelen` approving or declining\
+        \ the order request. In case the `Ordersysteem leermiddelen` declines, a functional status code\
+        \ and message is replied. \nConfirmations are only handled once. If a confirmation with the similar\
+        \ requestReferenceId is received the processing is only done the first time. The confirmation\
+        \ may be send multiple times, but always with the same responseReferenceId. In this way the `Bestelomgeving\
+        \ leermiddelen` can validate that the response is processed only once.\n\nFunctional status codes\
+        \ and messages are described in the Documentation.\n"
+      type: object
+      x-tags:
+      - Order
+      x-toelichting: Een Ordersysteem leermiddelen reageert op een OrderRequest bericht met een OrderConfirmation
+        bevestigingsbericht. In dit bevestigingsbericht wordt de requestReferenceId die door de Bestelomgeving
+        leermiddelen is aangemaakt opgenomen. In aanvulling hierop wordt optioneel de informatie uit de
+        order (puchaseOrderId) en de OrderLines (product, aantal, en purchaseOrderLineId) ook bevestigd.
+        Het Ordersysteem leermiddelen heeft de mogelijkheid om een eigen verkoopordernummer (salesOrderId
+        en salesOrderLineId) toe te voegen aan de orderbevestiging. Dit verkoopnummer kan gebruikt worden
+        door de Bestelomgeving leermiddelen in het geval van supportvragen over de orderbevestiging. Door
+        een tijdstempel op te nemen kan dit bevestigingsbericht worden gezien als een formele afspraak
+        tussen beide leveranciers.
+      properties:
+        responseReferenceId:
+          type: string
+          description: A reference to this confirmation message send by the `Ordersysteem leermiddelen`
+            to the `Bestelomgeving leermiddelen`.
+          format: uuid
+          x-voorbeeld: eacb81ef-c9d5-4bd8-a624-4088bee04b75
+          x-vullingsregel: Waarde mag niet gewijzigd worden.
+        requestReferenceId:
+          type: string
+          description: The requestReferenceId that was send by the `Bestelomgeving leermiddelen` as part
+            of the OrderRequest request
+          format: uuid
+          x-voorbeeld: eacb81ef-c9d5-4bd8-a624-4088bee04b73
+          x-vullingsregel: Waarde mag niet gewijzigd worden.
+        purchaseOrderId:
+          type: string
+          description: Purchase order number as defined by the `Bestelomgeving leermiddelen`. This number
+            is linked to the financial system of the `Bestelomgeving leermiddelen`.
+          x-voorbeeld: OW1234
+          x-vullingsregel: Optioneel kan de Aanbieder het purchaseOrderId echo-en.
+        salesOrderId:
+          type: string
+          description: Sales order number as defined by the `Ordersysteem leermiddelen`. This number is
+            linked to the financial system of the `Ordersysteem leermiddelen`.
+          x-voorbeeld: OA678
+          x-vullingsregel: Waarde mag niet gewijzigd worden.
+        purchaseOrderLineId:
+          type: string
+          description: Optional line number in case of an order with more than one product.
+        processedTimestamp:
+          type: string
+          description: 'The moment that the order was processed by the `Ordersysteem leermiddelen`. As
+            requests and confirmation messages are send asynchronous, this is not the moment the confirmation
+            message was send by the `Ordersysteem leermiddelen` to the `Bestelomgeving leermiddelen`.
+
+
+            Format: openapi in ZULU time as specified in RFC 3339, section 5.6
+
+            '
+          format: date-time
+          example: '2017-07-21T17:32:28Z'
+          x-vullingsregel: Het tijdstip kan afwijken van het versturen van het bevestigingsbericht. Intentie
+            is om aan te geven wanneer het bericht is verwerkt.
+        orderStatus:
+          type: string
+          description: The status of pending allows the `Ordersysteem leermiddelen` to communicate to
+            the `Bestelomgeving leermiddelen` that the approval process has started, but has not yet been
+            completed.
+          enum:
+          - pending
+          - approved
+          - declined
+          x-vullingsregel: Status pending wordt gecommuniceerd zodra de leverancier extra controles uit
+            gaat voeren (bijvoorbeeld credit check). Een bevestigingsbericht wordt op termijn opgevolgd
+            door een nieuw bevestigingsbericht met de status approved of declined. Indien declined, dan
+            wordt de foutcode gespecificeerd in statusMessage.
+        success:
+          type: boolean
+          description: 'Boolean indicating the OrderRequest was processed successfully.
+
+            When the `Ordersysteem leermiddelen` declines the request a false will be returned, along
+            with a status code and a status message.
+
+            '
+          x-vullingsregel: False indien het Ordersysteem leermiddelen niet akkoord is of er een fout is
+            opgetreden.
+        status:
+          type: integer
+          description: "Functional status code, as defined in \"Status- en foutcodes 1.0.0\".\nCodes are sent as integers without\
+            \ leading zeros (0011 = 11).\n\nAlgemeen\
+            \ (00xx) - applies to every API:\n  * `0000` - OK: Bevraging succesvol (HTTP 200).\n  * `0001`\
+            \ - Created: Bericht heeft geleid tot registratie van een nieuwe entiteit (HTTP 201).\n  *\
+            \ `0002` - Accepted: Bericht geaccepteerd (HTTP 202).\n  * `0011` - Schema incorrect: Schemavalidatie\
+            \ niet succesvol (HTTP 400).\n  * `0012` - schemaVersion not supported: De ontvanger kan de\
+            \ gehanteerde schemaVersion niet verwerken (HTTP 400).\n  * `0021` - scope required: Leverancier\
+            \ is niet geautoriseerd voor scope (HTTP 401).\n  * `0022` - consent required: Informatieobject\
+            \ van classificatie IV zonder geactiveerde gegevensdienst (HTTP 403).\n  * `0023` - school\
+            \ unknown: De client communiceert in de context van een Onderwijsorganisatie die niet bekend\
+            \ is bij de server (HTTP 400).\n  * `0099` - Overige reden: Vullingsregel: neem in statusMessage\
+            \ een beschrijving van de reden op.\n\nOrder API (60xx):\n  * `6001` - requestReferenceId\
+            \ missing: Het requestReferenceId ontbreekt.\n  * `6002` - requestReferenceId unknown: Het\
+            \ requestReferenceId is onbekend.\n  * `6003` - requestReferenceId already used: Het requestReferenceId\
+            \ is al eerder gebruikt.\n  * `6004` - responseReferenceId missing: Het responseReferenceId\
+            \ ontbreekt.\n  * `6005` - responseReferenceId already used: Het responseReferenceId is al\
+            \ eerder gebruikt.\n  * `6011` - purchaseOrderId unknown: Gespecificeerd inkoopordernummer\
+            \ is onbekend.\n  * `6012` - purchaseOrderLineId unknown: Gespecificeerd inkooporderregelnummer\
+            \ onbekend.\n  * `6013` - salesOrderId unknown: Gespecificeerd inkoopordernummer is onbekend.\n\
+            \  * `6014` - salesOrderLineId unknown: Gespecificeerd inkooporderregelnummer is onbekend.\n\
+            \  * `6021` - productId missing: Specificatie van Product ontbreekt.\n  * `6022` - productId\
+            \ unknown: Gespecificeerd Product onbekend bij Ontvanger.\n  * `6023` - Product not yet for\
+            \ sale: Gespecificeerd Product is nog niet in de verkoop.\n  * `6024` - Product not available:\
+            \ Gespecificeerd Product is niet beschikbaar.\n  * `6025` - Product no longer for sale: Gespecificeerd\
+            \ Product is niet langer in de verkoop.\n  * `6026` - deliveryAddress unknown: Het gespecificeerde\
+            \ afleveradres is onbekend bij de leermiddelenaanbieder.\n  * `6027` - deliveryDate declined:\
+            \ De afleverdatum is niet akkoord bevonden door de leermiddelenaanbieder.\n  * `6041` - contractId\
+            \ unknown: Gespecificeerd contractId is onbekend bij de ontvangende Licentieregistratie.\n\
+            \  * `6042` - Contract restrictions: Bericht niet toegestaan als gevolg van contractuele afspraken\
+            \ tussen de leverancier van het leermiddel en de leverancier die de verwerving faciliteert.\n\
+            \  * `6043` - Return period expired: Retourtermijn is verlopen.\n"
+          x-voorbeeld: 0 (=OK)
+          x-vullingsregel: Zie status en foutcodes.
+        statusMessage:
+          type: string
+          description: See functional status messages within the Documentation.
+          x-vullingsregel: Zie status en foutcodes.
+        orderConfirmationLines:
+          type: array
+          description: Optional feedback per Product.
+          items:
+            type: object
+            description: Feedback per line of the OrderRequest.
+            properties:
+              salesOrderLineId:
+                type: string
+                description: An identifier from the `Ordersysteem leermiddelen` to reference this order
+                  confirmation line.
+                x-voorbeeld: OA678-2
+                x-vullingsregel: Waarde mag niet gewijzigd worden
+              purchaseOrderLineId:
+                type: string
+                description: To echo the `purchaseOrderLineId` of the Order that is being confirmed.
+                x-voorbeeld: OW1234-2
+                x-vullingsregel: Optioneel kan de Aanbieder het purchaseOrderLineId echo-en
+              productId:
+                type: string
+                description: To echo the `productId` from the Order for confirmation.
+                x-voorbeeld: 871792713 0834
+              quantity:
+                type: integer
+                description: To echo the `quantity` from the Order for confirmation.
+                example: 1
+                x-voorbeeld: '100'
+              status:
+                type: integer
+                description: "Functional status code, as defined in \"Status- en foutcodes 1.0.0\".\n\n\
+                  Algemeen (00xx) - applies to every API:\n  * `0000` - OK: Bevraging succesvol (HTTP\
+                  \ 200).\n  * `0001` - Created: Bericht heeft geleid tot registratie van een nieuwe entiteit\
+                  \ (HTTP 201).\n  * `0002` - Accepted: Bericht geaccepteerd (HTTP 202).\n  * `0011` -\
+                  \ Schema incorrect: Schemavalidatie niet succesvol (HTTP 400).\n  * `0012` - schemaVersion\
+                  \ not supported: De ontvanger kan de gehanteerde schemaVersion niet verwerken (HTTP\
+                  \ 400).\n  * `0021` - scope required: Leverancier is niet geautoriseerd voor scope (HTTP\
+                  \ 401).\n  * `0022` - consent required: Informatieobject van classificatie IV zonder\
+                  \ geactiveerde gegevensdienst (HTTP 403).\n  * `0023` - school unknown: De client communiceert\
+                  \ in de context van een Onderwijsorganisatie die niet bekend is bij de server (HTTP\
+                  \ 400).\n  * `0099` - Overige reden: Vullingsregel: neem in statusMessage een beschrijving\
+                  \ van de reden op.\n\nOrder API (60xx):\n  * `6001` - requestReferenceId missing: Het\
+                  \ requestReferenceId ontbreekt.\n  * `6002` - requestReferenceId unknown: Het requestReferenceId\
+                  \ is onbekend.\n  * `6003` - requestReferenceId already used: Het requestReferenceId\
+                  \ is al eerder gebruikt.\n  * `6004` - responseReferenceId missing: Het responseReferenceId\
+                  \ ontbreekt.\n  * `6005` - responseReferenceId already used: Het responseReferenceId\
+                  \ is al eerder gebruikt.\n  * `6011` - purchaseOrderId unknown: Gespecificeerd inkoopordernummer\
+                  \ is onbekend.\n  * `6012` - purchaseOrderLineId unknown: Gespecificeerd inkooporderregelnummer\
+                  \ onbekend.\n  * `6013` - salesOrderId unknown: Gespecificeerd inkoopordernummer is\
+                  \ onbekend.\n  * `6014` - salesOrderLineId unknown: Gespecificeerd inkooporderregelnummer\
+                  \ is onbekend.\n  * `6021` - productId missing: Specificatie van Product ontbreekt.\n\
+                  \  * `6022` - productId unknown: Gespecificeerd Product onbekend bij Ontvanger.\n  *\
+                  \ `6023` - Product not yet for sale: Gespecificeerd Product is nog niet in de verkoop.\n\
+                  \  * `6024` - Product not available: Gespecificeerd Product is niet beschikbaar.\n \
+                  \ * `6025` - Product no longer for sale: Gespecificeerd Product is niet langer in de\
+                  \ verkoop.\n  * `6026` - deliveryAddress unknown: Het gespecificeerde afleveradres is\
+                  \ onbekend bij de leermiddelenaanbieder.\n  * `6027` - deliveryDate declined: De afleverdatum\
+                  \ is niet akkoord bevonden door de leermiddelenaanbieder.\n  * `6041` - contractId unknown:\
+                  \ Gespecificeerd contractId is onbekend bij de ontvangende Licentieregistratie.\n  *\
+                  \ `6042` - Contract restrictions: Bericht niet toegestaan als gevolg van contractuele\
+                  \ afspraken tussen de leverancier van het leermiddel en de leverancier die de verwerving\
+                  \ faciliteert.\n  * `6043` - Return period expired: Retourtermijn is verlopen.\n"
+                x-voorbeeld: 0 (=OK)
+                x-vullingsregel: Zie status en foutcodes.
+              statusMessage:
+                type: string
+                description: See functional status codes within the Documentation.
+                x-vullingsregel: Zie status en foutcodes.
+            required:
+            - productId
+            - status
+            x-tags:
+            - Order
+            x-toelichting: Een OrderConfirmationLine stelt het Ordersysteem in staat om op het niveau
+              van OrderLines terugkoppeling over de Order te geven. Zodoende kan het Bestelsysteem inzicht
+              krijgen in om bijvoorbeeld welk product een Order is afgewezen.
+      required:
+      - responseReferenceId
+      - requestReferenceId
+      - processedTimestamp
+      - orderStatus
+      - success
+      - status
+    CreditOrderRequest:
+      title: CreditOrderRequest
+      description: 'Request send by the `Bestelomgeving leermiddelen` to the `Ordersysteem leermiddelen`
+        with a request to credit an order. The request has the flexibility to include references known
+        within systems of the `Ordersysteem leermiddelen`.
+
+        '
+      type: object
+      x-tags:
+      - Order
+      x-toelichting: Naast een reguliere Order is het mogelijk om als Bestelomgeving leermiddelen een
+        Order te crediteren. In dat geval dient de Bestelomgeving leermiddelen een CreditOrderRequest
+        in bij het Ordersysteem leermiddelen. In dit CreditOrderRequest specificeert de Bestelomgeving
+        leermiddelen de purchaseOrderId en de purchaseOrderLineId die de Bestelomgeving leermiddelen wil
+        crediteren en voegt de Bestelomgeving leermiddelen optioneel de door het Ordersysteem leermiddelen
+        verstuurde salesOrderId, salesOrderLineId en/of responseReferenceId uit de OrderConfirmation toe.
+        Op deze wijze kunnen zowel Bestelomgeving leermiddelen als Ordersysteem leermiddelen dit bericht
+        relateren aan de oorspronkelijke OrderConfirmation die gecrediteerd gaat worden. Uiteraard is
+        het afhankelijk van bilaterale afspraken tussen beide leveranciers of crediteren al dan niet mogelijk
+        is en welke informatie in het verzoek opgenomen moet zijn.
+      properties:
+        requestReferenceId:
+          type: string
+          description: 'Unique requestReferenceId for this request. This referenceId is used by the Event
+            Mediator of the `Bestelomgeving leermiddelen` to match the CreditOrderConfirmation confirmation
+            message(s) send by the `Ordersysteem leermiddelen`.
+
+            If a party receives another request with the same requestReferenceId value, the receiving
+            party should not process the request again. It should send the confirmation again.
+
+            '
+          format: uuid
+          x-voorbeeld: eacb81ef-c9d5-4bd8-a624-4088bee04b73
+          x-vullingsregel: Dit nummer wordt gebruikt door de event mediator van de Bestelomgeving leermiddelen
+            om een logboek bij te houden van verzonden en ontvangen events met betrekking tot een unieke
+            aanvraag.
+        purchaseOrderId:
+          type: string
+          description: Purchase order number of the order to be credited as defined by the `Bestelomgeving
+            leermiddelen`. This number is linked to the financial system of the `Bestelomgeving leermiddelen`.
+          x-voorbeeld: OW1234
+          x-vullingsregel: Waarde mag niet gewijzigd worden
+        salesOrderId:
+          type: string
+          description: Sales order number of the order to be credited as defined by the `Ordersysteem
+            leermiddelen`. This number is linked to the financial system of the `Ordersysteem leermiddelen`.
+          x-voorbeeld: OA678
+          x-vullingsregel: Waarde mag niet gewijzigd worden
+        responseReferenceId:
+          type: string
+          description: Optional reference to the responseReferenceID of the confirmation message in which
+            the `Ordersysteem leermiddelen` approved the order to the `Bestelomgeving leermiddelen`.
+          format: uuid
+          x-voorbeeld: eacb81ef-c9d5-4bd8-a624-4088bee04b75
+          x-vullingsregel: Waarde mag niet gewijzigd worden
+        orderLines:
+          type: array
+          description: Optional specification of the products in the OrderRequest to be be cancelled.
+          items:
+            type: object
+            description: A line of the CreditOrderRequest with the Product to be cancelled.
+            properties:
+              purchaseOrderLineId:
+                type: string
+                description: Optional reference to the `purchaseOrderLineId` of the OrderRequest for the
+                  product to be cancelled.
+                x-voorbeeld: OW1234-2
+                x-vullingsregel: Waarde mag niet gewijzigd worden
+              salesOrderLineId:
+                type: string
+                description: Optional reference to the `salesOrderLineId` of the OrderConfirmation for
+                  the product to be cancelled.
+                x-voorbeeld: OA678-2
+                x-vullingsregel: Waarde mag niet gewijzigd worden
+              productId:
+                type: string
+                description: The Product that is to be cancelled.
+                x-voorbeeld: 871792713 0834
+              quantity:
+                type: integer
+                description: The quantity of Product that is to be cancelled.
+                example: 1
+                x-voorbeeld: '100'
+            required:
+            - productId
+            - quantity
+            x-tags:
+            - Order
+      required:
+      - requestReferenceId
+      - purchaseOrderId
+    CreditOrderConfirmation:
+      title: CreditOrderConfirmation
+      description: "The confirmation that is send back by the `Ordersysteem leermiddelen` as an asynchronous\
+        \ reply to the request of the `Bestelomgeving leermiddelen`.\n\nThe `Ordersysteem leermiddelen`\
+        \ will send a confirmation message back to the `Bestelomgeving leermiddelen` including a success\
+        \ parameter indicating if the `Ordersysteem leermiddelen` approves or declines the credit request.\
+        \ In case of a decline, the `Ordersysteem leermiddelen` replies with a functional status code\
+        \ and message. \n\nConfirmations are only handled once. If a confirmation with the similar requestReferenceId\
+        \ is received the processing is only done the first time. The confirmation may be send multiple\
+        \ times, but always with the same responseReferenceId. In this way the `Bestelomgeving leermiddelen`\
+        \ can validate that the response is processed only once.\n\nFunctional status codes and messages\
+        \ are described in the Documentation.\n"
+      type: object
+      x-tags:
+      - Order
+      x-toelichting: Het Ordersysteem leermiddelen reageert op een CreditorderRequest met een bevestigingsbericht
+        CreditOrderConfirmation. Indien het CreditorderRequest wordt geaccepteerd door het Ordersysteem
+        leermiddelen dan wordt via dit bevestigingsbericht de status OK retour gestuurd. De creditOrderStatus
+        wordt in dat geval door het Ordersysteem leermiddelen op approved gezet. Indien de leverancier
+        het creditOrderRequest nog verder moet beoordelen kan het Ordersysteem leermiddelen een bevestigingsbericht
+        sturen met de status pending.
+      properties:
+        requestReferenceId:
+          type: string
+          description: The requestReferenceId that was send by the `Bestelomgeving leermiddelen` as part
+            of the CreditOrderRequest request
+          format: uuid
+          x-voorbeeld: eacb81ef-c9d5-4bd8-a624-4088bee04b73
+          x-vullingsregel: Waarde mag niet gewijzigd worden.
+        responseReferenceId:
+          type: string
+          description: A reference to this confirmation message send by the `Ordersysteem leermiddelen`
+            to the `Bestelomgeving leermiddelen`.
+          format: uuid
+          x-voorbeeld: eacb81ef-c9d5-4bd8-a624-4088bee04b76
+          x-vullingsregel: Waarde mag niet gewijzigd worden.
+        purchaseOrderId:
+          type: string
+          description: Purchase order number of the order to be credited as defined by the `Bestelomgeving
+            leermiddelen`. This number is linked to the financial system of the `Bestelomgeving leermiddelen`.
+          x-voorbeeld: OW1234
+          x-vullingsregel: Waarde mag niet gewijzigd worden
+        salesOrderId:
+          type: string
+          description: Sales order number of the order to be credited as defined by the `Ordersysteem
+            leermiddelen`. This number is linked to the financial system of the `Ordersysteem leermiddelen`.
+          x-voorbeeld: OA678
+          x-vullingsregel: Waarde mag niet gewijzigd worden
+        salesOrderLineId:
+          type: string
+          description: Optional line number in case of an order with more than one product.
+        processedTimestamp:
+          type: string
+          description: 'The moment that the credit order was processed by the `Ordersysteem leermiddelen`.
+            As requests and confirmation messages are send asynchronous, this is not the moment the confirmation
+            message was send by the `Ordersysteem leermiddelen` to the `Bestelomgeving leermiddelen`.
+
+
+            Format: openapi in ZULU time as specified in RFC 3339, section 5.6
+
+            '
+          format: date-time
+          example: '2017-07-21T17:32:28Z'
+          x-vullingsregel: Het tijdstip kan afwijken van het versturen van het bevestigingsbericht. Intentie
+            is om aan te geven wanneer het bericht is verwerkt.
+        creditOrderStatus:
+          type: string
+          description: The status of pending allows the `Ordersysteem leermiddelen` to communicate to
+            the `Bestelomgeving leermiddelen` that the approval process has started, but has not yet been
+            completed.
+          enum:
+          - pending
+          - approved
+          - declined
+          x-vullingsregel: Status pending wordt gecommuniceerd zodra de leverancier extra controles uit
+            gaat voeren (bijvoorbeeld credit check). Een bevestigingsbericht wordt op termijn opgevolgd
+            door een nieuw bevestigingsbericht met de status approved of declined. Indien declined, dan
+            wordt de foutcode gespecificeerd in statusMessage.
+        success:
+          type: boolean
+          description: 'Boolean indicating the CreditOrderRequest was processed successfully.
+
+            When the `Ordersysteem leermiddelen` declines the request a false will be returned, along
+            with a status code and a status message.
+
+            '
+          x-vullingsregel: False indien het Ordersysteem leermiddelen niet akkoord is of er een fout is
+            opgetreden.
+        status:
+          type: integer
+          description: "Functional status code, as defined in \"Status- en foutcodes 1.0.0\".\nCodes are sent as integers without\
+            \ leading zeros (0011 = 11).\n\nAlgemeen\
+            \ (00xx) - applies to every API:\n  * `0000` - OK: Bevraging succesvol (HTTP 200).\n  * `0001`\
+            \ - Created: Bericht heeft geleid tot registratie van een nieuwe entiteit (HTTP 201).\n  *\
+            \ `0002` - Accepted: Bericht geaccepteerd (HTTP 202).\n  * `0011` - Schema incorrect: Schemavalidatie\
+            \ niet succesvol (HTTP 400).\n  * `0012` - schemaVersion not supported: De ontvanger kan de\
+            \ gehanteerde schemaVersion niet verwerken (HTTP 400).\n  * `0021` - scope required: Leverancier\
+            \ is niet geautoriseerd voor scope (HTTP 401).\n  * `0022` - consent required: Informatieobject\
+            \ van classificatie IV zonder geactiveerde gegevensdienst (HTTP 403).\n  * `0023` - school\
+            \ unknown: De client communiceert in de context van een Onderwijsorganisatie die niet bekend\
+            \ is bij de server (HTTP 400).\n  * `0099` - Overige reden: Vullingsregel: neem in statusMessage\
+            \ een beschrijving van de reden op.\n\nOrder API (60xx):\n  * `6001` - requestReferenceId\
+            \ missing: Het requestReferenceId ontbreekt.\n  * `6002` - requestReferenceId unknown: Het\
+            \ requestReferenceId is onbekend.\n  * `6003` - requestReferenceId already used: Het requestReferenceId\
+            \ is al eerder gebruikt.\n  * `6004` - responseReferenceId missing: Het responseReferenceId\
+            \ ontbreekt.\n  * `6005` - responseReferenceId already used: Het responseReferenceId is al\
+            \ eerder gebruikt.\n  * `6011` - purchaseOrderId unknown: Gespecificeerd inkoopordernummer\
+            \ is onbekend.\n  * `6012` - purchaseOrderLineId unknown: Gespecificeerd inkooporderregelnummer\
+            \ onbekend.\n  * `6013` - salesOrderId unknown: Gespecificeerd inkoopordernummer is onbekend.\n\
+            \  * `6014` - salesOrderLineId unknown: Gespecificeerd inkooporderregelnummer is onbekend.\n\
+            \  * `6021` - productId missing: Specificatie van Product ontbreekt.\n  * `6022` - productId\
+            \ unknown: Gespecificeerd Product onbekend bij Ontvanger.\n  * `6023` - Product not yet for\
+            \ sale: Gespecificeerd Product is nog niet in de verkoop.\n  * `6024` - Product not available:\
+            \ Gespecificeerd Product is niet beschikbaar.\n  * `6025` - Product no longer for sale: Gespecificeerd\
+            \ Product is niet langer in de verkoop.\n  * `6026` - deliveryAddress unknown: Het gespecificeerde\
+            \ afleveradres is onbekend bij de leermiddelenaanbieder.\n  * `6027` - deliveryDate declined:\
+            \ De afleverdatum is niet akkoord bevonden door de leermiddelenaanbieder.\n  * `6041` - contractId\
+            \ unknown: Gespecificeerd contractId is onbekend bij de ontvangende Licentieregistratie.\n\
+            \  * `6042` - Contract restrictions: Bericht niet toegestaan als gevolg van contractuele afspraken\
+            \ tussen de leverancier van het leermiddel en de leverancier die de verwerving faciliteert.\n\
+            \  * `6043` - Return period expired: Retourtermijn is verlopen.\n"
+          x-voorbeeld: 0 (=OK)
+          x-vullingsregel: Zie status en foutcodes.
+        statusMessage:
+          type: string
+          description: See functional status messages within the Documentation.
+          x-vullingsregel: Zie status en foutcodes.
+        creditOrderConfirmationLines:
+          type: array
+          description: Optional feedback per Product.
+          items:
+            type: object
+            description: Feedback per line of the CreditOrderRequest.
+            properties:
+              purchaseOrderLineId:
+                type: string
+                description: Reference to the `purchaseOrderLineId` that has been cancelled.
+                x-voorbeeld: OW1234-2
+                x-vullingsregel: Waarde mag niet gewijzigd worden
+              salesOrderLineId:
+                type: string
+                description: Reference to the `salesOrderLineId` that has been cancelled.
+                x-voorbeeld: OA678-2
+                x-vullingsregel: Waarde mag niet gewijzigd worden
+              productId:
+                type: string
+                description: Echo of the `productId` from the CreditOrderRequest for confirmation.
+                x-voorbeeld: 871792713 0834
+              quantity:
+                type: integer
+                description: Echo of the `quantity` from the CreditOrderRequest for confirmation.
+                example: 1
+                x-voorbeeld: '100'
+              status:
+                type: integer
+                description: "Functional status code, as defined in \"Status- en foutcodes 1.0.0\".\n\n\
+                  Algemeen (00xx) - applies to every API:\n  * `0000` - OK: Bevraging succesvol (HTTP\
+                  \ 200).\n  * `0001` - Created: Bericht heeft geleid tot registratie van een nieuwe entiteit\
+                  \ (HTTP 201).\n  * `0002` - Accepted: Bericht geaccepteerd (HTTP 202).\n  * `0011` -\
+                  \ Schema incorrect: Schemavalidatie niet succesvol (HTTP 400).\n  * `0012` - schemaVersion\
+                  \ not supported: De ontvanger kan de gehanteerde schemaVersion niet verwerken (HTTP\
+                  \ 400).\n  * `0021` - scope required: Leverancier is niet geautoriseerd voor scope (HTTP\
+                  \ 401).\n  * `0022` - consent required: Informatieobject van classificatie IV zonder\
+                  \ geactiveerde gegevensdienst (HTTP 403).\n  * `0023` - school unknown: De client communiceert\
+                  \ in de context van een Onderwijsorganisatie die niet bekend is bij de server (HTTP\
+                  \ 400).\n  * `0099` - Overige reden: Vullingsregel: neem in statusMessage een beschrijving\
+                  \ van de reden op.\n\nOrder API (60xx):\n  * `6001` - requestReferenceId missing: Het\
+                  \ requestReferenceId ontbreekt.\n  * `6002` - requestReferenceId unknown: Het requestReferenceId\
+                  \ is onbekend.\n  * `6003` - requestReferenceId already used: Het requestReferenceId\
+                  \ is al eerder gebruikt.\n  * `6004` - responseReferenceId missing: Het responseReferenceId\
+                  \ ontbreekt.\n  * `6005` - responseReferenceId already used: Het responseReferenceId\
+                  \ is al eerder gebruikt.\n  * `6011` - purchaseOrderId unknown: Gespecificeerd inkoopordernummer\
+                  \ is onbekend.\n  * `6012` - purchaseOrderLineId unknown: Gespecificeerd inkooporderregelnummer\
+                  \ onbekend.\n  * `6013` - salesOrderId unknown: Gespecificeerd inkoopordernummer is\
+                  \ onbekend.\n  * `6014` - salesOrderLineId unknown: Gespecificeerd inkooporderregelnummer\
+                  \ is onbekend.\n  * `6021` - productId missing: Specificatie van Product ontbreekt.\n\
+                  \  * `6022` - productId unknown: Gespecificeerd Product onbekend bij Ontvanger.\n  *\
+                  \ `6023` - Product not yet for sale: Gespecificeerd Product is nog niet in de verkoop.\n\
+                  \  * `6024` - Product not available: Gespecificeerd Product is niet beschikbaar.\n \
+                  \ * `6025` - Product no longer for sale: Gespecificeerd Product is niet langer in de\
+                  \ verkoop.\n  * `6026` - deliveryAddress unknown: Het gespecificeerde afleveradres is\
+                  \ onbekend bij de leermiddelenaanbieder.\n  * `6027` - deliveryDate declined: De afleverdatum\
+                  \ is niet akkoord bevonden door de leermiddelenaanbieder.\n  * `6041` - contractId unknown:\
+                  \ Gespecificeerd contractId is onbekend bij de ontvangende Licentieregistratie.\n  *\
+                  \ `6042` - Contract restrictions: Bericht niet toegestaan als gevolg van contractuele\
+                  \ afspraken tussen de leverancier van het leermiddel en de leverancier die de verwerving\
+                  \ faciliteert.\n  * `6043` - Return period expired: Retourtermijn is verlopen.\n"
+                x-voorbeeld: 0 (=OK)
+                x-vullingsregel: Zie status en foutcodes.
+              statusMessage:
+                type: string
+                description: See functional status codes within the Documentation.
+                x-vullingsregel: Zie status en foutcodes.
+            required:
+            - productId
+            - status
+            x-tags:
+            - Order
+      required:
+      - requestReferenceId
+      - responseReferenceId
+      - purchaseOrderId
+      - processedTimestamp
+      - creditOrderStatus
+      - success
+      - status
+    DeliveryType:
+      title: DeliveryType
+      type: string
+      description: 'The delivery type specifies the variant of the authorization rule an `Aanspraakmanager`
+        should apply to manage activation and licensing of the Product.
+
+        '
+      enum:
+      - school-all
+      - school-admin
+      - school-studies
+      - school-subjects
+      - school-groups
+      - school-students
+      - school-employees
+      - school-activationcodes
+      - customer-user
+      - customer-activatoncode
+      x-vullingsregel: Beheerd in de Delivery API (DeliveryOrder.deliveryType). Deze lijst is een
+        kopie en moet gelijk blijven aan die in de Delivery API.
+    StatusResponse:
+      title: StatusResponse
+      description: Functional status code and status message.
+      type: object
+      properties:
+        status:
+          type: integer
+          description: "Functional status code, as defined in \"Status- en foutcodes 1.0.0\".\nCodes are sent as integers without\
+            \ leading zeros (0011 = 11).\n\nAlgemeen\
+            \ (00xx) - applies to every API:\n  * `0000` - OK: Bevraging succesvol (HTTP 200).\n  * `0001`\
+            \ - Created: Bericht heeft geleid tot registratie van een nieuwe entiteit (HTTP 201).\n  *\
+            \ `0002` - Accepted: Bericht geaccepteerd (HTTP 202).\n  * `0011` - Schema incorrect: Schemavalidatie\
+            \ niet succesvol (HTTP 400).\n  * `0012` - schemaVersion not supported: De ontvanger kan de\
+            \ gehanteerde schemaVersion niet verwerken (HTTP 400).\n  * `0021` - scope required: Leverancier\
+            \ is niet geautoriseerd voor scope (HTTP 401).\n  * `0022` - consent required: Informatieobject\
+            \ van classificatie IV zonder geactiveerde gegevensdienst (HTTP 403).\n  * `0023` - school\
+            \ unknown: De client communiceert in de context van een Onderwijsorganisatie die niet bekend\
+            \ is bij de server (HTTP 400).\n  * `0099` - Overige reden: Vullingsregel: neem in statusMessage\
+            \ een beschrijving van de reden op.\n\nOrder API (60xx):\n  * `6001` - requestReferenceId\
+            \ missing: Het requestReferenceId ontbreekt.\n  * `6002` - requestReferenceId unknown: Het\
+            \ requestReferenceId is onbekend.\n  * `6003` - requestReferenceId already used: Het requestReferenceId\
+            \ is al eerder gebruikt.\n  * `6004` - responseReferenceId missing: Het responseReferenceId\
+            \ ontbreekt.\n  * `6005` - responseReferenceId already used: Het responseReferenceId is al\
+            \ eerder gebruikt.\n  * `6011` - purchaseOrderId unknown: Gespecificeerd inkoopordernummer\
+            \ is onbekend.\n  * `6012` - purchaseOrderLineId unknown: Gespecificeerd inkooporderregelnummer\
+            \ onbekend.\n  * `6013` - salesOrderId unknown: Gespecificeerd inkoopordernummer is onbekend.\n\
+            \  * `6014` - salesOrderLineId unknown: Gespecificeerd inkooporderregelnummer is onbekend.\n\
+            \  * `6021` - productId missing: Specificatie van Product ontbreekt.\n  * `6022` - productId\
+            \ unknown: Gespecificeerd Product onbekend bij Ontvanger.\n  * `6023` - Product not yet for\
+            \ sale: Gespecificeerd Product is nog niet in de verkoop.\n  * `6024` - Product not available:\
+            \ Gespecificeerd Product is niet beschikbaar.\n  * `6025` - Product no longer for sale: Gespecificeerd\
+            \ Product is niet langer in de verkoop.\n  * `6026` - deliveryAddress unknown: Het gespecificeerde\
+            \ afleveradres is onbekend bij de leermiddelenaanbieder.\n  * `6027` - deliveryDate declined:\
+            \ De afleverdatum is niet akkoord bevonden door de leermiddelenaanbieder.\n  * `6041` - contractId\
+            \ unknown: Gespecificeerd contractId is onbekend bij de ontvangende Licentieregistratie.\n\
+            \  * `6042` - Contract restrictions: Bericht niet toegestaan als gevolg van contractuele afspraken\
+            \ tussen de leverancier van het leermiddel en de leverancier die de verwerving faciliteert.\n\
+            \  * `6043` - Return period expired: Retourtermijn is verlopen.\n"
+        statusMessage:
+          type: string
+          description: See functional status messages within the Documentation.
+      required:
+      - status
+  responses:
+    BadRequest:
+      description: Bad Request - schema validation failed, unsupported schemaVersion, or unknown school
+        (status 0011 / 0012 / 0023).
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/StatusResponse'
+    Unauthorized:
+      description: Unauthorized - the supplier is not authorised for the requested scope (status 0021).
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/StatusResponse'
+    Forbidden:
+      description: Forbidden - the information object is classification IV and the gegevensdienst has
+        not been activated (status 0022).
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/StatusResponse'
+    NotFound:
+      description: Not Found - the endpoint URL is not known.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/StatusResponse'
+    ServerError:
+      description: Internal Server Error - general server-side error.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/StatusResponse'
+  securitySchemes:
+    OAuth2:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.example.com/oauth2/token
+          refreshUrl: https://api.example.com/oauth2/token
+          scopes:
+            eduv.order: scope needed to send and receive Order and CreditOrder requests and confirmations
+      description: ''
+paths:
+  /orders:
+    put:
+      x-eduv-error-codes:
+      - '6001'
+      - '6003'
+      - '6021'
+      summary: Accept order request
+      operationId: accept-order-request
+      tags:
+      - Ordersysteem leermiddelen
+      x-tags:
+      - Order
+      description: 'As a `Bestelomgeving leermiddelen` place an OrderRequest at the `Ordersysteem leermiddelen`
+        to purchase learning materials.
+
+
+        The `Ordersysteem leermiddelen` is the provider of this endpoint.
+
+        The `Bestelomgeving leermiddelen` should give a 405 HTTP status as result when called.'
+      responses:
+        '202':
+          description: Accepted
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '405':
+          description: Method Not Allowed - Ordersysteem leermiddelen is provider of this endpoint
+        '500':
+          $ref: '#/components/responses/ServerError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrderRequest'
+      security:
+      - OAuth2:
+        - eduv.order
+  /creditorders:
+    put:
+      x-eduv-error-codes:
+      - '6001'
+      - '6003'
+      summary: Accept credit order request
+      operationId: accept-credit-order-request
+      tags:
+      - Ordersysteem leermiddelen
+      x-tags:
+      - Order
+      description: 'As a `Bestelomgeving leermiddelen` place a CreditOrderRequest at the `Ordersysteem
+        leermiddelen` to cancel an earlier OrderRequest to purchase learning materials.
+
+
+        The `Ordersysteem leermiddelen` is the provider of this endpoint.
+
+        The `Bestelomgeving leermiddelen` should give a 405 HTTP status as result when called.'
+      responses:
+        '202':
+          description: Accepted
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '405':
+          description: Method Not Allowed - Ordersysteem leermiddelen is provider of this endpoint
+        '500':
+          $ref: '#/components/responses/ServerError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreditOrderRequest'
+      security:
+      - OAuth2:
+        - eduv.order
+  /orders/confirmations:
+    put:
+      x-eduv-error-codes:
+      - '6001'
+      - '6002'
+      - '6004'
+      - '6005'
+      - '6011'
+      - '6012'
+      summary: Confirm order request
+      operationId: confirm-order-request
+      tags:
+      - Bestelomgeving leermiddelen
+      x-tags:
+      - Order
+      description: "As a `Ordersysteem leermiddelen` confirm the OrderRequest to the `Bestelomgeving leermiddelen`.\n\
+        \nThe `Bestelomgeving leermiddelen` is the provider of this endpoint. \nThe `Ordersysteem leermiddelen`\
+        \ should give a 405 HTTP status as result when called."
+      responses:
+        '202':
+          description: Accepted
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '405':
+          description: Method Not Allowed - Bestelomgeving leermiddelen is provider of this endpoint
+        '500':
+          $ref: '#/components/responses/ServerError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrderConfirmation'
+      security:
+      - OAuth2:
+        - eduv.order
+  /creditorders/confirmations:
+    put:
+      x-eduv-error-codes:
+      - '6001'
+      - '6002'
+      - '6004'
+      - '6005'
+      - '6011'
+      - '6012'
+      summary: Confirm credit order request
+      operationId: confirm-credit-order-request
+      tags:
+      - Bestelomgeving leermiddelen
+      x-tags:
+      - Order
+      description: "As a `Ordersysteem leermiddelen` confirm the CreditOrderRequest to the `Bestelomgeving\
+        \ leermiddelen`.\n\nThe `Bestelomgeving leermiddelen` is the provider of this endpoint. \nThe\
+        \ `Ordersysteem leermiddelen` should give a 405 HTTP status as result when called."
+      responses:
+        '202':
+          description: Accepted
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '405':
+          description: Method Not Allowed - Bestelomgeving leermiddelen is provider of this endpoint
+        '500':
+          $ref: '#/components/responses/ServerError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreditOrderConfirmation'
+      security:
+      - OAuth2:
+        - eduv.order
+x-tags:
+- name: Order

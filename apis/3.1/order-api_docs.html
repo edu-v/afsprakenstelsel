@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <title>Order API | Edu-V</title>
+  <style>
+    body { font-family: Arial, sans-serif; font-size: 13px; margin: 40px; color: #222; background: white; max-width: 1100px; }
+    h1 { font-size: 20px; margin-bottom: 4px; color: #7b2d8b; }
+    h2 { font-size: 15px; margin-top: 36px; margin-bottom: 6px; border-bottom: 2px solid #7b2d8b; padding-bottom: 4px; color: #7b2d8b; }
+    h3 { font-size: 13px; margin-top: 24px; margin-bottom: 4px; color: #444; }
+    .meta { color: #888; font-size: 11px; margin-bottom: 8px; }
+    .version-badge { display: inline-block; background: #7b2d8b; color: white; border-radius: 4px; padding: 2px 10px; font-size: 11px; font-weight: bold; margin-bottom: 12px; }
+    .status-badge { display: inline-block; background: #e8f4ea; color: #1a7a4a; border: 1px solid #b0d8b8; border-radius: 3px; padding: 2px 9px; font-size: 11px; font-weight: bold; margin-left: 6px; }
+    .status-beta { background: #fef3e2; color: #b7691a; border-color: #f0c090; }
+    .status-candidate { background: #e8f0fe; color: #2176c7; border-color: #b0c8f0; }
+    .status-draft { background: #f0f0f0; color: #666; border-color: #ccc; }
+    .description { font-size: 12px; color: #444; line-height: 1.6; max-width: 820px; margin-bottom: 24px; }
+    .description p, .description ul { margin: 0 0 10px; } .description h4 { font-size: 12px; margin: 14px 0 4px; }
+    .description code, .schema-desc code, .toelichting code { font-family: monospace; background: #f2f2f2; padding: 0 3px; border-radius: 3px; }
+
+    /* Metadatatabel */
+    .meta-table { width: 100%; border-collapse: collapse; margin-bottom: 24px; font-size: 12px; }
+    .meta-table td { padding: 7px 12px; border: 1px solid #e0e0e0; vertical-align: top; }
+    .meta-table td:first-child { width: 150px; background: #f7f7f7; font-weight: bold; color: #555; }
+    .meta-tag { display: inline-block; background: #f0f0f0; border-radius: 3px; padding: 1px 7px; margin: 2px 2px 2px 0; font-size: 11px; }
+
+    /* Toelichting blok */
+    .toelichting { background-color: #f9f4ee; border-left: 3px solid #7b2d8b; padding: 9px 13px; margin-bottom: 12px; font-size: 12px; line-height: 1.6; color: #555; }
+
+    /* Endpoints tabel */
+    .endpoints-table { width: 100%; border-collapse: collapse; margin-bottom: 32px; font-size: 12px; }
+    .endpoints-table th { background: #7b2d8b; color: white; text-align: left; padding: 8px 12px; }
+    .endpoints-table td { padding: 7px 12px; border-bottom: 1px solid #eee; vertical-align: top; }
+    .endpoints-table tr:hover { background: #f9f9f9; }
+    .method { font-weight: bold; font-family: monospace; font-size: 11px; padding: 2px 6px; border-radius: 3px; }
+    .method-put { background: #fef3e2; color: #b7691a; }
+    .method-get { background: #e8f4ea; color: #1a7a4a; }
+    .method-post { background: #e8f0fe; color: #2176c7; }
+    .method-delete { background: #fde8e6; color: #c0392b; }
+    .path { font-family: monospace; font-size: 11px; color: #333; }
+
+    /* Schema veldentabel */
+    .schema-table { width: 100%; border-collapse: collapse; margin-bottom: 28px; font-size: 12px; }
+    .schema-table th { background: #f0f0f0; text-align: left; padding: 7px 10px; border-bottom: 2px solid #ccc; font-size: 11px; }
+    .schema-table td { padding: 6px 10px; border-bottom: 1px solid #eee; vertical-align: top; }
+    .schema-table tr:hover { background: #fafafa; }
+    .field-name { font-family: monospace; font-weight: bold; color: #7b2d8b; font-size: 11px; }
+    .field-type { font-family: monospace; font-size: 10px; color: #666; }
+    .badge-v { background: #fde8e6; color: #c0392b; font-size: 10px; font-weight: bold; padding: 1px 5px; border-radius: 3px; }
+    .badge-o { background: #e8f0fe; color: #2176c7; font-size: 10px; padding: 1px 5px; border-radius: 3px; }
+    .enum-list { font-family: monospace; font-size: 10px; color: #666; margin-top: 3px; }
+    .enum-val { display: inline-block; background: #f0f0f0; padding: 1px 4px; border-radius: 2px; margin: 1px 2px 1px 0; }
+    .ref-link { font-family: monospace; font-size: 10px; color: #7b2d8b; }
+    .schema-desc { font-size: 11px; color: #555; line-height: 1.4; }
+
+    /* Contact footer */
+    .footer { margin-top: 48px; font-size: 11px; color: #aaa; border-top: 1px solid #eee; padding-top: 12px; }
+  </style>
+</head>
+<body>
+
+<h1>Order API</h1>
+<div class="meta">Edu-V Afsprakenstelsel &nbsp;|&nbsp; Gegenereerd op 23 November 2026 &nbsp;|&nbsp; Bron: order-api.yaml</div>
+<div style="margin-bottom:20px;">
+  <span class="version-badge">v1.1.0-rc.1</span><span class="status-badge status-candidate">Release Candidate</span>
+</div>
+
+<table class="meta-table">
+<tr><td>Status</td><td><span class="status-badge status-candidate">Release Candidate</span></td></tr>
+<tr><td>Versie</td><td>1.1.0-rc.1</td></tr>
+<tr><td>Afkorting</td><td>ORD</td></tr>
+<tr><td>Beheer</td><td>Werkgroep Verwerven en in gebruik nemen</td></tr>
+<tr><td>Ingangsdatum</td><td>2027-01-14</td></tr>
+<tr><td>Gegevensdienst</td><td>Leermiddelorders</td></tr>
+<tr><td>Bron</td><td><span class="meta-tag">Bestelomgeving leermiddelen</span></td></tr>
+<tr><td>Afnemers</td><td><span class="meta-tag">Ordersysteem leermiddelen</span></td></tr>
+</table>
+
+<h2>Beschrijving</h2>
+<div class="description"><p>The Order API is implemented by the reference components <code>Bestelomgeving leermiddelen</code> and <code>Ordersysteem leermiddelen</code>.</p><p>The <code>Bestelomgeving leermiddelen</code> is able to send an OrderRequest or CreditOrderRequest to the <code>Ordersysteem leermiddelen</code>.</p><p>Requests are send and received via asynchronous transactions. Therefore the <code>Ordersysteem leermiddelen</code> need to implement endpoints to receive requests. Moreover the <code>Bestelomgeving leermiddelen</code> needs to implement confirmation endpoints to receive confirmations from the <code>Ordersysteem leermiddelen</code> that requests have been processed.</p></div>
+<h2>Endpoints</h2>
+<table class="endpoints-table">
+  <thead><tr><th>Methode</th><th>Pad</th><th>Omschrijving</th><th>Tag</th><th>Foutcodes</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><span class="method method-put">PUT</span></td>
+      <td><span class="path">/orders</span></td>
+      <td>Accept order request</td>
+      <td style="font-size:10px;color:#888;">Ordersysteem leermiddelen</td>
+      <td style="font-size:11px;">6001, 6003, 6021</td>
+    </tr>    <tr>
+      <td><span class="method method-put">PUT</span></td>
+      <td><span class="path">/creditorders</span></td>
+      <td>Accept credit order request</td>
+      <td style="font-size:10px;color:#888;">Ordersysteem leermiddelen</td>
+      <td style="font-size:11px;">6001, 6003</td>
+    </tr>    <tr>
+      <td><span class="method method-put">PUT</span></td>
+      <td><span class="path">/orders/confirmations</span></td>
+      <td>Confirm order request</td>
+      <td style="font-size:10px;color:#888;">Bestelomgeving leermiddelen</td>
+      <td style="font-size:11px;">6001, 6002, 6004, 6005, 6011, 6012</td>
+    </tr>    <tr>
+      <td><span class="method method-put">PUT</span></td>
+      <td><span class="path">/creditorders/confirmations</span></td>
+      <td>Confirm credit order request</td>
+      <td style="font-size:10px;color:#888;">Bestelomgeving leermiddelen</td>
+      <td style="font-size:11px;">6001, 6002, 6004, 6005, 6011, 6012</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2>Schemas</h2>
+<h3>OrderRequest</h3>
+<div class="description"><p>Request send by the <code>Bestelomgeving leermiddelen</code> to the <code>Ordersysteem leermiddelen</code> to place an order with a quantity for a single Product.</p></div><div class="toelichting">Het OrderRequest bericht wordt door de Bestelomgeving leermiddelen van een leermiddelenverkoper verstuurd naar het Ordersysteem leermiddelen van een leermiddelenaanbieder. In de berichtspecificatie is een requestReferenceId opgenomen die wordt bepaald door de Bestelomgeving leermiddelen. Dit stelt de Bestelomgeving leermiddelen in staat om het bevestigingsbericht van het Ordersysteem leermiddelen terug te relateren aan het verstuurde OrderRequest bericht.</div>
+<table class="schema-table">
+  <thead><tr><th>Veld</th><th>Type</th><th>V/O</th><th>Omschrijving</th><th>Voorbeeld</th><th>Vullingsregel</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><span class="field-name">requestReferenceId</span></td>
+      <td><span class="field-type">string (uuid)</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">Unique requestReferenceId for this request. This referenceId is used by the Event Mediator of the <code>Bestelomgeving leermiddelen</code> to match the OrderConfirmation confirmation message(s) send by the <code>Ordersysteem leermiddelen</code>. If a party receives another request with the same requestReferenceId value, the receiving party should not process the request again. It should send the confirmation again.</span></td>
+      <td><span class="schema-desc">eacb81ef-c9d5-4bd8-a624-4088bee04b73</span></td><td><span class="schema-desc">Dit nummer wordt gebruikt door de event mediator van de Bestelomgeving leermiddelen om een logboek bij te houden van verzonden en ontvangen meldingen met betrekking tot een unieke aanvraag.</span></td>
+    </tr>    <tr>
+      <td><span class="field-name">purchaseOrderId</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">Purchase order number as defined by the <code>Bestelomgeving leermiddelen</code>. This number is linked to the financial system of the <code>Bestelomgeving leermiddelen</code>.</span></td>
+      <td><span class="schema-desc">OW1234</span></td><td><span class="schema-desc">Waarde mag niet gewijzigd worden</span></td>
+    </tr>    <tr>
+      <td><span class="field-name">purchaseOrderType</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">Optional orderType field which can be used by suppliers to optimize processing of requests and confirmations.</span></td>
+      <td><span class="schema-desc">VSO</span></td><td><span class="schema-desc">In het voorbeeld staat VSO voor voor seizoensorder.</span></td>
+    </tr>    <tr>
+      <td><span class="field-name">contractId</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">An optional unique identifier for a contract between <code>Ordersysteem leermiddelen</code> and <code>Bestelomgeving leermiddelen</code> where this request belongs to.</span></td>
+      <td><span class="schema-desc">2022-12-v1</span></td><td><span class="schema-desc">Waarde mag niet gewijzigd worden.</span></td>
+    </tr>    <tr>
+      <td><span class="field-name">deliveryLocation</span></td>
+      <td><span class="ref-link">→ OrderRequest.deliveryLocation</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">An optional address at which warehouse location the Product (physical learning materials) should be delivered</span></td>
+      <td><span class="schema-desc"></span></td><td><span class="schema-desc"></span></td>
+    </tr>    <tr>
+      <td><span class="field-name">deliveryDate</span></td>
+      <td><span class="field-type">string (date)</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">Optional desired deliveryDate for delivery of the Product (physical learning materials). Format: YYYY-MM-DD (according to RFC3339).</span></td>
+      <td><span class="schema-desc">2024-03-11</span></td><td><span class="schema-desc"></span></td>
+    </tr>    <tr>
+      <td><span class="field-name">deliveryType</span></td>
+      <td><span class="ref-link">→ DeliveryType</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc"></span></td>
+      <td><span class="schema-desc"></span></td><td><span class="schema-desc"></span></td>
+    </tr>    <tr>
+      <td><span class="field-name">schoolBuyer</span></td>
+      <td><span class="ref-link">→ OrderRequest.schoolBuyer</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">Optional object with the school buyer, for the delivery of digital orders.</span></td>
+      <td><span class="schema-desc"></span></td><td><span class="schema-desc"></span></td>
+    </tr>    <tr>
+      <td><span class="field-name">orderLines</span></td>
+      <td><span class="ref-link">→ array[OrderRequest.orderLines]</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc"></span></td>
+      <td><span class="schema-desc"></span></td><td><span class="schema-desc"></span></td>
+    </tr>
+  </tbody>
+</table>
+<h3>OrderRequest.deliveryLocation</h3>
+<div class="description"><p>An optional address at which warehouse location the Product (physical learning materials) should be delivered</p></div><div class="toelichting">Alle adresgegevens zijn samengevoegd in een blok. Dit adres kan in Nederland en ook in het buitenland zijn.</div>
+<table class="schema-table">
+  <thead><tr><th>Veld</th><th>Type</th><th>V/O</th><th>Omschrijving</th><th>Voorbeeld</th><th>Vullingsregel</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><span class="field-name">name</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">To the attention of...</span></td>
+      <td><span class="schema-desc"></span></td><td><span class="schema-desc"></span></td>
+    </tr>    <tr>
+      <td><span class="field-name">street</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc"></span></td>
+      <td><span class="schema-desc">Rijnkade</span></td><td><span class="schema-desc"></span></td>
+    </tr>    <tr>
+      <td><span class="field-name">houseNumber</span></td>
+      <td><span class="field-type">integer</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">the house number</span></td>
+      <td><span class="schema-desc">12</span></td><td><span class="schema-desc">Huisnummer is verplicht.</span></td>
+    </tr>    <tr>
+      <td><span class="field-name">houseNumberSuffix</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">additions to the house number, e.g. A or -104</span></td>
+      <td><span class="schema-desc">a</span></td><td><span class="schema-desc">Toevoeging is optioneel.</span></td>
+    </tr>    <tr>
+      <td><span class="field-name">zipCode</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc"></span></td>
+      <td><span class="schema-desc">1000 AA</span></td><td><span class="schema-desc">Waarde is bij een Nederlands adres volgens het patroon van 4 cijfers en 2 letters</span></td>
+    </tr>    <tr>
+      <td><span class="field-name">city</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc"></span></td>
+      <td><span class="schema-desc">Arnhem</span></td><td><span class="schema-desc"></span></td>
+    </tr>    <tr>
+      <td><span class="field-name">countryCode</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">According to Alpha-2 code from ISO 3166, e.g. NL</span></td>
+      <td><span class="schema-desc">NL</span></td><td><span class="schema-desc">Waarde is de Alpha-2 code (2 letters) uit de ISO 3166 standaard dat correspondeert met het land zoals aangegeven door het veld Country</span></td>
+    </tr>    <tr>
+      <td><span class="field-name">country</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc"></span></td>
+      <td><span class="schema-desc">Nederland</span></td><td><span class="schema-desc"></span></td>
+    </tr>
+  </tbody>
+</table>
+<h3>OrderRequest.schoolBuyer</h3>
+<div class="description"><p>Optional object with the school buyer, for the delivery of digital orders.</p></div><div class="toelichting">Het object schoolBuyer bevat informatie over een onderwijsorganisatie die leermiddelen bestelt. De referentie naar een onderwijsorganisatie is uniform gespecificeerd voor alle APIs en terug te vinden op de pagina Technische specificatie digitale identiteiten - referentie onderwijsorganisatie. Aangevuld met contactgegevens (displayName en email).</div>
+<div class="toelichting">Indien organisationMasterIdentifier gevuld: niet toegestaan: organisationIds; anders verplicht: organisationIds</div><table class="schema-table">
+  <thead><tr><th>Veld</th><th>Type</th><th>V/O</th><th>Omschrijving</th><th>Vullingsregel</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><span class="field-name">displayName</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">Weergavenaam van de contactpersoon van de onderwijsorganisatie.</span></td>
+      <td><span class="schema-desc"></span></td>
+    </tr>    <tr>
+      <td><span class="field-name">email</span></td>
+      <td><span class="field-type">string (email)</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">E-mailadres van de contactpersoon van de onderwijsorganisatie.</span></td>
+      <td><span class="schema-desc"></span></td>
+    </tr>    <tr>
+      <td><span class="field-name">organisationMasterIdentifier</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">The primary identifier for a School. For Schools the <code>OnderwijsaanbiederId</code> is used. (exactly one of organisationMasterIdentifier or organisationIds must be present)</span></td>
+      <td><span class="schema-desc">Minimaal één van organisationMasterIdentifier of organisationIds moet ingevuld zijn.</span></td>
+    </tr>    <tr>
+      <td><span class="field-name">organisationIds</span></td>
+      <td><span class="ref-link">→ array[OrderRequest.schoolBuyer.organisationIds]</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">A secondary identifier for the School. (exactly one of organisationMasterIdentifier or organisationIds must be present)</span></td>
+      <td><span class="schema-desc">Minimaal één van organisationMasterIdentifier of organisationIds moet ingevuld zijn.</span></td>
+    </tr>
+  </tbody>
+</table>
+<h3>OrderRequest.schoolBuyer.organisationIds</h3>
+
+<table class="schema-table">
+  <thead><tr><th>Veld</th><th>Type</th><th>V/O</th><th>Omschrijving</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><span class="field-name">organisationId</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc"></span></td>
+      
+    </tr>    <tr>
+      <td><span class="field-name">organisationIdType</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc"></span><div class="enum-list">enum: <span class="enum-val">OIE_CODE</span> <span class="enum-val">BP_ID</span> <span class="enum-val">DD_ID</span> <span class="enum-val">AS_ID</span></div></td>
+      
+    </tr>
+  </tbody>
+</table>
+<h3>OrderRequest.orderLines</h3>
+<div class="description"><p>A line of the OrderRequest with the Product to order and its quantity.</p></div><div class="toelichting">Een OrderLine bevat een referentie naar het te bestellen product en het gewenste aantal.</div>
+<table class="schema-table">
+  <thead><tr><th>Veld</th><th>Type</th><th>V/O</th><th>Omschrijving</th><th>Voorbeeld</th><th>Vullingsregel</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><span class="field-name">purchaseOrderLineId</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">Optional line item identifier.</span></td>
+      <td><span class="schema-desc">OW1234-2</span></td><td><span class="schema-desc">Waarde mag niet gewijzigd worden</span></td>
+    </tr>    <tr>
+      <td><span class="field-name">productId</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">The Product the <code>Bestelomgeving leermiddelen</code> orders. The productId can be retrieved from the Catalogue API from the <code>Ordersysteem leermiddelen</code>.</span></td>
+      <td><span class="schema-desc">871792713 0834</span></td><td><span class="schema-desc">Een Order verwijst naar exact 1 Product-Beschrijving (Leermiddel- of Setbeschrijving). Waarde mag niet gewijzigd worden</span></td>
+    </tr>    <tr>
+      <td><span class="field-name">quantity</span></td>
+      <td><span class="field-type">integer</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">The quantity of the Product the <code>Bestelomgeving leermiddelen</code> orders.</span></td>
+      <td><span class="schema-desc">100</span></td><td><span class="schema-desc">Waarde mag niet gewijzigd worden.</span></td>
+    </tr>
+  </tbody>
+</table>
+
+<h3>OrderConfirmation</h3>
+<div class="description"><p>The confirmation that is send back by the <code>Ordersysteem leermiddelen</code> as an asynchronous reply to the request of the <code>Bestelomgeving leermiddelen</code>.</p><p>The <code>Ordersysteem leermiddelen</code> will send a confirmation message back to the <code>Bestelomgeving leermiddelen</code> approving or declining the order request. In case the <code>Ordersysteem leermiddelen</code> declines, a functional status code and message is replied.<br>Confirmations are only handled once. If a confirmation with the similar requestReferenceId is received the processing is only done the first time. The confirmation may be send multiple times, but always with the same responseReferenceId. In this way the <code>Bestelomgeving leermiddelen</code> can validate that the response is processed only once.</p><p>Functional status codes and messages are described in the Documentation.</p></div><div class="toelichting">Een Ordersysteem leermiddelen reageert op een OrderRequest bericht met een OrderConfirmation bevestigingsbericht. In dit bevestigingsbericht wordt de requestReferenceId die door de Bestelomgeving leermiddelen is aangemaakt opgenomen. In aanvulling hierop wordt optioneel de informatie uit de order (puchaseOrderId) en de OrderLines (product, aantal, en purchaseOrderLineId) ook bevestigd. Het Ordersysteem leermiddelen heeft de mogelijkheid om een eigen verkoopordernummer (salesOrderId en salesOrderLineId) toe te voegen aan de orderbevestiging. Dit verkoopnummer kan gebruikt worden door de Bestelomgeving leermiddelen in het geval van supportvragen over de orderbevestiging. Door een tijdstempel op te nemen kan dit bevestigingsbericht worden gezien als een formele afspraak tussen beide leveranciers.</div>
+<table class="schema-table">
+  <thead><tr><th>Veld</th><th>Type</th><th>V/O</th><th>Omschrijving</th><th>Voorbeeld</th><th>Vullingsregel</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><span class="field-name">responseReferenceId</span></td>
+      <td><span class="field-type">string (uuid)</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">A reference to this confirmation message send by the <code>Ordersysteem leermiddelen</code> to the <code>Bestelomgeving leermiddelen</code>.</span></td>
+      <td><span class="schema-desc">eacb81ef-c9d5-4bd8-a624-4088bee04b75</span></td><td><span class="schema-desc">Waarde mag niet gewijzigd worden.</span></td>
+    </tr>    <tr>
+      <td><span class="field-name">requestReferenceId</span></td>
+      <td><span class="field-type">string (uuid)</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">The requestReferenceId that was send by the <code>Bestelomgeving leermiddelen</code> as part of the OrderRequest request</span></td>
+      <td><span class="schema-desc">eacb81ef-c9d5-4bd8-a624-4088bee04b73</span></td><td><span class="schema-desc">Waarde mag niet gewijzigd worden.</span></td>
+    </tr>    <tr>
+      <td><span class="field-name">purchaseOrderId</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">Purchase order number as defined by the <code>Bestelomgeving leermiddelen</code>. This number is linked to the financial system of the <code>Bestelomgeving leermiddelen</code>.</span></td>
+      <td><span class="schema-desc">OW1234</span></td><td><span class="schema-desc">Optioneel kan de Aanbieder het purchaseOrderId echo-en.</span></td>
+    </tr>    <tr>
+      <td><span class="field-name">salesOrderId</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">Sales order number as defined by the <code>Ordersysteem leermiddelen</code>. This number is linked to the financial system of the <code>Ordersysteem leermiddelen</code>.</span></td>
+      <td><span class="schema-desc">OA678</span></td><td><span class="schema-desc">Waarde mag niet gewijzigd worden.</span></td>
+    </tr>    <tr>
+      <td><span class="field-name">purchaseOrderLineId</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">Optional line number in case of an order with more than one product.</span></td>
+      <td><span class="schema-desc"></span></td><td><span class="schema-desc"></span></td>
+    </tr>    <tr>
+      <td><span class="field-name">processedTimestamp</span></td>
+      <td><span class="field-type">string (date-time)</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">The moment that the order was processed by the <code>Ordersysteem leermiddelen</code>. As requests and confirmation messages are send asynchronous, this is not the moment the confirmation message was send by the <code>Ordersysteem leermiddelen</code> to the <code>Bestelomgeving leermiddelen</code>.  Format: openapi in ZULU time as specified in RFC 3339, section 5.6</span></td>
+      <td><span class="schema-desc"></span></td><td><span class="schema-desc">Het tijdstip kan afwijken van het versturen van het bevestigingsbericht. Intentie is om aan te geven wanneer het bericht is verwerkt.</span></td>
+    </tr>    <tr>
+      <td><span class="field-name">orderStatus</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">The status of pending allows the <code>Ordersysteem leermiddelen</code> to communicate to the <code>Bestelomgeving leermiddelen</code> that the approval process has started, but has not yet been completed.</span><div class="enum-list">enum: <span class="enum-val">pending</span> <span class="enum-val">approved</span> <span class="enum-val">declined</span></div></td>
+      <td><span class="schema-desc"></span></td><td><span class="schema-desc">Status pending wordt gecommuniceerd zodra de leverancier extra controles uit gaat voeren (bijvoorbeeld credit check). Een bevestigingsbericht wordt op termijn opgevolgd door een nieuw bevestigingsbericht met de status approved of declined. Indien declined, dan wordt de foutcode gespecificeerd in statusMessage.</span></td>
+    </tr>    <tr>
+      <td><span class="field-name">success</span></td>
+      <td><span class="field-type">boolean</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">Boolean indicating the OrderRequest was processed successfully. When the <code>Ordersysteem leermiddelen</code> declines the request a false will be returned, along with a status code and a status message.</span></td>
+      <td><span class="schema-desc"></span></td><td><span class="schema-desc">False indien het Ordersysteem leermiddelen niet akkoord is of er een fout is opgetreden.</span></td>
+    </tr>    <tr>
+      <td><span class="field-name">status</span></td>
+      <td><span class="field-type">integer</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">Functional status code, as defined in &quot;Status- en foutcodes 1.0.0&quot;. Codes are sent as integers without leading zeros (0011 = 11).  Algemeen (00xx) - applies to every API:   * <code>0000</code> - OK: Bevraging succesvol (HTTP 200).   * <code>0001</code> - Created: Bericht heeft geleid tot registratie van een nieuwe entiteit (HTTP 201).   * <code>0002</code> - Accepted: Bericht geaccepteerd (HTTP 202).   * <code>0011</code> - Schema incorrect: Schemavalidatie niet succesvol (HTTP 400).   * <code>0012</code> - schemaVersion not supported: De ontvanger kan de gehanteerde schemaVersion niet verwerken (HTTP 400).   * <code>0021</code> - scope required: Leverancier is niet geautoriseerd voor scope (HTTP 401).   * <code>0022</code> - consent required: Informatieobject van classificatie IV zonder geactiveerde gegevensdienst (HTTP 403).   * <code>0023</code> - school unknown: De client communiceert in de context van een Onderwijsorganisatie die niet bekend is bij de server (HTTP 400).   * <code>0099</code> - Overige reden: Vullingsregel: neem in statusMessage een beschrijving van de reden op.  Order API (60xx):   * <code>6001</code> - requestReferenceId missing: Het requestReferenceId ontbreekt.   * <code>6002</code> - requestReferenceId unknown: Het requestReferenceId is onbekend.   * <code>6003</code> - requestReferenceId already used: Het requestReferenceId is al eerder gebruikt.   * <code>6004</code> - responseReferenceId missing: Het responseReferenceId ontbreekt.   * <code>6005</code> - responseReferenceId already used: Het responseReferenceId is al eerder gebruikt.   * <code>6011</code> - purchaseOrderId unknown: Gespecificeerd inkoopordernummer is onbekend.   * <code>6012</code> - purchaseOrderLineId unknown: Gespecificeerd inkooporderregelnummer onbekend.   * <code>6013</code> - salesOrderId unknown: Gespecificeerd inkoopordernummer is onbekend.   * <code>6014</code> - salesOrderLineId unknown: Gespecificeerd inkooporderregelnummer is onbekend.   * <code>6021</code> - productId missing: Specificatie van Product ontbreekt.   * <code>6022</code> - productId unknown: Gespecificeerd Product onbekend bij Ontvanger.   * <code>6023</code> - Product not yet for sale: Gespecificeerd Product is nog niet in de verkoop.   * <code>6024</code> - Product not available: Gespecificeerd Product is niet beschikbaar.   * <code>6025</code> - Product no longer for sale: Gespecificeerd Product is niet langer in de verkoop.   * <code>6026</code> - deliveryAddress unknown: Het gespecificeerde afleveradres is onbekend bij de leermiddelenaanbieder.   * <code>6027</code> - deliveryDate declined: De afleverdatum is niet akkoord bevonden door de leermiddelenaanbieder.   * <code>6041</code> - contractId unknown: Gespecificeerd contractId is onbekend bij de ontvangende Licentieregistratie.   * <code>6042</code> - Contract restrictions: Bericht niet toegestaan als gevolg van contractuele afspraken tussen de leverancier van het leermiddel en de leverancier die de verwerving faciliteert.   * <code>6043</code> - Return period expired: Retourtermijn is verlopen.</span></td>
+      <td><span class="schema-desc">0 (=OK)</span></td><td><span class="schema-desc">Zie status en foutcodes.</span></td>
+    </tr>    <tr>
+      <td><span class="field-name">statusMessage</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">See functional status messages within the Documentation.</span></td>
+      <td><span class="schema-desc"></span></td><td><span class="schema-desc">Zie status en foutcodes.</span></td>
+    </tr>    <tr>
+      <td><span class="field-name">orderConfirmationLines</span></td>
+      <td><span class="ref-link">→ array[OrderConfirmation.orderConfirmationLines]</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">Optional feedback per Product.</span></td>
+      <td><span class="schema-desc"></span></td><td><span class="schema-desc"></span></td>
+    </tr>
+  </tbody>
+</table>
+<h3>OrderConfirmation.orderConfirmationLines</h3>
+<div class="description"><p>Feedback per line of the OrderRequest.</p></div><div class="toelichting">Een OrderConfirmationLine stelt het Ordersysteem in staat om op het niveau van OrderLines terugkoppeling over de Order te geven. Zodoende kan het Bestelsysteem inzicht krijgen in om bijvoorbeeld welk product een Order is afgewezen.</div>
+<table class="schema-table">
+  <thead><tr><th>Veld</th><th>Type</th><th>V/O</th><th>Omschrijving</th><th>Voorbeeld</th><th>Vullingsregel</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><span class="field-name">salesOrderLineId</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">An identifier from the <code>Ordersysteem leermiddelen</code> to reference this order confirmation line.</span></td>
+      <td><span class="schema-desc">OA678-2</span></td><td><span class="schema-desc">Waarde mag niet gewijzigd worden</span></td>
+    </tr>    <tr>
+      <td><span class="field-name">purchaseOrderLineId</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">To echo the <code>purchaseOrderLineId</code> of the Order that is being confirmed.</span></td>
+      <td><span class="schema-desc">OW1234-2</span></td><td><span class="schema-desc">Optioneel kan de Aanbieder het purchaseOrderLineId echo-en</span></td>
+    </tr>    <tr>
+      <td><span class="field-name">productId</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">To echo the <code>productId</code> from the Order for confirmation.</span></td>
+      <td><span class="schema-desc">871792713 0834</span></td><td><span class="schema-desc"></span></td>
+    </tr>    <tr>
+      <td><span class="field-name">quantity</span></td>
+      <td><span class="field-type">integer</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">To echo the <code>quantity</code> from the Order for confirmation.</span></td>
+      <td><span class="schema-desc">100</span></td><td><span class="schema-desc"></span></td>
+    </tr>    <tr>
+      <td><span class="field-name">status</span></td>
+      <td><span class="field-type">integer</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">Functional status code, as defined in &quot;Status- en foutcodes 1.0.0&quot;.  Algemeen (00xx) - applies to every API:   * <code>0000</code> - OK: Bevraging succesvol (HTTP 200).   * <code>0001</code> - Created: Bericht heeft geleid tot registratie van een nieuwe entiteit (HTTP 201).   * <code>0002</code> - Accepted: Bericht geaccepteerd (HTTP 202).   * <code>0011</code> - Schema incorrect: Schemavalidatie niet succesvol (HTTP 400).   * <code>0012</code> - schemaVersion not supported: De ontvanger kan de gehanteerde schemaVersion niet verwerken (HTTP 400).   * <code>0021</code> - scope required: Leverancier is niet geautoriseerd voor scope (HTTP 401).   * <code>0022</code> - consent required: Informatieobject van classificatie IV zonder geactiveerde gegevensdienst (HTTP 403).   * <code>0023</code> - school unknown: De client communiceert in de context van een Onderwijsorganisatie die niet bekend is bij de server (HTTP 400).   * <code>0099</code> - Overige reden: Vullingsregel: neem in statusMessage een beschrijving van de reden op.  Order API (60xx):   * <code>6001</code> - requestReferenceId missing: Het requestReferenceId ontbreekt.   * <code>6002</code> - requestReferenceId unknown: Het requestReferenceId is onbekend.   * <code>6003</code> - requestReferenceId already used: Het requestReferenceId is al eerder gebruikt.   * <code>6004</code> - responseReferenceId missing: Het responseReferenceId ontbreekt.   * <code>6005</code> - responseReferenceId already used: Het responseReferenceId is al eerder gebruikt.   * <code>6011</code> - purchaseOrderId unknown: Gespecificeerd inkoopordernummer is onbekend.   * <code>6012</code> - purchaseOrderLineId unknown: Gespecificeerd inkooporderregelnummer onbekend.   * <code>6013</code> - salesOrderId unknown: Gespecificeerd inkoopordernummer is onbekend.   * <code>6014</code> - salesOrderLineId unknown: Gespecificeerd inkooporderregelnummer is onbekend.   * <code>6021</code> - productId missing: Specificatie van Product ontbreekt.   * <code>6022</code> - productId unknown: Gespecificeerd Product onbekend bij Ontvanger.   * <code>6023</code> - Product not yet for sale: Gespecificeerd Product is nog niet in de verkoop.   * <code>6024</code> - Product not available: Gespecificeerd Product is niet beschikbaar.   * <code>6025</code> - Product no longer for sale: Gespecificeerd Product is niet langer in de verkoop.   * <code>6026</code> - deliveryAddress unknown: Het gespecificeerde afleveradres is onbekend bij de leermiddelenaanbieder.   * <code>6027</code> - deliveryDate declined: De afleverdatum is niet akkoord bevonden door de leermiddelenaanbieder.   * <code>6041</code> - contractId unknown: Gespecificeerd contractId is onbekend bij de ontvangende Licentieregistratie.   * <code>6042</code> - Contract restrictions: Bericht niet toegestaan als gevolg van contractuele afspraken tussen de leverancier van het leermiddel en de leverancier die de verwerving faciliteert.   * <code>6043</code> - Return period expired: Retourtermijn is verlopen.</span></td>
+      <td><span class="schema-desc">0 (=OK)</span></td><td><span class="schema-desc">Zie status en foutcodes.</span></td>
+    </tr>    <tr>
+      <td><span class="field-name">statusMessage</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">See functional status codes within the Documentation.</span></td>
+      <td><span class="schema-desc"></span></td><td><span class="schema-desc">Zie status en foutcodes.</span></td>
+    </tr>
+  </tbody>
+</table>
+
+<h3>CreditOrderRequest</h3>
+<div class="description"><p>Request send by the <code>Bestelomgeving leermiddelen</code> to the <code>Ordersysteem leermiddelen</code> with a request to credit an order. The request has the flexibility to include references known within systems of the <code>Ordersysteem leermiddelen</code>.</p></div><div class="toelichting">Naast een reguliere Order is het mogelijk om als Bestelomgeving leermiddelen een Order te crediteren. In dat geval dient de Bestelomgeving leermiddelen een CreditOrderRequest in bij het Ordersysteem leermiddelen. In dit CreditOrderRequest specificeert de Bestelomgeving leermiddelen de purchaseOrderId en de purchaseOrderLineId die de Bestelomgeving leermiddelen wil crediteren en voegt de Bestelomgeving leermiddelen optioneel de door het Ordersysteem leermiddelen verstuurde salesOrderId, salesOrderLineId en/of responseReferenceId uit de OrderConfirmation toe. Op deze wijze kunnen zowel Bestelomgeving leermiddelen als Ordersysteem leermiddelen dit bericht relateren aan de oorspronkelijke OrderConfirmation die gecrediteerd gaat worden. Uiteraard is het afhankelijk van bilaterale afspraken tussen beide leveranciers of crediteren al dan niet mogelijk is en welke informatie in het verzoek opgenomen moet zijn.</div>
+<table class="schema-table">
+  <thead><tr><th>Veld</th><th>Type</th><th>V/O</th><th>Omschrijving</th><th>Voorbeeld</th><th>Vullingsregel</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><span class="field-name">requestReferenceId</span></td>
+      <td><span class="field-type">string (uuid)</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">Unique requestReferenceId for this request. This referenceId is used by the Event Mediator of the <code>Bestelomgeving leermiddelen</code> to match the CreditOrderConfirmation confirmation message(s) send by the <code>Ordersysteem leermiddelen</code>. If a party receives another request with the same requestReferenceId value, the receiving party should not process the request again. It should send the confirmation again.</span></td>
+      <td><span class="schema-desc">eacb81ef-c9d5-4bd8-a624-4088bee04b73</span></td><td><span class="schema-desc">Dit nummer wordt gebruikt door de event mediator van de Bestelomgeving leermiddelen om een logboek bij te houden van verzonden en ontvangen events met betrekking tot een unieke aanvraag.</span></td>
+    </tr>    <tr>
+      <td><span class="field-name">purchaseOrderId</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">Purchase order number of the order to be credited as defined by the <code>Bestelomgeving leermiddelen</code>. This number is linked to the financial system of the <code>Bestelomgeving leermiddelen</code>.</span></td>
+      <td><span class="schema-desc">OW1234</span></td><td><span class="schema-desc">Waarde mag niet gewijzigd worden</span></td>
+    </tr>    <tr>
+      <td><span class="field-name">salesOrderId</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">Sales order number of the order to be credited as defined by the <code>Ordersysteem leermiddelen</code>. This number is linked to the financial system of the <code>Ordersysteem leermiddelen</code>.</span></td>
+      <td><span class="schema-desc">OA678</span></td><td><span class="schema-desc">Waarde mag niet gewijzigd worden</span></td>
+    </tr>    <tr>
+      <td><span class="field-name">responseReferenceId</span></td>
+      <td><span class="field-type">string (uuid)</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">Optional reference to the responseReferenceID of the confirmation message in which the <code>Ordersysteem leermiddelen</code> approved the order to the <code>Bestelomgeving leermiddelen</code>.</span></td>
+      <td><span class="schema-desc">eacb81ef-c9d5-4bd8-a624-4088bee04b75</span></td><td><span class="schema-desc">Waarde mag niet gewijzigd worden</span></td>
+    </tr>    <tr>
+      <td><span class="field-name">orderLines</span></td>
+      <td><span class="ref-link">→ array[CreditOrderRequest.orderLines]</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">Optional specification of the products in the OrderRequest to be be cancelled.</span></td>
+      <td><span class="schema-desc"></span></td><td><span class="schema-desc"></span></td>
+    </tr>
+  </tbody>
+</table>
+<h3>CreditOrderRequest.orderLines</h3>
+<div class="description"><p>A line of the CreditOrderRequest with the Product to be cancelled.</p></div>
+<table class="schema-table">
+  <thead><tr><th>Veld</th><th>Type</th><th>V/O</th><th>Omschrijving</th><th>Voorbeeld</th><th>Vullingsregel</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><span class="field-name">purchaseOrderLineId</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">Optional reference to the <code>purchaseOrderLineId</code> of the OrderRequest for the product to be cancelled.</span></td>
+      <td><span class="schema-desc">OW1234-2</span></td><td><span class="schema-desc">Waarde mag niet gewijzigd worden</span></td>
+    </tr>    <tr>
+      <td><span class="field-name">salesOrderLineId</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">Optional reference to the <code>salesOrderLineId</code> of the OrderConfirmation for the product to be cancelled.</span></td>
+      <td><span class="schema-desc">OA678-2</span></td><td><span class="schema-desc">Waarde mag niet gewijzigd worden</span></td>
+    </tr>    <tr>
+      <td><span class="field-name">productId</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">The Product that is to be cancelled.</span></td>
+      <td><span class="schema-desc">871792713 0834</span></td><td><span class="schema-desc"></span></td>
+    </tr>    <tr>
+      <td><span class="field-name">quantity</span></td>
+      <td><span class="field-type">integer</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">The quantity of Product that is to be cancelled.</span></td>
+      <td><span class="schema-desc">100</span></td><td><span class="schema-desc"></span></td>
+    </tr>
+  </tbody>
+</table>
+
+<h3>CreditOrderConfirmation</h3>
+<div class="description"><p>The confirmation that is send back by the <code>Ordersysteem leermiddelen</code> as an asynchronous reply to the request of the <code>Bestelomgeving leermiddelen</code>.</p><p>The <code>Ordersysteem leermiddelen</code> will send a confirmation message back to the <code>Bestelomgeving leermiddelen</code> including a success parameter indicating if the <code>Ordersysteem leermiddelen</code> approves or declines the credit request. In case of a decline, the <code>Ordersysteem leermiddelen</code> replies with a functional status code and message.</p><p>Confirmations are only handled once. If a confirmation with the similar requestReferenceId is received the processing is only done the first time. The confirmation may be send multiple times, but always with the same responseReferenceId. In this way the <code>Bestelomgeving leermiddelen</code> can validate that the response is processed only once.</p><p>Functional status codes and messages are described in the Documentation.</p></div><div class="toelichting">Het Ordersysteem leermiddelen reageert op een CreditorderRequest met een bevestigingsbericht CreditOrderConfirmation. Indien het CreditorderRequest wordt geaccepteerd door het Ordersysteem leermiddelen dan wordt via dit bevestigingsbericht de status OK retour gestuurd. De creditOrderStatus wordt in dat geval door het Ordersysteem leermiddelen op approved gezet. Indien de leverancier het creditOrderRequest nog verder moet beoordelen kan het Ordersysteem leermiddelen een bevestigingsbericht sturen met de status pending.</div>
+<table class="schema-table">
+  <thead><tr><th>Veld</th><th>Type</th><th>V/O</th><th>Omschrijving</th><th>Voorbeeld</th><th>Vullingsregel</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><span class="field-name">requestReferenceId</span></td>
+      <td><span class="field-type">string (uuid)</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">The requestReferenceId that was send by the <code>Bestelomgeving leermiddelen</code> as part of the CreditOrderRequest request</span></td>
+      <td><span class="schema-desc">eacb81ef-c9d5-4bd8-a624-4088bee04b73</span></td><td><span class="schema-desc">Waarde mag niet gewijzigd worden.</span></td>
+    </tr>    <tr>
+      <td><span class="field-name">responseReferenceId</span></td>
+      <td><span class="field-type">string (uuid)</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">A reference to this confirmation message send by the <code>Ordersysteem leermiddelen</code> to the <code>Bestelomgeving leermiddelen</code>.</span></td>
+      <td><span class="schema-desc">eacb81ef-c9d5-4bd8-a624-4088bee04b76</span></td><td><span class="schema-desc">Waarde mag niet gewijzigd worden.</span></td>
+    </tr>    <tr>
+      <td><span class="field-name">purchaseOrderId</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">Purchase order number of the order to be credited as defined by the <code>Bestelomgeving leermiddelen</code>. This number is linked to the financial system of the <code>Bestelomgeving leermiddelen</code>.</span></td>
+      <td><span class="schema-desc">OW1234</span></td><td><span class="schema-desc">Waarde mag niet gewijzigd worden</span></td>
+    </tr>    <tr>
+      <td><span class="field-name">salesOrderId</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">Sales order number of the order to be credited as defined by the <code>Ordersysteem leermiddelen</code>. This number is linked to the financial system of the <code>Ordersysteem leermiddelen</code>.</span></td>
+      <td><span class="schema-desc">OA678</span></td><td><span class="schema-desc">Waarde mag niet gewijzigd worden</span></td>
+    </tr>    <tr>
+      <td><span class="field-name">salesOrderLineId</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">Optional line number in case of an order with more than one product.</span></td>
+      <td><span class="schema-desc"></span></td><td><span class="schema-desc"></span></td>
+    </tr>    <tr>
+      <td><span class="field-name">processedTimestamp</span></td>
+      <td><span class="field-type">string (date-time)</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">The moment that the credit order was processed by the <code>Ordersysteem leermiddelen</code>. As requests and confirmation messages are send asynchronous, this is not the moment the confirmation message was send by the <code>Ordersysteem leermiddelen</code> to the <code>Bestelomgeving leermiddelen</code>.  Format: openapi in ZULU time as specified in RFC 3339, section 5.6</span></td>
+      <td><span class="schema-desc"></span></td><td><span class="schema-desc">Het tijdstip kan afwijken van het versturen van het bevestigingsbericht. Intentie is om aan te geven wanneer het bericht is verwerkt.</span></td>
+    </tr>    <tr>
+      <td><span class="field-name">creditOrderStatus</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">The status of pending allows the <code>Ordersysteem leermiddelen</code> to communicate to the <code>Bestelomgeving leermiddelen</code> that the approval process has started, but has not yet been completed.</span><div class="enum-list">enum: <span class="enum-val">pending</span> <span class="enum-val">approved</span> <span class="enum-val">declined</span></div></td>
+      <td><span class="schema-desc"></span></td><td><span class="schema-desc">Status pending wordt gecommuniceerd zodra de leverancier extra controles uit gaat voeren (bijvoorbeeld credit check). Een bevestigingsbericht wordt op termijn opgevolgd door een nieuw bevestigingsbericht met de status approved of declined. Indien declined, dan wordt de foutcode gespecificeerd in statusMessage.</span></td>
+    </tr>    <tr>
+      <td><span class="field-name">success</span></td>
+      <td><span class="field-type">boolean</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">Boolean indicating the CreditOrderRequest was processed successfully. When the <code>Ordersysteem leermiddelen</code> declines the request a false will be returned, along with a status code and a status message.</span></td>
+      <td><span class="schema-desc"></span></td><td><span class="schema-desc">False indien het Ordersysteem leermiddelen niet akkoord is of er een fout is opgetreden.</span></td>
+    </tr>    <tr>
+      <td><span class="field-name">status</span></td>
+      <td><span class="field-type">integer</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">Functional status code, as defined in &quot;Status- en foutcodes 1.0.0&quot;. Codes are sent as integers without leading zeros (0011 = 11).  Algemeen (00xx) - applies to every API:   * <code>0000</code> - OK: Bevraging succesvol (HTTP 200).   * <code>0001</code> - Created: Bericht heeft geleid tot registratie van een nieuwe entiteit (HTTP 201).   * <code>0002</code> - Accepted: Bericht geaccepteerd (HTTP 202).   * <code>0011</code> - Schema incorrect: Schemavalidatie niet succesvol (HTTP 400).   * <code>0012</code> - schemaVersion not supported: De ontvanger kan de gehanteerde schemaVersion niet verwerken (HTTP 400).   * <code>0021</code> - scope required: Leverancier is niet geautoriseerd voor scope (HTTP 401).   * <code>0022</code> - consent required: Informatieobject van classificatie IV zonder geactiveerde gegevensdienst (HTTP 403).   * <code>0023</code> - school unknown: De client communiceert in de context van een Onderwijsorganisatie die niet bekend is bij de server (HTTP 400).   * <code>0099</code> - Overige reden: Vullingsregel: neem in statusMessage een beschrijving van de reden op.  Order API (60xx):   * <code>6001</code> - requestReferenceId missing: Het requestReferenceId ontbreekt.   * <code>6002</code> - requestReferenceId unknown: Het requestReferenceId is onbekend.   * <code>6003</code> - requestReferenceId already used: Het requestReferenceId is al eerder gebruikt.   * <code>6004</code> - responseReferenceId missing: Het responseReferenceId ontbreekt.   * <code>6005</code> - responseReferenceId already used: Het responseReferenceId is al eerder gebruikt.   * <code>6011</code> - purchaseOrderId unknown: Gespecificeerd inkoopordernummer is onbekend.   * <code>6012</code> - purchaseOrderLineId unknown: Gespecificeerd inkooporderregelnummer onbekend.   * <code>6013</code> - salesOrderId unknown: Gespecificeerd inkoopordernummer is onbekend.   * <code>6014</code> - salesOrderLineId unknown: Gespecificeerd inkooporderregelnummer is onbekend.   * <code>6021</code> - productId missing: Specificatie van Product ontbreekt.   * <code>6022</code> - productId unknown: Gespecificeerd Product onbekend bij Ontvanger.   * <code>6023</code> - Product not yet for sale: Gespecificeerd Product is nog niet in de verkoop.   * <code>6024</code> - Product not available: Gespecificeerd Product is niet beschikbaar.   * <code>6025</code> - Product no longer for sale: Gespecificeerd Product is niet langer in de verkoop.   * <code>6026</code> - deliveryAddress unknown: Het gespecificeerde afleveradres is onbekend bij de leermiddelenaanbieder.   * <code>6027</code> - deliveryDate declined: De afleverdatum is niet akkoord bevonden door de leermiddelenaanbieder.   * <code>6041</code> - contractId unknown: Gespecificeerd contractId is onbekend bij de ontvangende Licentieregistratie.   * <code>6042</code> - Contract restrictions: Bericht niet toegestaan als gevolg van contractuele afspraken tussen de leverancier van het leermiddel en de leverancier die de verwerving faciliteert.   * <code>6043</code> - Return period expired: Retourtermijn is verlopen.</span></td>
+      <td><span class="schema-desc">0 (=OK)</span></td><td><span class="schema-desc">Zie status en foutcodes.</span></td>
+    </tr>    <tr>
+      <td><span class="field-name">statusMessage</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">See functional status messages within the Documentation.</span></td>
+      <td><span class="schema-desc"></span></td><td><span class="schema-desc">Zie status en foutcodes.</span></td>
+    </tr>    <tr>
+      <td><span class="field-name">creditOrderConfirmationLines</span></td>
+      <td><span class="ref-link">→ array[CreditOrderConfirmation.creditOrderConfirmationLines]</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">Optional feedback per Product.</span></td>
+      <td><span class="schema-desc"></span></td><td><span class="schema-desc"></span></td>
+    </tr>
+  </tbody>
+</table>
+<h3>CreditOrderConfirmation.creditOrderConfirmationLines</h3>
+<div class="description"><p>Feedback per line of the CreditOrderRequest.</p></div>
+<table class="schema-table">
+  <thead><tr><th>Veld</th><th>Type</th><th>V/O</th><th>Omschrijving</th><th>Voorbeeld</th><th>Vullingsregel</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><span class="field-name">purchaseOrderLineId</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">Reference to the <code>purchaseOrderLineId</code> that has been cancelled.</span></td>
+      <td><span class="schema-desc">OW1234-2</span></td><td><span class="schema-desc">Waarde mag niet gewijzigd worden</span></td>
+    </tr>    <tr>
+      <td><span class="field-name">salesOrderLineId</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">Reference to the <code>salesOrderLineId</code> that has been cancelled.</span></td>
+      <td><span class="schema-desc">OA678-2</span></td><td><span class="schema-desc">Waarde mag niet gewijzigd worden</span></td>
+    </tr>    <tr>
+      <td><span class="field-name">productId</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">Echo of the <code>productId</code> from the CreditOrderRequest for confirmation.</span></td>
+      <td><span class="schema-desc">871792713 0834</span></td><td><span class="schema-desc"></span></td>
+    </tr>    <tr>
+      <td><span class="field-name">quantity</span></td>
+      <td><span class="field-type">integer</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">Echo of the <code>quantity</code> from the CreditOrderRequest for confirmation.</span></td>
+      <td><span class="schema-desc">100</span></td><td><span class="schema-desc"></span></td>
+    </tr>    <tr>
+      <td><span class="field-name">status</span></td>
+      <td><span class="field-type">integer</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">Functional status code, as defined in &quot;Status- en foutcodes 1.0.0&quot;.  Algemeen (00xx) - applies to every API:   * <code>0000</code> - OK: Bevraging succesvol (HTTP 200).   * <code>0001</code> - Created: Bericht heeft geleid tot registratie van een nieuwe entiteit (HTTP 201).   * <code>0002</code> - Accepted: Bericht geaccepteerd (HTTP 202).   * <code>0011</code> - Schema incorrect: Schemavalidatie niet succesvol (HTTP 400).   * <code>0012</code> - schemaVersion not supported: De ontvanger kan de gehanteerde schemaVersion niet verwerken (HTTP 400).   * <code>0021</code> - scope required: Leverancier is niet geautoriseerd voor scope (HTTP 401).   * <code>0022</code> - consent required: Informatieobject van classificatie IV zonder geactiveerde gegevensdienst (HTTP 403).   * <code>0023</code> - school unknown: De client communiceert in de context van een Onderwijsorganisatie die niet bekend is bij de server (HTTP 400).   * <code>0099</code> - Overige reden: Vullingsregel: neem in statusMessage een beschrijving van de reden op.  Order API (60xx):   * <code>6001</code> - requestReferenceId missing: Het requestReferenceId ontbreekt.   * <code>6002</code> - requestReferenceId unknown: Het requestReferenceId is onbekend.   * <code>6003</code> - requestReferenceId already used: Het requestReferenceId is al eerder gebruikt.   * <code>6004</code> - responseReferenceId missing: Het responseReferenceId ontbreekt.   * <code>6005</code> - responseReferenceId already used: Het responseReferenceId is al eerder gebruikt.   * <code>6011</code> - purchaseOrderId unknown: Gespecificeerd inkoopordernummer is onbekend.   * <code>6012</code> - purchaseOrderLineId unknown: Gespecificeerd inkooporderregelnummer onbekend.   * <code>6013</code> - salesOrderId unknown: Gespecificeerd inkoopordernummer is onbekend.   * <code>6014</code> - salesOrderLineId unknown: Gespecificeerd inkooporderregelnummer is onbekend.   * <code>6021</code> - productId missing: Specificatie van Product ontbreekt.   * <code>6022</code> - productId unknown: Gespecificeerd Product onbekend bij Ontvanger.   * <code>6023</code> - Product not yet for sale: Gespecificeerd Product is nog niet in de verkoop.   * <code>6024</code> - Product not available: Gespecificeerd Product is niet beschikbaar.   * <code>6025</code> - Product no longer for sale: Gespecificeerd Product is niet langer in de verkoop.   * <code>6026</code> - deliveryAddress unknown: Het gespecificeerde afleveradres is onbekend bij de leermiddelenaanbieder.   * <code>6027</code> - deliveryDate declined: De afleverdatum is niet akkoord bevonden door de leermiddelenaanbieder.   * <code>6041</code> - contractId unknown: Gespecificeerd contractId is onbekend bij de ontvangende Licentieregistratie.   * <code>6042</code> - Contract restrictions: Bericht niet toegestaan als gevolg van contractuele afspraken tussen de leverancier van het leermiddel en de leverancier die de verwerving faciliteert.   * <code>6043</code> - Return period expired: Retourtermijn is verlopen.</span></td>
+      <td><span class="schema-desc">0 (=OK)</span></td><td><span class="schema-desc">Zie status en foutcodes.</span></td>
+    </tr>    <tr>
+      <td><span class="field-name">statusMessage</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">See functional status codes within the Documentation.</span></td>
+      <td><span class="schema-desc"></span></td><td><span class="schema-desc">Zie status en foutcodes.</span></td>
+    </tr>
+  </tbody>
+</table>
+
+<h3>DeliveryType</h3>
+<div class="description"><p>The delivery type specifies the variant of the authorization rule an <code>Aanspraakmanager</code> should apply to manage activation and licensing of the Product.</p></div>
+<h3>StatusResponse</h3>
+<div class="description"><p>Functional status code and status message.</p></div>
+<table class="schema-table">
+  <thead><tr><th>Veld</th><th>Type</th><th>V/O</th><th>Omschrijving</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><span class="field-name">status</span></td>
+      <td><span class="field-type">integer</span></td>
+      <td><span class="badge-v">V</span></td>
+      <td><span class="schema-desc">Functional status code, as defined in &quot;Status- en foutcodes 1.0.0&quot;. Codes are sent as integers without leading zeros (0011 = 11).  Algemeen (00xx) - applies to every API:   * <code>0000</code> - OK: Bevraging succesvol (HTTP 200).   * <code>0001</code> - Created: Bericht heeft geleid tot registratie van een nieuwe entiteit (HTTP 201).   * <code>0002</code> - Accepted: Bericht geaccepteerd (HTTP 202).   * <code>0011</code> - Schema incorrect: Schemavalidatie niet succesvol (HTTP 400).   * <code>0012</code> - schemaVersion not supported: De ontvanger kan de gehanteerde schemaVersion niet verwerken (HTTP 400).   * <code>0021</code> - scope required: Leverancier is niet geautoriseerd voor scope (HTTP 401).   * <code>0022</code> - consent required: Informatieobject van classificatie IV zonder geactiveerde gegevensdienst (HTTP 403).   * <code>0023</code> - school unknown: De client communiceert in de context van een Onderwijsorganisatie die niet bekend is bij de server (HTTP 400).   * <code>0099</code> - Overige reden: Vullingsregel: neem in statusMessage een beschrijving van de reden op.  Order API (60xx):   * <code>6001</code> - requestReferenceId missing: Het requestReferenceId ontbreekt.   * <code>6002</code> - requestReferenceId unknown: Het requestReferenceId is onbekend.   * <code>6003</code> - requestReferenceId already used: Het requestReferenceId is al eerder gebruikt.   * <code>6004</code> - responseReferenceId missing: Het responseReferenceId ontbreekt.   * <code>6005</code> - responseReferenceId already used: Het responseReferenceId is al eerder gebruikt.   * <code>6011</code> - purchaseOrderId unknown: Gespecificeerd inkoopordernummer is onbekend.   * <code>6012</code> - purchaseOrderLineId unknown: Gespecificeerd inkooporderregelnummer onbekend.   * <code>6013</code> - salesOrderId unknown: Gespecificeerd inkoopordernummer is onbekend.   * <code>6014</code> - salesOrderLineId unknown: Gespecificeerd inkooporderregelnummer is onbekend.   * <code>6021</code> - productId missing: Specificatie van Product ontbreekt.   * <code>6022</code> - productId unknown: Gespecificeerd Product onbekend bij Ontvanger.   * <code>6023</code> - Product not yet for sale: Gespecificeerd Product is nog niet in de verkoop.   * <code>6024</code> - Product not available: Gespecificeerd Product is niet beschikbaar.   * <code>6025</code> - Product no longer for sale: Gespecificeerd Product is niet langer in de verkoop.   * <code>6026</code> - deliveryAddress unknown: Het gespecificeerde afleveradres is onbekend bij de leermiddelenaanbieder.   * <code>6027</code> - deliveryDate declined: De afleverdatum is niet akkoord bevonden door de leermiddelenaanbieder.   * <code>6041</code> - contractId unknown: Gespecificeerd contractId is onbekend bij de ontvangende Licentieregistratie.   * <code>6042</code> - Contract restrictions: Bericht niet toegestaan als gevolg van contractuele afspraken tussen de leverancier van het leermiddel en de leverancier die de verwerving faciliteert.   * <code>6043</code> - Return period expired: Retourtermijn is verlopen.</span></td>
+      
+    </tr>    <tr>
+      <td><span class="field-name">statusMessage</span></td>
+      <td><span class="field-type">string</span></td>
+      <td><span class="badge-o">O</span></td>
+      <td><span class="schema-desc">See functional status messages within the Documentation.</span></td>
+      
+    </tr>
+  </tbody>
+</table>
+
+
+<div class="footer">
+  Edu-V &nbsp;|&nbsp; <a href="https://www.edu-v.org/afsprakenstelsel" style="color:#aaa;">www.edu-v.org/afsprakenstelsel</a> &nbsp;|&nbsp; info@edu-v.org
+</div>
+
+</body>
+</html>
